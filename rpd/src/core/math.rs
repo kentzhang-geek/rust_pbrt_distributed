@@ -16,11 +16,11 @@ pub trait UsualDatas<T> {
     fn Zero() -> T;
 }
 
-impl UsualDatas<Vector3> for Vector3 {
-    fn One() -> Vector3 {
+impl UsualDatas<Vector3d> for Vector3d {
+    fn One() -> Vector3d {
         return vector![1.0f64, 1.0f64, 1.0f64];
     }
-    fn Zero() -> Vector3 {
+    fn Zero() -> Vector3d {
         return vector![0f64, 0f64, 0f64];
     }
 }
