@@ -3,15 +3,6 @@ use super::math::*;
 
 
 /// Coordinate framework related to World Space, may consider level heriachy structure in future
-///
-/// TODO: Not finished yet
-///
-/// usage:
-/// ```
-/// use rpd::core::coordinate_system::CoordinateSystem;
-/// use rpd::core::math::Vector3d;
-/// let cs = CoordinateSystem::default();
-/// ```
 #[derive(Debug, Clone)]
 pub struct CoordinateSystem {
     pub X: Vector3d,
@@ -19,7 +10,9 @@ pub struct CoordinateSystem {
     pub Z: Vector3d,
 }
 
+/// interfaces of CoordinateSystem
 impl CoordinateSystem {
+    /// Construct a new CoordinateSystem
     pub fn New(x:Vector3d, y:Vector3d, z:Vector3d)->CoordinateSystem {
         CoordinateSystem{
             X:x, Y:y, Z:z

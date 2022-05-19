@@ -17,10 +17,25 @@ mod tests_core {
 
     #[test]
     fn test02() {
+        let a = Vector3d::Zero();
         let o = Vector3::new(1f64,2f64,3f64);
         let cs = rpd::core::coordinate_system::CoordinateSystem::New(
             o,o.clone_owned(),o.clone_owned()
         );
         cs.show_self();
+    }
+}
+
+#[cfg(test)]
+mod test_other {
+    use rpd::core::geometry::Ray;
+    use rpd::core::math::*;
+    use rpd::core::tools::PrintSelf;
+
+    #[test]
+    fn test_ray_01() {
+        let r = Ray::new(Point3d::Zero(), Vector3d::new(1.0f64, 0f64, 0f64));
+        r.show_self();
+        r.at(12f64).show_self();
     }
 }
