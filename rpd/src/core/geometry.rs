@@ -3,9 +3,9 @@ use super::math::*;
 /// An abstraction of ray
 #[derive(Debug, Clone)]
 pub struct Ray {
-    o : Point3d,
-    d : Vector3d,
-    tmax : f64,
+    pub o : Point3d,
+    pub d : Vector3d,
+    pub tmax : f64,
 }
 
 /// interfaces of ray

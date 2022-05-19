@@ -36,6 +36,7 @@ mod test_other {
     fn test_ray_01() {
         let r = Ray::new(Point3d::Zero(), Vector3d::new(1.0f64, 0f64, 0f64));
         r.show_self();
-        r.at(12f64).show_self();
+        let res = r.at(12f64);
+        assert!(res.x == 12.0f64);
     }
 }
