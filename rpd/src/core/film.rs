@@ -1,5 +1,6 @@
+use gli_rs::{Format, GliTexture};
 use super::math::*;
-use image::{RgbaImage, Rgba32FImage};
+use image::{RgbaImage, Rgba32FImage, Rgb32FImage};
 use ndarray::ShapeBuilder;
 use crate::core::tools::PrintSelf;
 
@@ -70,7 +71,7 @@ impl Film {
         for ridx in 0..self.fullResolution.0 {
             for cidx in 0..self.fullResolution.1 {
                 let mut pix_film = self.pixels.get((ridx as usize, cidx as usize)).unwrap().clone();
-                pix_film.rgba = pix_film.rgba * 255.0f32;
+                pix_film.rgba = pix_film.rgba * 255.0f32;   // from 0 ~ 255 in png
                 let pix_sto: image::Rgba<u8> = image::Rgba {
                     0: [
                         pix_film.rgba.x as u8, pix_film.rgba.y as u8, pix_film.rgba.z as u8, pix_film.rgba.w as u8
@@ -80,6 +81,26 @@ impl Film {
             }
         }
         return img.save(filename);
+    }
+    pub fn save_dds(&self, mut filename:String)->gli_rs::Result<()>{
+        if !filename.ends_with(".dds") {
+            filename = filename + ".dds";
+        }
+        let mut img = gli_rs::Texture2D::new(
+            Format::RGBA32_SFLOAT_PACK32,
+            gli_rs::Extent2d{ width: self.fullResolution.0, height: self.fullResolution.1 },
+            1
+        );
+
+        for ridx in 0..self.fullResolution.0 {
+            for cidx in 0..self.fullResolution.1 {
+                let mut pix_film = self.pixels.get((ridx as usize, cidx as usize)).unwrap();
+                let pix = [pix_film.rgba.x, pix_film.rgba.y, pix_film.rgba.z, pix_film.rgba.w];
+                img.store(gli_rs::Extent2d{ width: ridx, height: cidx }, 0, pix);
+            }
+        }
+
+        return gli_rs::save_dds(&img, filename);
     }
 }
 

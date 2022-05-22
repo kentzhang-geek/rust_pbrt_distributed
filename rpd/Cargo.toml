@@ -10,3 +10,5 @@ nalgebra = "0.31.0"
 nalgebra-glm = "*"
 ndarray = "*"
 image = "*"
+gli-rs = { path = "G:\\source\\gli-rs" }
+#gli-rs = { git = "https://github.com/kentzhang-geek/gli-rs" }

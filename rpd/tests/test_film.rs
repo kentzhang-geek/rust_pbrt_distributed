@@ -18,7 +18,6 @@ mod tests_film {
             film.set(Point2i::new(i, 5i32), &pix_black);
         }
         film.show_self();
-        film.save_png(String::from("target/test")).show_self();
-        film.save_exr(String::from("target/test")).show_self();
+        film.save_dds(String::from("target/test")).show_self();
     }
 }
