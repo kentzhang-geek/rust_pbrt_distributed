@@ -8,6 +8,9 @@ pub type Vector2f = nalgebra::Vector2<f32>;
 pub type Vector3d = nalgebra::Vector3<f64>;
 pub type Vector3f = nalgebra::Vector3<f32>;
 
+pub type Vector4d = nalgebra::Vector4<f64>;
+pub type Vector4f = nalgebra::Vector4<f32>;
+
 pub type Point2d = nalgebra::Point2<f64>;
 pub type Point2f = nalgebra::Point2<f32>;
 
@@ -16,6 +19,12 @@ pub type Point3f = nalgebra::Point3<f32>;
 
 pub type Vector3 = Vector3d;
 pub type Point3 = Point3d;
+
+pub type Point2i = nalgebra::Point2<i32>;
+pub type Vector2i = nalgebra::Vector2<i32>;
+
+pub type Matrix44d = nalgebra::Matrix4<f64>;
+pub type Matrix44f = nalgebra::Matrix4<f32>;
 
 pub trait UsualDatas<T> {
     fn One() -> T;

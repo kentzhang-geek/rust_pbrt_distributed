@@ -4,7 +4,7 @@ use super::geometry::*;
 
 /// The interfaces of Cameras
 pub trait Camera {
-    fn generate_ray(sample:Arc<Box<CameraSample>>)->Option<CameraRayResult>;
+    fn generate_ray(&self, sample:Arc<Box<CameraSample>>)->Option<CameraRayResult>;
 }
 
 pub struct CameraSample {
