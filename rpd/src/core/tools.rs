@@ -1,5 +1,6 @@
 
 pub trait PrintSelf<T> {
+    /// a tool method that print any object with Debug trait to console
     fn show_self(&self);
 }
 
@@ -10,3 +11,4 @@ where T : core::fmt::Debug
         println!("{:?}", self);
     }
 }
+

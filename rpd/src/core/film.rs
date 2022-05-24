@@ -4,6 +4,7 @@ use image::{RgbaImage, Rgba32FImage, Rgb32FImage};
 use ndarray::ShapeBuilder;
 use crate::core::tools::PrintSelf;
 
+/// film that stores rendering result
 #[derive(Debug, Clone, Default)]
 pub struct Film {
     pub fullResolution: (u32, u32),
@@ -17,6 +18,7 @@ pub struct Pixel {
 }
 
 impl Film {
+    /// create a new film, pixel type will always be 4 double precision floats
     pub fn new(width: u32, height: u32) -> Film {
         let ret = Film {
             fullResolution: (width, height),
@@ -24,6 +26,7 @@ impl Film {
         };
         return ret;
     }
+    /// get one value from this film, return None if failed
     pub fn get(&self, pixel_coord: Point2i) -> Option<&Pixel> {
         let (x, y) = (pixel_coord.x as u32, pixel_coord.y as u32);
         if x < 0 || x >= self.fullResolution.0 {
@@ -34,6 +37,7 @@ impl Film {
         }
         return self.pixels.get((x as usize, y as usize));
     }
+    /// store one value to this film, return false if failed
     pub fn set(& mut self, pixel_coord: Point2i, pix: &Pixel) -> bool {
         let (x, y) = (pixel_coord.x as u32, pixel_coord.y as u32);
         if x < 0 || x >= self.fullResolution.0 {
@@ -45,6 +49,7 @@ impl Film {
         *self.pixels.get_mut((x as usize, y as usize)).unwrap() = pix.clone();
         return true;
     }
+    /// save this film to an exr image file
     pub fn save_exr(&self, mut filename: String)->image::ImageResult<()> {
         if !filename.ends_with("exr") {
             filename = filename + ".exr";
@@ -63,6 +68,7 @@ impl Film {
         }
         return img.save(filename);
     }
+    /// save this film to a png image file
     pub fn save_png(&self, mut filename: String)->image::ImageResult<()> {
         if !filename.ends_with(".png") {
             filename = filename + ".png";
@@ -82,6 +88,10 @@ impl Film {
         }
         return img.save(filename);
     }
+    /// save this film to a dds image file
+    ///
+    /// ------------
+    /// ## USE THIS to Debug Image of Linear Color Space
     pub fn save_dds(&self, mut filename:String)->gli_rs::Result<()>{
         if !filename.ends_with(".dds") {
             filename = filename + ".dds";
