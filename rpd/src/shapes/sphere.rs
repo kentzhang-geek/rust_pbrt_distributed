@@ -1,4 +1,5 @@
 use std::ops::Mul;
+use std::sync::Arc;
 use nalgebra_glm::radians;
 use crate::core::geometry::{Bounds3, Ray};
 use crate::core::interaction::SurfaceInteraction;
@@ -25,13 +26,10 @@ impl Shape for Sphere {
         return Bounds3 { pMin: Point3d::new(center.x - self.radius, center.y - self.radius, center.z - self.radius), pMax: Point3d::new(center.x + self.radius, center.y + self.radius, center.z + self.radius) };
     }
 
-    fn intersect(&self, ray: &Ray, testAlphaTexture: bool, t: &mut f64, isect: &mut SurfaceInteraction) -> Res<bool> {
-        let newo = self.shapeData.worldToObject.m.mul(Vector4d::new(ray.o.x, ray.o.y, ray.o.z, 1.0f64));
-        let newd = self.shapeData.worldToObject.m.mul(Vector4d::new(ray.d.x, ray.d.y, ray.d.z, 0.0f64));
-        println!("OK ?");
-        ray.show_self();
+    fn intersect(&self, r: &Ray, testAlphaTexture: bool, t: &mut f64, isect: &mut SurfaceInteraction) -> Res<bool> {
+        let newo = self.shapeData.worldToObject.m.mul(Vector4d::new(r.o.x, r.o.y, r.o.z, 1.0f64));
+        let newd = self.shapeData.worldToObject.m.mul(Vector4d::new(r.d.x, r.d.y, r.d.z, 0.0f64));
         let ray = Ray::new(Point3d::new(newo.x, newo.y, newo.z), Vector3d::new(newd.x, newd.y, newd.z));
-        ray.show_self();
         let a = ray.d.x * ray.d.x + ray.d.y * ray.d.y + ray.d.z * ray.d.z;
         let b = 2f64 * (ray.d.x * ray.o.x + ray.d.y * ray.o.y + ray.d.z * ray.o.z);
         let olen2 = ray.o.x * ray.o.x + ray.o.y * ray.o.y + ray.o.z * ray.o.z;
@@ -40,6 +38,7 @@ impl Shape for Sphere {
         if let Ok((t0, t1)) = Quadratic(&a, &b, &c) {
             if t0 > 0f64 {
                 *t = t0;
+                // TODO : intersection fulfillment
             } else {
                 *t = t1;
             }
