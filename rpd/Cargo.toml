@@ -13,9 +13,12 @@ image = "*"
 gli-rs = { path = "G:\\source\\gli-rs" }
 #gli-rs = { git = "https://github.com/kentzhang-geek/gli-rs" }
 
+# below should use for debug , and to remove when visualize has other method
 three = "*"
 genmesh="*"
 mint="*"
 
 [dev-dependencies]
 three = "*"
+genmesh="*"
+mint="*"

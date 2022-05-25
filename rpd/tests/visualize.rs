@@ -12,7 +12,7 @@ pub fn RenderThis(win: &mut three::Window) {
     let yextent = 1.0;
     let zrange = -1.0..1.0;
     // let camera = win.factory.orthographic_camera(center, yextent, zrange);
-    let camera = win.factory.perspective_camera(60.0, 0.1..);
+    let camera = win.factory.perspective_camera(60.0, 0.1..10000.0);
 
     let mut controls = three::controls::FirstPerson::builder(&camera)
         .position([0.0, 1.0, 0.0])

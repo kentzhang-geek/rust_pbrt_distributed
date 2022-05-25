@@ -113,8 +113,8 @@ pub fn Quadratic(&a: &f64, &b: &f64, &c: &f64) -> Res<(f64, f64)> {
         return Err(String::from("Solution of this Quadratic not exists"));
     }
     check = (check as f64).sqrt();
-    let r1 = (-b + check.sqrt()) / (2f64 * a);
-    let r2 = (-b - check.sqrt()) / (2f64 * a);
+    let r1 = (-b + check) / (2f64 * a);
+    let r2 = (-b - check) / (2f64 * a);
     if r1 > r2 {
         return Ok((r2, r1));
     }

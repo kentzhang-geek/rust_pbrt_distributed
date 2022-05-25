@@ -67,12 +67,12 @@ mod tests_film {
     #[test]
     fn test_sphere() {
         let mut trans = Transform::new(&Matrix44d::new_translation(&Vector3d::new(1f64, 2f64, 1f64)));
-        let mut sph = Sphere::new(&trans, 12.0f64);
+        let mut sph = Sphere::new(&trans, 6.0f64);
 
         let mut win = super::visualize::CreateVisualizeWindow();
 
-        let mut geo = three::Geometry::uv_sphere(1f32, 32, 32);
-        // let mut geo = three::Geometry::uv_sphere(sph.radius as f32, 12, 12);
+        // let mut geo = three::Geometry::uv_sphere(1f32, 32, 32);
+        let mut geo = three::Geometry::uv_sphere(sph.radius as f32, 24, 24);
         let mut mesh = win.factory.mesh(geo, three::material::Basic{ color: 0x00ffff, map: None });
         let center = sph.shapeData.objectToWorld.m.mul(Vector4d::new(0f64,0f64,0f64, 1f64));
         mesh.set_position(mint::Point3::from([center.x as f32, center.y as f32, center.z as f32]));
@@ -98,8 +98,8 @@ mod tests_film {
         super::visualize::NewLittleSphere(& mut win, 0.1f32, ray.o, 0x00009f);
         super::visualize::NewLittleSphere(& mut win, 0.1f32, ray.o + ray.d * 0.3f64, 0x009f00);
 
+        let pt = ray.at(tres);
         super::visualize::NewLittleSphere(& mut win, 0.1f32, ray.at(tres), 0x202000);
-
 
         super::visualize::RenderThis(& mut win);
     }
