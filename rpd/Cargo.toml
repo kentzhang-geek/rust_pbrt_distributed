@@ -12,3 +12,10 @@ ndarray = "*"
 image = "*"
 gli-rs = { path = "G:\\source\\gli-rs" }
 #gli-rs = { git = "https://github.com/kentzhang-geek/gli-rs" }
+
+three = "*"
+genmesh="*"
+mint="*"
+
+[dev-dependencies]
+three = "*"
