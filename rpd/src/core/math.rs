@@ -1,6 +1,8 @@
 use nalgebra;
 use nalgebra::{dvector, OPoint};
 use nalgebra::vector;
+use nalgebra_glm::sqrt;
+use crate::core::Res;
 
 pub type Vector2d = nalgebra::Vector2<f64>;
 pub type Vector2f = nalgebra::Vector2<f32>;
@@ -102,5 +104,21 @@ impl UsualDatas<Point2f> for Point2f {
 
     fn Zero() -> Point2f {
         return Point2f::new(0f32, 0f32);
+    }
+}
+
+pub fn Quadratic(&a: &f64, &b: &f64, &c: &f64) -> Res<(f64, f64)> {
+    let mut check = b * b - 4f64 * a * c;
+    if check < 0f64 {
+        return Err(String::from("Solution of this Quadratic not exists"));
+    }
+    check = (check as f64).sqrt();
+    let r1 = (-b + check.sqrt()) / (2f64 * a);
+    let r2 = (-b - check.sqrt()) / (2f64 * a);
+    if r1 > r2 {
+        return Ok((r2, r1));
+    }
+    else {
+        return Ok((r1, r2));
     }
 }

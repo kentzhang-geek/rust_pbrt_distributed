@@ -1,4 +1,5 @@
 use std::ops::Mul;
+use nalgebra_glm::radians;
 use crate::core::geometry::{Bounds3, Ray};
 use crate::core::interaction::SurfaceInteraction;
 use crate::core::math::{Point3d, Vector3d, *};
@@ -24,24 +25,34 @@ impl Shape for Sphere {
     }
 
     fn intersect(&self, ray: &Ray, testAlphaTexture: bool, t: &mut f64, isect: &mut SurfaceInteraction) -> Res<bool> {
-        todo!()
+        let mut transed_center = self.shapeData.objectToWorld.m.mul(Vector4d::new(0.0, 0.0, 0.0, 1.0));
+        let a = ray.d.dot(&ray.d);
+        let b = 2f64 * (ray.d.x * ray.o.x + ray.d.y * ray.o.y + ray.d.z * ray.o.z);
+        let olen = ray.o.len() as f64;
+        let c = olen.powf(2f64) - self.radius * self.radius;
+
+        if let Ok((t0, t1)) = Quadratic(&a, &b, &c) {
+            *t = t0;
+            return Ok(true);
+        }
+        return Err(String::from("No intersection on this sphere"));
     }
 
     fn area(&self) -> f64 {
-        todo!()
+        return self.radius.powf(2f64) * 4f64 * std::f64::consts::PI;
     }
 }
 
 impl Sphere {
-    pub fn new(objectToWorld : &Transform, r : f64)-> Sphere {
+    pub fn new(objectToWorld: &Transform, r: f64) -> Sphere {
         return Sphere {
             radius: r,
-            shapeData: ShapeData{
-                objectToWorld : objectToWorld.clone(),
+            shapeData: ShapeData {
+                objectToWorld: objectToWorld.clone(),
                 worldToObject: Transform::new(&objectToWorld.inv),
                 reverseOrientation: false,
-                transformSwapHandedness: false
-            }
+                transformSwapHandedness: false,
+            },
         };
     }
 }
