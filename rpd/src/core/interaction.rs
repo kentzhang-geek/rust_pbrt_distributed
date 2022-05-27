@@ -1,8 +1,10 @@
 use std::fmt::Debug;
-use std::sync::Arc;
+use std::rc::Rc;
+use std::sync::{Arc, Weak};
 use crate::core::geometry::Ray;
 use crate::core::math::{Point2f, Point3d, Vector3d};
 use crate::interface::shape::Shape;
+use crate::shapes::sphere::Sphere;
 
 #[derive(Debug, Clone, Default)]
 pub struct InteractionBase {
@@ -21,10 +23,11 @@ pub struct SurfaceShading {
     pub n : Vector3d,
 }
 
-#[derive(Clone)]
-pub struct SurfaceInteraction {
+#[derive(Clone, Default)]
+pub struct SurfaceInteraction
+{
     pub interaction: InteractionBase,
     pub uv : Point2f,
-    pub shape : Arc<Box<dyn Shape>>,
+    pub shape : Option<Weak<dyn Shape>>,
     pub shading : SurfaceShading,
 }

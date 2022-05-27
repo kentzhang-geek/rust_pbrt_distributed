@@ -6,7 +6,7 @@ use crate::core::Res;
 
 pub trait Primitive {
     fn worldBound(&self)->Bounds3;
-    fn Intersect(&self, ray : &Ray)->Res<Arc<Box<SurfaceInteraction>>>;
+    // fn Intersect(&self, ray : &Ray)->Res<Arc<Box<SurfaceInteraction>>>;
     fn HasIntersect(&self, ray : &Ray)->bool;
     fn GetMaterial(&self)->dyn Material;
 }

@@ -2,8 +2,9 @@ mod visualize;
 
 #[cfg(test)]
 mod tests_film {
+    use std::fmt::Debug;
     use std::ops::Mul;
-    use std::sync::Arc;
+    use std::sync::{Arc, Weak};
     use image::codecs::png::CompressionType::Default;
     use nalgebra::sup;
     use rpd::interface::shape;
@@ -84,23 +85,27 @@ mod tests_film {
         // ray intersection
         let mut ray = Ray::new(Point3d::new(0.0f64, 0.0f64, 0.0f64), Vector3d::new(1.0f64, 1f64, 1f64));
         let mut tres : f64 = 0f64;
-        let mut sisect = SurfaceInteraction{
-            interaction: InteractionBase::default(),
-            uv: Point2f::default(),
-            shape: Arc::new(Box::new(sph.clone())),
-            shading: SurfaceShading::default()
-        };
-        let res = sph.intersect(&ray, false, & mut tres, & mut sisect);
-        res.show_self();
-        tres.show_self();
+        // let mut xxx : Arc<dyn Shape> = Arc::new(sph);
+        let mut sisect = SurfaceInteraction::default();
+        // let res = sph.intersect(&ray, false, & mut tres, & mut sisect);
+        // res.show_self();
+        // tres.show_self();
+        sph.show_self();
+        sph.clone().try_method(& mut sisect);
+        sph.show_self();
+        // sisect.shape.unwrap();
+        // sisect.shape.unwrap().upgrade().unwrap();
+        sisect.shape.unwrap().upgrade().unwrap().area().show_self();
+
+
 
         // ray origin
-        super::visualize::NewLittleSphere(& mut win, 0.1f32, ray.o, 0x00009f);
-        super::visualize::NewLittleSphere(& mut win, 0.1f32, ray.o + ray.d * 0.3f64, 0x009f00);
-
-        let pt = ray.at(tres);
-        super::visualize::NewLittleSphere(& mut win, 0.1f32, ray.at(tres), 0x202000);
-
-        super::visualize::RenderThis(& mut win);
+        // super::visualize::NewLittleSphere(& mut win, 0.1f32, ray.o, 0x00009f);
+        // super::visualize::NewLittleSphere(& mut win, 0.1f32, ray.o + ray.d * 0.3f64, 0x009f00);
+        //
+        // let pt = ray.at(tres);
+        // super::visualize::NewLittleSphere(& mut win, 0.1f32, ray.at(tres), 0x202000);
+        //
+        // super::visualize::RenderThis(& mut win);
     }
 }
