@@ -18,7 +18,7 @@ mod tests_core {
     #[test]
     fn test02() {
         let a = Vector3d::Zero();
-        let o = Vector3::new(1f64,2f64,3f64);
+        let o = Vector3d::new(1f64,2f64,3f64);
         let cs = rpd::core::coordinate_system::CoordinateSystem::New(
             o,o.clone_owned(),o.clone_owned()
         );

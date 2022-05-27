@@ -5,18 +5,18 @@ use super::math::*;
 /// An abstraction of ray
 #[derive(Debug, Clone)]
 pub struct Ray {
-    pub o: Point3d,
+    pub o: Vector3d,
     pub d: Vector3d,
     pub tmax: f64,
 }
 
 impl Ray {
     /// Compute a point at length t
-    pub fn at(&self, t: f64) -> Point3d {
+    pub fn at(&self, t: f64) -> Vector3d {
         return self.o + self.d * t;
     }
     /// construct a new ray
-    pub fn new(origin: Point3d, direction: Vector3d) -> Ray {
+    pub fn new(origin: Vector3d, direction: Vector3d) -> Ray {
         return Ray {
             o: origin,
             d: direction,
@@ -32,8 +32,8 @@ impl Ray {
 /// Axis aligned bounding box
 #[derive(Debug, Clone, Default)]
 pub struct Bounds3 {
-    pub pMin: Point3d,
-    pub pMax: Point3d,
+    pub pMin: Vector3d,
+    pub pMax: Vector3d,
 }
 
 impl Bounds3 {

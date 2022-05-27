@@ -27,7 +27,7 @@ impl Film {
         return ret;
     }
     /// get one value from this film, return None if failed
-    pub fn get(&self, pixel_coord: Point2i) -> Option<&Pixel> {
+    pub fn get(&self, pixel_coord: Vector2i) -> Option<&Pixel> {
         let (x, y) = (pixel_coord.x as u32, pixel_coord.y as u32);
         if x < 0 || x >= self.fullResolution.0 {
             return None;
@@ -38,7 +38,7 @@ impl Film {
         return self.pixels.get((x as usize, y as usize));
     }
     /// store one value to this film, return false if failed
-    pub fn set(& mut self, pixel_coord: Point2i, pix: &Pixel) -> bool {
+    pub fn set(& mut self, pixel_coord: Vector2i, pix: &Pixel) -> bool {
         let (x, y) = (pixel_coord.x as u32, pixel_coord.y as u32);
         if x < 0 || x >= self.fullResolution.0 {
             return false;

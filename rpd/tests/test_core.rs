@@ -23,8 +23,8 @@ mod tests_film {
 
     #[test]
     fn test_bounds3() {
-        let mut bounds3 = Bounds3{ pMin: Point3d::new(-1f64, -2f64, -1f64), pMax: Point3d::new(3f64, 2f64, 1f64)};
-        let mut r = Ray::new(Point3d::new(-2f64, 0f64, 0f64), Vector3d::new(1.0f64, 0f64, 0f64));
+        let mut bounds3 = Bounds3{ pMin: Vector3d::new(-1f64, -2f64, -1f64), pMax: Vector3d::new(3f64, 2f64, 1f64)};
+        let mut r = Ray::new(Vector3d::new(-2f64, 0f64, 0f64), Vector3d::new(1.0f64, 0f64, 0f64));
         let result = bounds3.IntersectP(&r);
         result.show_self();
         if let Ok(res) = result {
@@ -33,7 +33,7 @@ mod tests_film {
         } else {
             assert!(false);
         }
-        let mut r = Ray::new(Point3d::new(-2f64, 0f64, 0f64), Vector3d::new(1.0f64, 1f64, -1f64));
+        let mut r = Ray::new(Vector3d::new(-2f64, 0f64, 0f64), Vector3d::new(1.0f64, 1f64, -1f64));
         let result = bounds3.IntersectP(&r);
         result.show_self();
         if let Ok(res) = result {
@@ -75,37 +75,30 @@ mod tests_film {
         // let mut geo = three::Geometry::uv_sphere(1f32, 32, 32);
         let mut geo = three::Geometry::uv_sphere(sph.radius as f32, 24, 24);
         let mut mesh = win.factory.mesh(geo, three::material::Basic{ color: 0x00ffff, map: None });
-        let center = sph.shapeData.objectToWorld.m.mul(Vector4d::new(0f64,0f64,0f64, 1f64));
-        mesh.set_position(mint::Point3::from([center.x as f32, center.y as f32, center.z as f32]));
-        println!("THIS");
+        let center = sph.center();
         center.show_self();
-        sph.radius.show_self();
+        mesh.set_position(mint::Point3::from([center.x as f32, center.y as f32, center.z as f32]));
         win.scene.add(mesh);
 
         // ray intersection
-        let mut ray = Ray::new(Point3d::new(0.0f64, 0.0f64, 0.0f64), Vector3d::new(1.0f64, 1f64, 1f64));
+        let sph = Arc::new(sph);
+        let mut ray = Ray::new(Vector3d::new(0.0f64, 0.0f64, 0.0f64), Vector3d::new(1.0f64, 1f64, 1f64));
         let mut tres : f64 = 0f64;
-        // let mut xxx : Arc<dyn Shape> = Arc::new(sph);
         let mut sisect = SurfaceInteraction::default();
-        // let res = sph.intersect(&ray, false, & mut tres, & mut sisect);
-        // res.show_self();
-        // tres.show_self();
-        sph.show_self();
-        sph.clone().try_method(& mut sisect);
-        sph.show_self();
-        // sisect.shape.unwrap();
-        // sisect.shape.unwrap().upgrade().unwrap();
-        sisect.shape.unwrap().upgrade().unwrap().area().show_self();
-
-
+        let res = sph.clone().intersect(&ray, false, & mut tres, & mut sisect);
+        sisect.interaction.show_self();
 
         // ray origin
-        // super::visualize::NewLittleSphere(& mut win, 0.1f32, ray.o, 0x00009f);
-        // super::visualize::NewLittleSphere(& mut win, 0.1f32, ray.o + ray.d * 0.3f64, 0x009f00);
-        //
-        // let pt = ray.at(tres);
-        // super::visualize::NewLittleSphere(& mut win, 0.1f32, ray.at(tres), 0x202000);
-        //
-        // super::visualize::RenderThis(& mut win);
+        super::visualize::NewLittleSphere(& mut win, 0.1f32, ray.o, 0x00009f);
+        super::visualize::NewLittleSphere(& mut win, 0.1f32, ray.o + ray.d * 0.3f64, 0x009f00);
+
+        super::visualize::NewLittleSphere(& mut win, 0.1f32, sisect.interaction.p, 0x0000FF);
+
+        // normal
+        let np = sisect.interaction.p + sisect.interaction.n;
+        np.show_self();
+        super::visualize::NewLittleSphere(& mut win, 0.1f32, np, 0xFF0000);
+
+        super::visualize::RenderThis(& mut win);
     }
 }

@@ -8,8 +8,8 @@ pub trait Camera {
 }
 
 pub struct CameraSample {
-    film : Point2d,
-    lens : Point2d,
+    film : Vector2d,
+    lens : Vector2d,
 }
 
 pub struct CameraRayResult {

@@ -1,6 +1,6 @@
 use three;
 use three::{Color, Object};
-use rpd::core::math::Point3d;
+use rpd::core::math::*;
 
 pub fn CreateVisualizeWindow() -> three::Window {
     let title = "Getting started with three-rs";
@@ -41,7 +41,7 @@ pub fn RenderThis(win: &mut three::Window) {
     }
 }
 
-pub fn NewLittleSphere(win: &mut three::Window, r : f32, p : Point3d, c : Color) {
+pub fn NewLittleSphere(win: &mut three::Window, r : f32, p : Vector3d, c : Color) {
     let mut geo = three::Geometry::uv_sphere(r, 24, 24);
     let mut mesh = win.factory.mesh(geo, three::material::Basic { color: c, map: None });
     mesh.set_position(mint::Point3::from([p.x as f32, p.y as f32, p.z as f32]));
