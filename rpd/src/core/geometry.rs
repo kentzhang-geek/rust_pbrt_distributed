@@ -38,7 +38,7 @@ pub struct Bounds3 {
 
 impl Bounds3 {
     /// compute 2 coarse intersection point on this AABB
-    pub fn IntersectP(&self, r: &Ray) -> Res<(f64, f64)> {
+    pub fn intersect(&self, r: &Ray) -> Res<(f64, f64)> {
         let mut t0 = 0.0f64;
         let mut t1 = r.tmax;
 

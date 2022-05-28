@@ -25,7 +25,7 @@ mod tests_film {
     fn test_bounds3() {
         let mut bounds3 = Bounds3{ pMin: Vector3d::new(-1f64, -2f64, -1f64), pMax: Vector3d::new(3f64, 2f64, 1f64)};
         let mut r = Ray::new(Vector3d::new(-2f64, 0f64, 0f64), Vector3d::new(1.0f64, 0f64, 0f64));
-        let result = bounds3.IntersectP(&r);
+        let result = bounds3.intersect(&r);
         result.show_self();
         if let Ok(res) = result {
             r.at(res.0).show_self();
@@ -34,7 +34,7 @@ mod tests_film {
             assert!(false);
         }
         let mut r = Ray::new(Vector3d::new(-2f64, 0f64, 0f64), Vector3d::new(1.0f64, 1f64, -1f64));
-        let result = bounds3.IntersectP(&r);
+        let result = bounds3.intersect(&r);
         result.show_self();
         if let Ok(res) = result {
             r.at(res.0).show_self();
