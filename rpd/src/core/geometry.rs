@@ -54,8 +54,8 @@ impl Bounds3 {
 
             // Update _tFar_ to ensure robust ray--bounds intersection
             // tFar *= 1 + 2 * gamma(3);
-            t0 = if tNear > t0 {tNear} else { t0 };
-            t1 = if tFar < t1 {tFar} else { t1 };
+            t0 = if tNear > t0 { tNear } else { t0 };
+            t1 = if tFar < t1 { tFar } else { t1 };
 
             if t0 > t1 {
                 return Err(String::from("Intersection not exists"));
@@ -65,10 +65,21 @@ impl Bounds3 {
         return Ok((t0, t1));
     }
 
-    pub fn union(b1 : &Bounds3, b2 : &Bounds3) -> Bounds3{
+    pub fn center(&self) -> Vector3d {
+        return (self.pMin + self.pMax) / 2.0f64;
+    }
+    
+    pub fn addOnePoint(b :&Bounds3, pt : Vector3d)->Bounds3{
+        return Bounds3 {
+            pMin: Vector3d::MinPerComponent(&b.pMin, &pt),
+            pMax: Vector3d::MaxPerComponent(&b.pMax, &pt),
+        }
+    }
+
+    pub fn union(b1: &Bounds3, b2: &Bounds3) -> Bounds3 {
         return Bounds3 {
             pMin: Vector3d::MinPerComponent(&b1.pMin, &b2.pMin),
             pMax: Vector3d::MaxPerComponent(&b1.pMax, &b2.pMax),
-        }
+        };
     }
 }

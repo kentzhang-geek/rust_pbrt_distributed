@@ -9,12 +9,12 @@ use super::super::core::primitive::*;
 /// BVH Acceleration Structure
 /// - Only support SAH split method for now
 /// - Using recursive build method
-/// 
+///
 /// TODO : Linear BVH build method
 pub struct BVHAccel {
-    primitives : LinkedList<Arc<dyn Primitive>>,
-    computedBounds : Bounds3,
-    root : Arc<BVHNode>,
+    primitives: LinkedList<Arc<dyn Primitive>>,
+    computedBounds: Bounds3,
+    root: Arc<BVHNode>,
 }
 
 impl Primitive for BVHAccel {
@@ -23,11 +23,11 @@ impl Primitive for BVHAccel {
     }
 
     fn intersect(self: Arc<Self>, ray: &mut Ray, isect: &mut SurfaceInteraction) -> bool {
-        return self.root.clone().intersect( ray, isect);
+        return self.root.clone().intersect(ray, isect);
     }
 
     fn intersectWithBounds(self: Arc<Self>, ray: &mut Ray) -> bool {
-        let res = self.computedBounds.intersect(& ray);
+        let res = self.computedBounds.intersect(&ray);
         if let Ok(v) = res {
             ray.tmax = v.0;
             return true;
@@ -44,20 +44,18 @@ impl Primitive for BVHAccel {
     }
 }
 
-impl Aggregate for BVHAccel {
-    
-}
+impl Aggregate for BVHAccel {}
 
 /// BVH Node, use for interior
 struct BVHNode {
-    isLeaf : bool,
-    bounds : Bounds3,
-    children : LinkedList<Arc<BVHNode>>,
-    primitives : LinkedList<Arc<dyn Primitive>>,
+    isLeaf: bool,
+    bounds: Bounds3,
+    children: LinkedList<Arc<BVHNode>>,
+    primitives: LinkedList<Arc<dyn Primitive>>,
 }
 
 impl BVHNode {
-    fn newInterior(nodes : &LinkedList<Arc<BVHNode>>)->Arc<BVHNode> {
+    fn newInterior(nodes: &LinkedList<Arc<BVHNode>>) -> Arc<BVHNode> {
         let mut bounds = nodes.front().unwrap().bounds.clone(); // here will not consider about empty list
         for node in nodes {
             bounds = Bounds3::union(&bounds, &node.bounds);
@@ -71,7 +69,7 @@ impl BVHNode {
         });
         return ret;
     }
-    fn newLeaf(primitives : &LinkedList<Arc<dyn Primitive>>) ->Arc<BVHNode> {
+    fn newLeaf(primitives: &LinkedList<Arc<dyn Primitive>>) -> Arc<BVHNode> {
         let mut bounds = primitives.front().unwrap().worldBound(); // here will not consider about empty list
         for pri in primitives {
             bounds = Bounds3::union(&bounds, &pri.worldBound());
@@ -96,7 +94,7 @@ impl Primitive for BVHNode {
     }
 
     fn intersectWithBounds(self: Arc<Self>, ray: &mut Ray) -> bool {
-        let res = self.bounds.intersect(& ray);
+        let res = self.bounds.intersect(&ray);
         if let Ok(v) = res {
             ray.tmax = v.0;
             return true;
@@ -114,8 +112,8 @@ impl Primitive for BVHNode {
 }
 
 impl BVHAccel {
-    pub fn make(primitives : &LinkedList<Arc<dyn Primitive>>, minPrimitivesInNode : i32) -> Res<Arc<BVHAccel>> {
-        let mut ret = Arc::new(BVHAccel{
+    pub fn make(primitives: &LinkedList<Arc<dyn Primitive>>, minPrimitivesInNode: i32) -> Res<Arc<BVHAccel>> {
+        let mut ret = Arc::new(BVHAccel {
             primitives: primitives.clone(),
             computedBounds: Default::default(),
             root: BVHAccel::recursiveMake(primitives, minPrimitivesInNode),
@@ -123,15 +121,16 @@ impl BVHAccel {
         return Ok(ret);
     }
     /// this method will recursively build BVH tree, using SAH method
-    fn recursiveMake(primitives : &LinkedList<Arc<dyn Primitive>>, minPrimitivesInNode : i32) -> Arc<BVHNode> {
+    fn recursiveMake(primitives: &LinkedList<Arc<dyn Primitive>>, minPrimitivesInNode: i32) -> Arc<BVHNode> {
         // if number of primitives less than threshold, create leaf immediatly
         if primitives.len() <= minPrimitivesInNode as usize {
             return BVHNode::newLeaf(primitives);
         }
         // now choose an axis
-        let mut bounds = primitives.front().unwrap().worldBound();
+        let temp = primitives.front().unwrap().worldBound().center();
+        let mut bounds = Bounds3 { pMin: temp, pMax: temp };
         for pri in primitives {
-            bounds = Bounds3::union(&bounds, &pri.worldBound());
+            bounds = Bounds3::addOnePoint(&bounds, pri.worldBound().center());
         }
         let mut extant = bounds.pMax - bounds.pMin;
         let mut DIM = 0;    // now we have DIM
@@ -142,10 +141,20 @@ impl BVHAccel {
         }
         // make the bucket
         let numBuckets = 12;
-        let mut buckets : Vec<BucketInfo> = Vec::new();
-        buckets.resize_with(12 as usize, ||{
+        let mut buckets: Vec<BucketInfo> = Vec::new();
+        buckets.resize_with(12 as usize, || {
             return BucketInfo::default();
         });
+        for pri in primitives {
+            let bucketIdx = choiceBucket(pri.worldBound().center()[DIM], bounds.pMin[DIM], bounds.pMax[DIM], numBuckets);
+            let mut bkt = & mut buckets[bucketIdx as usize];
+            if bkt.primitives.len() == 0 {
+                bkt.bounds = pri.worldBound();
+            } else {
+                bkt.bounds = Bounds3::union(&bkt.bounds, &pri.worldBound());
+            }
+            bkt.primitives.push_back(pri.clone());
+        }
 
         return todo!();
     }
@@ -153,6 +162,12 @@ impl BVHAccel {
 
 #[derive(Default, Clone)]
 struct BucketInfo {
-    primitives : LinkedList<Arc<dyn Primitive>>,
-    bounds : Bounds3
+    pub primitives: LinkedList<Arc<dyn Primitive>>,
+    pub bounds: Bounds3,
+}
+
+fn choiceBucket(vDim: f64, vBottom: f64, vTop: f64, nBuckets: i32) -> i32 {
+    let mut ratio = (vDim - vBottom) / (vTop - vBottom);
+    ratio = ratio * (nBuckets as f64 + 1f64);
+    return ratio as i32;
 }
