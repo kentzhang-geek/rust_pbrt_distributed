@@ -17,21 +17,39 @@ pub type Vector4f = nalgebra::Vector4<f32>;
 pub type Matrix44d = nalgebra::Matrix4<f64>;
 pub type Matrix44f = nalgebra::Matrix4<f32>;
 
-pub trait UsualDatas<T> {
+pub trait CommonTools<T> {
     fn One() -> T;
     fn Zero() -> T;
+    fn MinPerComponent(v1: &T, v2: &T) -> T;
+    fn MaxPerComponent(v1: &T, v2: &T) -> T;
 }
 
-impl UsualDatas<Vector3d> for Vector3d {
+impl CommonTools<Vector3d> for Vector3d {
     fn One() -> Vector3d {
         return vector![1.0f64, 1.0f64, 1.0f64];
     }
     fn Zero() -> Vector3d {
         return vector![0f64, 0f64, 0f64];
     }
+
+    fn MinPerComponent(v1: &Vector3d, v2: &Vector3d) -> Vector3d {
+        return Vector3d::new(
+            v1.x.min(v2.x),
+            v1.y.min(v2.y),
+            v1.z.min(v2.z),
+        );
+    }
+
+    fn MaxPerComponent(v1: &Vector3d, v2: &Vector3d) -> Vector3d {
+        return Vector3d::new(
+            v1.x.max(v2.x),
+            v1.y.max(v2.y),
+            v1.z.max(v2.z),
+        );
+    }
 }
 
-impl UsualDatas<Vector3f> for Vector3f {
+impl CommonTools<Vector3f> for Vector3f {
     fn One() -> Vector3f {
         return vector![1f32,1f32,1f32];
     }
@@ -39,12 +57,42 @@ impl UsualDatas<Vector3f> for Vector3f {
     fn Zero() -> Vector3f {
         return vector![0f32,0f32,0f32];
     }
+
+    fn MinPerComponent(v1: &Vector3f, v2: &Vector3f) -> Vector3f {
+        return Vector3f::new(
+            v1.x.min(v2.x),
+            v1.y.min(v2.y),
+            v1.z.min(v2.z),
+        );
+    }
+
+    fn MaxPerComponent(v1: &Vector3f, v2: &Vector3f) -> Vector3f {
+        return Vector3f::new(
+            v1.x.max(v2.x),
+            v1.y.max(v2.y),
+            v1.z.max(v2.z),
+        );
+    }
 }
 
-impl UsualDatas<Vector2f> for Vector2f {
+impl CommonTools<Vector2f> for Vector2f {
     fn One() -> Vector2f { return Vector2f::new(1f32, 1f32); }
 
     fn Zero() -> Vector2f { return Vector2f::new(0f32, 0f32); }
+
+    fn MinPerComponent(v1: &Vector2f, v2: &Vector2f) -> Vector2f {
+        return Vector2f::new(
+            v1.x.min(v2.x),
+            v1.y.min(v2.y),
+        );
+    }
+
+    fn MaxPerComponent(v1: &Vector2f, v2: &Vector2f) -> Vector2f {
+        return Vector2f::new(
+            v1.x.max(v2.x),
+            v1.y.max(v2.y),
+        );
+    }
 }
 
 pub fn Quadratic(&a: &f64, &b: &f64, &c: &f64) -> Res<(f64, f64)> {
@@ -57,8 +105,7 @@ pub fn Quadratic(&a: &f64, &b: &f64, &c: &f64) -> Res<(f64, f64)> {
     let r2 = (-b - check) / (2f64 * a);
     if r1 > r2 {
         return Ok((r2, r1));
-    }
-    else {
+    } else {
         return Ok((r1, r2));
     }
 }

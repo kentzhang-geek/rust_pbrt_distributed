@@ -1,4 +1,5 @@
 use std::cmp::{min, max};
+use nalgebra::SimdPartialOrd;
 use crate::core::Res;
 use super::math::*;
 
@@ -30,7 +31,7 @@ impl Ray {
 }
 
 /// Axis aligned bounding box
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone, Default, Copy)]
 pub struct Bounds3 {
     pub pMin: Vector3d,
     pub pMax: Vector3d,
@@ -62,5 +63,12 @@ impl Bounds3 {
         }
 
         return Ok((t0, t1));
+    }
+
+    pub fn union(b1 : &Bounds3, b2 : &Bounds3) -> Bounds3{
+        return Bounds3 {
+            pMin: Vector3d::MinPerComponent(&b1.pMin, &b2.pMin),
+            pMax: Vector3d::MaxPerComponent(&b1.pMax, &b2.pMax),
+        }
     }
 }

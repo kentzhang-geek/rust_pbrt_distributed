@@ -11,18 +11,18 @@ pub trait Primitive {
     fn worldBound(&self)->Bounds3;
     fn intersect(self: Arc<Self>, ray : & mut Ray, isect : & mut SurfaceInteraction) ->bool;
     fn intersectWithBounds(self : Arc<Self>, ray : & mut Ray) ->bool;
-    fn getMaterial(&self) ->Arc<dyn Material>;
+    fn getMaterial(&self) ->Option<Arc<dyn Material>>;
     fn getAreaLight(&self)->Option<Arc<dyn AreaLight>>;
 }
 
 /// Primitive that contain a geometry shape
-pub struct GeometricPrimitive {
+pub struct ShapePrimitive {
     pub shape : Arc<dyn Shape>,
     pub material : Arc<dyn Material>,
     pub areaLight : Option<Arc<dyn AreaLight>>,
 }
 
-impl Primitive for GeometricPrimitive {
+impl Primitive for ShapePrimitive {
     fn worldBound(&self) -> Bounds3 {
         return self.shape.worldBound();
     }
@@ -48,11 +48,15 @@ impl Primitive for GeometricPrimitive {
         return false;
     }
 
-    fn getMaterial(&self) -> Arc<dyn Material> {
-        return self.material.clone();
+    fn getMaterial(&self) -> Option<Arc<dyn Material>> {
+        return Some(self.material.clone());
     }
 
     fn getAreaLight(&self) -> Option<Arc<dyn AreaLight>> {
         return self.areaLight.clone();
     }
+}
+
+/// this interface is aim to separate Primitive and Accaleration structures
+pub trait Aggregate : Primitive {
 }
