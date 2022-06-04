@@ -1,5 +1,4 @@
 use std::collections::LinkedList;
-use std::ptr::null;
 use std::sync::Arc;
 use crate::core::{AreaLight, Res};
 use crate::core::geometry::{Bounds3, Ray};
@@ -123,7 +122,37 @@ impl BVHAccel {
         });
         return Ok(ret);
     }
+    /// this method will recursively build BVH tree, using SAH method
     fn recursiveMake(primitives : &LinkedList<Arc<dyn Primitive>>, minPrimitivesInNode : i32) -> Arc<BVHNode> {
-        todo!()
+        // if number of primitives less than threshold, create leaf immediatly
+        if primitives.len() <= minPrimitivesInNode as usize {
+            return BVHNode::newLeaf(primitives);
+        }
+        // now choose an axis
+        let mut bounds = primitives.front().unwrap().worldBound();
+        for pri in primitives {
+            bounds = Bounds3::union(&bounds, &pri.worldBound());
+        }
+        let mut extant = bounds.pMax - bounds.pMin;
+        let mut DIM = 0;    // now we have DIM
+        for dimit in 0..2 {
+            if extant[dimit] > extant[DIM] {
+                DIM = dimit;
+            }
+        }
+        // make the bucket
+        let numBuckets = 12;
+        let mut buckets : Vec<BucketInfo> = Vec::new();
+        buckets.resize_with(12 as usize, ||{
+            return BucketInfo::default();
+        });
+
+        return todo!();
     }
+}
+
+#[derive(Default, Clone)]
+struct BucketInfo {
+    primitives : LinkedList<Arc<dyn Primitive>>,
+    bounds : Bounds3
 }
