@@ -8,11 +8,12 @@ use crate::core::material::Material;
 use super::super::core::primitive::*;
 
 /// BVH Acceleration Structure
-/// Only support SAH split method for now
-/// Using recursive build method
+/// - Only support SAH split method for now
+/// - Using recursive build method
+/// 
 /// TODO : Linear BVH build method
 pub struct BVHAccel {
-    primitives : std::vec::Vec<Arc<dyn Primitive>>,
+    primitives : LinkedList<Arc<dyn Primitive>>,
     computedBounds : Bounds3,
     root : Arc<BVHNode>,
 }
@@ -96,20 +97,33 @@ impl Primitive for BVHNode {
     }
 
     fn intersectWithBounds(self: Arc<Self>, ray: &mut Ray) -> bool {
-        todo!()
+        let res = self.bounds.intersect(& ray);
+        if let Ok(v) = res {
+            ray.tmax = v.0;
+            return true;
+        }
+        return false;
     }
 
     fn getMaterial(&self) -> Option<Arc<dyn Material>> {
-        todo!()
+        return None;
     }
 
     fn getAreaLight(&self) -> Option<Arc<dyn AreaLight>> {
-        todo!()
+        return None;
     }
 }
 
 impl BVHAccel {
-    pub fn make() -> Res<Arc<BVHAccel>> {
+    pub fn make(primitives : &LinkedList<Arc<dyn Primitive>>, minPrimitivesInNode : i32) -> Res<Arc<BVHAccel>> {
+        let mut ret = Arc::new(BVHAccel{
+            primitives: primitives.clone(),
+            computedBounds: Default::default(),
+            root: BVHAccel::recursiveMake(primitives, minPrimitivesInNode),
+        });
+        return Ok(ret);
+    }
+    fn recursiveMake(primitives : &LinkedList<Arc<dyn Primitive>>, minPrimitivesInNode : i32) -> Arc<BVHNode> {
         todo!()
     }
 }
