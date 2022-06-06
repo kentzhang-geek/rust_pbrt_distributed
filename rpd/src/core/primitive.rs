@@ -18,7 +18,7 @@ pub trait Primitive {
 /// Primitive that contain a geometry shape
 pub struct ShapePrimitive {
     pub shape : Arc<dyn Shape>,
-    pub material : Arc<dyn Material>,
+    pub material : Option<Arc<dyn Material>>,
     pub areaLight : Option<Arc<dyn AreaLight>>,
 }
 
@@ -49,7 +49,7 @@ impl Primitive for ShapePrimitive {
     }
 
     fn getMaterial(&self) -> Option<Arc<dyn Material>> {
-        return Some(self.material.clone());
+        return self.material.clone();
     }
 
     fn getAreaLight(&self) -> Option<Arc<dyn AreaLight>> {

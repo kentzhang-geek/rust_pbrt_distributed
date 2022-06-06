@@ -1,4 +1,6 @@
+use std::borrow::BorrowMut;
 use std::collections::LinkedList;
+use std::fmt::{Debug, Formatter};
 use std::sync::Arc;
 use crate::core::{AreaLight, Res};
 use crate::core::geometry::{Bounds3, Ray};
@@ -113,10 +115,11 @@ impl Primitive for BVHNode {
 
 impl BVHAccel {
     pub fn make(primitives: &LinkedList<Arc<dyn Primitive>>, minPrimitivesInNode: i32) -> Res<Arc<BVHAccel>> {
+        let mut rootnode = BVHAccel::recursiveMake(primitives, minPrimitivesInNode);
         let mut ret = Arc::new(BVHAccel {
             primitives: primitives.clone(),
-            computedBounds: Default::default(),
-            root: BVHAccel::recursiveMake(primitives, minPrimitivesInNode),
+            computedBounds: rootnode.bounds,
+            root: rootnode,
         });
         return Ok(ret);
     }
@@ -130,11 +133,11 @@ impl BVHAccel {
         let temp = primitives.front().unwrap().worldBound().center();
         let mut bounds = Bounds3 { pMin: temp, pMax: temp };
         for pri in primitives {
-            bounds = Bounds3::addOnePoint(&bounds, pri.worldBound().center());
+            bounds = Bounds3::union(&bounds, &pri.worldBound());
         }
         let mut extant = bounds.pMax - bounds.pMin;
         let mut DIM = 0;    // now we have DIM
-        for dimit in 0..2 {
+        for dimit in 0..3 {
             if extant[dimit] > extant[DIM] {
                 DIM = dimit;
             }
@@ -147,7 +150,7 @@ impl BVHAccel {
         });
         for pri in primitives {
             let bucketIdx = choiceBucket(pri.worldBound().center()[DIM], bounds.pMin[DIM], bounds.pMax[DIM], numBuckets);
-            let mut bkt = & mut buckets[bucketIdx as usize];
+            let mut bkt = &mut buckets[bucketIdx as usize];
             if bkt.primitives.len() == 0 {
                 bkt.bounds = pri.worldBound();
             } else {
@@ -156,18 +159,18 @@ impl BVHAccel {
             bkt.primitives.push_back(pri.clone());
         }
         // compute cost for splitting
-        let mut costs : Vec<f64> = Vec::new();
+        let mut costs: Vec<f64> = Vec::new();
         costs.resize(numBuckets as usize, 0f64);
-        for i in 0..(numBuckets - 2) {
+        for i in 0..(numBuckets - 1) {
             let mut b0 = buckets[0 as usize].bounds;
             let mut b1 = buckets[numBuckets as usize - 1].bounds;
             let mut count0 = 0f64;
             let mut count1 = 0f64;
-            for j in 0..i {
+            for j in 0..(i + 1) {
                 b0 = Bounds3::union(&b0, &buckets[j as usize].bounds);
                 count0 += buckets[j as usize].primitives.len() as f64;
             }
-            for k in (i + 1)..(numBuckets - 1) {
+            for k in (i + 1)..(numBuckets) {
                 b1 = Bounds3::union(&b1, &buckets[k as usize].bounds);
                 count1 += buckets[k as usize].primitives.len() as f64;
             }
@@ -186,19 +189,19 @@ impl BVHAccel {
             return BVHNode::newLeaf(primitives);
         } else {
             // create interior nodes
-            let mut list0 : LinkedList<Arc<dyn Primitive>> = LinkedList::new();
-            let mut list1 : LinkedList<Arc<dyn Primitive>> = LinkedList::new();
-            for i in 0..sepIdx {
+            let mut list0: LinkedList<Arc<dyn Primitive>> = LinkedList::new();
+            let mut list1: LinkedList<Arc<dyn Primitive>> = LinkedList::new();
+            for i in 0..(sepIdx + 1) {
                 for pri in &buckets[i].primitives {
                     list0.push_back(pri.clone());
                 }
             }
-            for i  in (sepIdx + 1)..(numBuckets as usize-1) {
+            for i in (sepIdx + 2)..(numBuckets as usize) {
                 for pri in &buckets[i].primitives {
                     list1.push_back(pri.clone());
                 }
             }
-            let mut nodes : LinkedList<Arc<BVHNode>> = LinkedList::new();
+            let mut nodes: LinkedList<Arc<BVHNode>> = LinkedList::new();
             nodes.push_back(BVHAccel::recursiveMake(&list0, minPrimitivesInNode));
             nodes.push_back(BVHAccel::recursiveMake(&list1, minPrimitivesInNode));
             return BVHNode::newInterior(&nodes);
@@ -214,6 +217,27 @@ struct BucketInfo {
 
 fn choiceBucket(vDim: f64, vBottom: f64, vTop: f64, nBuckets: i32) -> i32 {
     let mut ratio = (vDim - vBottom) / (vTop - vBottom);
-    ratio = ratio * (nBuckets as f64 + 1f64);
+    ratio = ratio * (nBuckets as f64) - 0.0001f64;
     return ratio as i32;
+}
+
+impl Debug for BVHAccel {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("BVHAccel")
+            .field("numPrimitives", &self.primitives.len())
+            .field("computedBounds", &self.computedBounds)
+            .field("rootNode", &self.root)
+            .finish()
+    }
+}
+
+impl Debug for BVHNode {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("BVHNode")
+            .field("isLeaf", &self.isLeaf)
+            .field("children", &self.children)
+            .field("numPrimitives", &self.primitives.len())
+            .field("bounds", &self.bounds)
+            .finish()
+    }
 }

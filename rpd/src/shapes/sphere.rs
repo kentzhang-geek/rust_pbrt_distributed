@@ -2,6 +2,7 @@ use std::borrow::BorrowMut;
 use std::ops::{Deref, Mul};
 use std::rc::Rc;
 use std::sync::{Arc, Mutex, Weak};
+use nalgebra::{Translation, Vector3};
 use nalgebra_glm::radians;
 use crate::core::geometry::{Bounds3, Ray};
 use crate::core::interaction::SurfaceInteraction;
@@ -15,7 +16,7 @@ use crate::interface::shape::{Shape, ShapeData};
 pub struct Sphere {
     pub radius: f64,
     pub shapeData: ShapeData,
-    pub weak_self : Option<Weak<Self>>
+    pub weak_self: Option<Weak<Self>>,
 }
 
 impl Shape for Sphere {
@@ -64,7 +65,7 @@ impl Sphere {
     pub fn new(objectToWorld: &Transform, r: f64) -> Sphere {
         let ret = Sphere {
             radius: r,
-            weak_self : None,
+            weak_self: None,
             shapeData: ShapeData {
                 objectToWorld: objectToWorld.clone(),
                 worldToObject: Transform::new(&objectToWorld.inv),
@@ -74,7 +75,22 @@ impl Sphere {
         };
         return ret;
     }
-    pub fn center(&self)->Vector3d {
+    pub fn newOnlyMove(center: Vector3d, r: f64) -> Sphere {
+        let m: Matrix44d = Matrix44d::from(Translation::from(center));
+        // ::new(center.x, center.y, center.z);
+        let ret = Sphere {
+            radius: r,
+            weak_self: None,
+            shapeData: ShapeData {
+                objectToWorld: Transform::new(&m),
+                worldToObject: Transform::new(&m.try_inverse().unwrap()),
+                reverseOrientation: false,
+                transformSwapHandedness: false,
+            },
+        };
+        return ret;
+    }
+    pub fn center(&self) -> Vector3d {
         let c = self.shapeData.objectToWorld.m.mul(Vector4d::new(0f64, 0f64, 0f64, 1f64));
         return c.xyz() / c.w;
     }
