@@ -155,8 +155,54 @@ impl BVHAccel {
             }
             bkt.primitives.push_back(pri.clone());
         }
-
-        return todo!();
+        // compute cost for splitting
+        let mut costs : Vec<f64> = Vec::new();
+        costs.resize(numBuckets as usize, 0f64);
+        for i in 0..(numBuckets - 2) {
+            let mut b0 = buckets[0 as usize].bounds;
+            let mut b1 = buckets[numBuckets as usize - 1].bounds;
+            let mut count0 = 0f64;
+            let mut count1 = 0f64;
+            for j in 0..i {
+                b0 = Bounds3::union(&b0, &buckets[j as usize].bounds);
+                count0 += buckets[j as usize].primitives.len() as f64;
+            }
+            for k in (i + 1)..(numBuckets - 1) {
+                b1 = Bounds3::union(&b1, &buckets[k as usize].bounds);
+                count1 += buckets[k as usize].primitives.len() as f64;
+            }
+            costs[i as usize] = 1f64 + (count0 * b0.surfaceArea() + count1 * b1.surfaceArea()) / bounds.surfaceArea();
+        }
+        // find bucket with minimium SAH costs
+        let mut sepIdx = 0usize;
+        for i in 0..(numBuckets as usize - 1) {
+            if costs[i] < costs[sepIdx] {
+                sepIdx = i;
+            }
+        }
+        // leaf by costs or create split
+        let leafCost = primitives.len() as f64;
+        if costs[sepIdx] > leafCost {
+            return BVHNode::newLeaf(primitives);
+        } else {
+            // create interior nodes
+            let mut list0 : LinkedList<Arc<dyn Primitive>> = LinkedList::new();
+            let mut list1 : LinkedList<Arc<dyn Primitive>> = LinkedList::new();
+            for i in 0..sepIdx {
+                for pri in &buckets[i].primitives {
+                    list0.push_back(pri.clone());
+                }
+            }
+            for i  in (sepIdx + 1)..(numBuckets as usize-1) {
+                for pri in &buckets[i].primitives {
+                    list1.push_back(pri.clone());
+                }
+            }
+            let mut nodes : LinkedList<Arc<BVHNode>> = LinkedList::new();
+            nodes.push_back(BVHAccel::recursiveMake(&list0, minPrimitivesInNode));
+            nodes.push_back(BVHAccel::recursiveMake(&list1, minPrimitivesInNode));
+            return BVHNode::newInterior(&nodes);
+        }
     }
 }
 
