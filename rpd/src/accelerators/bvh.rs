@@ -57,6 +57,7 @@ struct BVHNode {
 }
 
 impl BVHNode {
+    /// create an interior node, not a leaf, consists 2 or more nodes
     fn newInterior(nodes: &LinkedList<Arc<BVHNode>>) -> Arc<BVHNode> {
         let mut bounds = nodes.front().unwrap().bounds.clone(); // here will not consider about empty list
         for node in nodes {
@@ -71,6 +72,7 @@ impl BVHNode {
         });
         return ret;
     }
+    /// create a leaf node, consists some primitives
     fn newLeaf(primitives: &LinkedList<Arc<dyn Primitive>>) -> Arc<BVHNode> {
         let mut bounds = primitives.front().unwrap().worldBound(); // here will not consider about empty list
         for pri in primitives {
@@ -114,6 +116,7 @@ impl Primitive for BVHNode {
 }
 
 impl BVHAccel {
+    /// create a new BVH tree from given primitives and a limit config
     pub fn make(primitives: &LinkedList<Arc<dyn Primitive>>, minPrimitivesInNode: i32) -> Res<Arc<BVHAccel>> {
         let mut rootnode = BVHAccel::recursiveMake(primitives, minPrimitivesInNode);
         let mut ret = Arc::new(BVHAccel {
@@ -215,6 +218,7 @@ struct BucketInfo {
     pub bounds: Bounds3,
 }
 
+/// choice which bucket should use for SAH algorithm
 fn choiceBucket(vDim: f64, vBottom: f64, vTop: f64, nBuckets: i32) -> i32 {
     let mut ratio = (vDim - vBottom) / (vTop - vBottom);
     ratio = ratio * (nBuckets as f64) - 0.0001f64;

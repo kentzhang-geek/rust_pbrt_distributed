@@ -65,10 +65,12 @@ impl Bounds3 {
         return Ok((t0, t1));
     }
 
+    /// get center position of this bound
     pub fn center(&self) -> Vector3d {
         return (self.pMin + self.pMax) / 2.0f64;
     }
 
+    /// include 1 point in this bounds, return a big one
     pub fn addOnePoint(b: &Bounds3, pt: Vector3d) -> Bounds3 {
         return Bounds3 {
             pMin: Vector3d::MinPerComponent(&b.pMin, &pt),
@@ -76,6 +78,7 @@ impl Bounds3 {
         };
     }
 
+    /// combine 2 bounds to a big one
     pub fn union(b1: &Bounds3, b2: &Bounds3) -> Bounds3 {
         return Bounds3 {
             pMin: Vector3d::MinPerComponent(&b1.pMin, &b2.pMin),
@@ -83,6 +86,7 @@ impl Bounds3 {
         };
     }
 
+    /// compute surface area
     pub fn surfaceArea(&self) -> f64 {
         let extent = self.pMax - self.pMin;
         return 2.0f64 * (
@@ -92,10 +96,10 @@ impl Bounds3 {
         );
     }
 
-
+    /// compute surface area with a minimum extent value to avoid zero surface area, if there is any division below may lead to errors
     pub fn protectedSurfaceArea(&self) -> f64 {
         let mut extent = self.pMax - self.pMin;
-        let v = 0.01f64;
+        let v = 0.0001f64;
         extent = Vector3d::MaxPerComponent(&extent, &Vector3d::new(v, v, v));
         return 2.0f64 * (
             extent.x * extent.y +
