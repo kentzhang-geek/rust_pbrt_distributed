@@ -43,7 +43,7 @@ impl Bounds3 {
         let mut t0 = 0.0f64;
         let mut t1 = r.tmax;
 
-        for i in 0..2 {
+        for i in 0..3 {
             let invRayDir = 1.0f64 / r.d[i];
             let mut tNear = (self.pMin[i] - r.o[i]) * invRayDir;
             let mut tFar = (self.pMax[i] - r.o[i]) * invRayDir;

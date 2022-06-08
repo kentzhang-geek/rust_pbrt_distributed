@@ -36,7 +36,7 @@ impl Primitive for BVHAccel {
     fn intersectWithBounds(self: Arc<Self>, ray: &mut Ray) -> bool {
         let res = self.computedBounds.intersect(&ray);
         if let Ok(v) = res {
-            ray.tmax = v.0.min(ray.tmax);
+            ray.tmax = v.1.min(ray.tmax);
             return true;
         }
         return false;
@@ -118,7 +118,7 @@ impl Primitive for BVHNode {
     fn intersectWithBounds(self: Arc<Self>, ray: &mut Ray) -> bool {
         let res = self.bounds.intersect(&ray);
         if let Ok(v) = res {
-            ray.tmax = v.0.min(ray.tmax);
+            ray.tmax = v.1.min(ray.tmax);
             return true;
         }
         return false;
