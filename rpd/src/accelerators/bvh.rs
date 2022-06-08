@@ -25,13 +25,18 @@ impl Primitive for BVHAccel {
     }
 
     fn intersect(self: Arc<Self>, ray: &mut Ray, isect: &mut SurfaceInteraction) -> bool {
-        return self.root.clone().intersect(ray, isect);
+        if self.root.clone().intersectWithBounds(ray) {
+            return self.root.clone().intersect(ray, isect);
+        }
+        else {
+            return false;
+        }
     }
 
     fn intersectWithBounds(self: Arc<Self>, ray: &mut Ray) -> bool {
         let res = self.computedBounds.intersect(&ray);
         if let Ok(v) = res {
-            ray.tmax = v.0;
+            ray.tmax = v.0.min(ray.tmax);
             return true;
         }
         return false;
@@ -94,13 +99,26 @@ impl Primitive for BVHNode {
     }
 
     fn intersect(self: Arc<Self>, ray: &mut Ray, isect: &mut SurfaceInteraction) -> bool {
-        todo!()
+        if self.isLeaf {
+            for pri in &self.primitives {
+                if pri.clone().intersectWithBounds(ray) {
+                    pri.clone().intersect(ray, isect);
+                }
+            }
+        } else {
+            for child in &self.children {
+                if child.clone().intersectWithBounds(ray) {
+                    child.clone().intersect(ray, isect);
+                }
+            }
+        }
+        return true;
     }
 
     fn intersectWithBounds(self: Arc<Self>, ray: &mut Ray) -> bool {
         let res = self.bounds.intersect(&ray);
         if let Ok(v) = res {
-            ray.tmax = v.0;
+            ray.tmax = v.0.min(ray.tmax);
             return true;
         }
         return false;

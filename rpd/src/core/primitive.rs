@@ -32,7 +32,7 @@ impl Primitive for ShapePrimitive {
         let res = self.shape.clone().intersect(ray, false, & mut tHit,  isect);
         if let Ok(b) = res {
             if b {
-                ray.tmax = tHit;
+                ray.tmax = tHit.min(ray.tmax);
             }
             return b;
         }

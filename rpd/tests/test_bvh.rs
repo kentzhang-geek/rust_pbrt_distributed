@@ -25,7 +25,7 @@ mod tests_film {
     use rpd::core::primitive::{Primitive, ShapePrimitive};
 
     #[test]
-    fn test_bvh() {
+    fn test_bvh_01() {
         let mut test_data: Vec<(Vector3d, f64)> = vec![
             (Vector3d::new(0.0f64, 0f64, 0f64), 1f64),
             (Vector3d::new(0.0f64, 0f64, 2f64), 1f64),
@@ -43,6 +43,36 @@ mod tests_film {
         }
         let mut node_root = BVHAccel::make(&spheres, 1);
         node_root.show_self();
+
+        println!("Tested");
+    }
+
+    #[test]
+    fn test_bvh_02() {
+        let mut test_data: Vec<(Vector3d, f64)> = vec![
+            // (Vector3d::new(0.0f64, 0f64, 0f64), 1f64),
+            (Vector3d::new(0.0f64, 0f64, 2f64), 1f64),
+            (Vector3d::new(0.0f64, 0f64, 4f64), 1f64),
+            (Vector3d::new(0.0f64, 0f64, 6f64), 1f64),
+            (Vector3d::new(3.0f64, 0f64, 2f64), 4f64),
+        ];
+
+        let mut spheres: LinkedList<Arc<dyn Primitive>> = LinkedList::new();
+        for t in test_data {
+            spheres.push_back(Arc::new(ShapePrimitive {
+                shape: Arc::new((Sphere::newOnlyMove(t.0, t.1))),
+                material: None,
+                areaLight: None,
+            }));
+        }
+        let mut node_root = BVHAccel::make(&spheres, 1).unwrap();
+        node_root.show_self();
+
+        let mut ray = Ray::new(vec3(0f64, 0f64, 0f64), vec3(0f64, 0f64, 1f64).normalize());
+        let mut isect = SurfaceInteraction::default();
+        node_root.intersect(& mut ray, & mut isect);
+        isect.show_self();
+        ray.show_self();
 
         println!("Tested");
     }

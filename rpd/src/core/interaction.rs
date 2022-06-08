@@ -1,9 +1,10 @@
 use std::cell::RefCell;
-use std::fmt::Debug;
+use std::fmt::{Debug, Formatter};
 use std::rc::Rc;
 use std::sync::{Arc, Weak};
 use crate::core::geometry::Ray;
 use crate::core::math::*;
+use crate::core::tools::PrintSelf;
 use crate::interface::shape::Shape;
 use crate::shapes::sphere::Sphere;
 
@@ -23,13 +24,13 @@ pub struct InteractionBase {
 /// # WIP
 pub trait InteractionInterface {
     fn IsSurfaceInteraction(&self) -> bool;
-    fn SpawnRay(&self, d : &Vector3d)->Ray;
+    fn SpawnRay(&self, d: &Vector3d) -> Ray;
 }
 
 /// surface shading property , when surface intersection happend
 #[derive(Debug, Clone, Default)]
 pub struct SurfaceShading {
-    pub n : Vector3d,
+    pub n: Vector3d,
 }
 
 /// surface intersection data
@@ -37,7 +38,24 @@ pub struct SurfaceShading {
 pub struct SurfaceInteraction
 {
     pub interaction: InteractionBase,
-    pub uv : Vector2f,
-    pub shape : Option<Arc<dyn Shape>>,
-    pub shading : SurfaceShading,
+    pub uv: Vector2f,
+    pub shape: Option<Arc<dyn Shape>>,
+    pub shading: SurfaceShading,
+}
+
+impl Debug for SurfaceInteraction {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        let has_shape =
+            if let Some(s) = &self.shape {
+                true
+            } else {
+                false
+            };
+        f.debug_struct("SurfaceInteraction")
+            .field("uv", &self.uv)
+            .field("has_shape", &has_shape)
+            .field("shading", &self.shading)
+            .field("interaction_base", &self.interaction)
+            .finish()
+    }
 }
