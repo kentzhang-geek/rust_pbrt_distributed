@@ -57,3 +57,15 @@ impl RGBSpectrum {
         };
     }
 }
+
+impl From<Vector3d> for RGBSpectrum {
+    fn from(v: Vector3d) -> Self {
+        return RGBSpectrum::new(v);
+    }
+}
+
+impl From<f64> for RGBSpectrum {
+    fn from(v: f64) -> Self {
+        return RGBSpectrum::new(Vector3d::new(v,v,v));
+    }
+}
