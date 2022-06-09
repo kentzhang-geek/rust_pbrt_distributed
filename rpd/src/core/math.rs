@@ -109,3 +109,48 @@ pub fn Quadratic(&a: &f64, &b: &f64, &c: &f64) -> Res<(f64, f64)> {
         return Ok((r1, r2));
     }
 }
+
+pub mod octahedron_texture {
+    use crate::core::math::{Vector2d, Vector2i, Vector3d};
+
+    fn signNotZero(k:f64) ->f64 {
+        if k >= 0.0f64 {
+            1.0f64
+        } else {
+            -1.0f64
+        }
+    }
+
+    fn signNotZero2(v : Vector2d) -> Vector2d {
+        return Vector2d::new(signNotZero(v.x), signNotZero(v.y));
+    }
+
+    fn multPerComponent(v1 : Vector2d, v2 : Vector2d) -> Vector2d {
+        return Vector2d::new(v1.x * v2.x, v1.y * v2.y);
+    }
+
+    pub fn octEncode(v : Vector3d) -> Vector2d {
+        let l1norm = v.x.abs() + v.y.abs() + v.z.abs();
+        let mut result = v.xy() * (1.0f64 / l1norm);
+        if v.z < 0.0 {
+            result = multPerComponent(Vector2d::new(1.0f64, 1.0f64) - result.yx().abs(), signNotZero2(result.xy()));
+        }
+        return result;
+    }
+
+    pub fn octDecode(o : Vector2d) -> Vector3d {
+        let mut v = Vector3d::new(o.x, o.y, 1.0f64 - o.x.abs() - o.y.abs());
+        if v.z < 0.0 {
+            let mut newvxy = multPerComponent(Vector2d::new(1.0, 1.0) - v.yx().abs(), signNotZero2(v.xy()));
+            v = Vector3d::new(newvxy.x, newvxy.y, v.z);
+        }
+        return v.normalize();
+    }
+
+    pub fn fromIntCoordToOctFloatCoord(pixCoord : Vector2i, probeOctahedronSize : i32) -> Vector2d {
+        let probeOctahedronSize = probeOctahedronSize as f64;
+        let mut ret = Vector2d::new(pixCoord.x as f64 + 0.5f64, pixCoord.y as f64 + 0.5f64);
+        ret = multPerComponent(ret, Vector2d::new(1.0f64 / probeOctahedronSize, 1.0f64 / probeOctahedronSize));
+        return multPerComponent(ret, Vector2d::new(2.0f64, 2.0f64)) - Vector2d::new(1.0f64, 1.0f64);
+    }
+}
