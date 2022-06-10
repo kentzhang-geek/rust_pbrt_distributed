@@ -13,12 +13,29 @@ image = "*"
 gli-rs = { path = "G:\\source\\gli-rs" }
 #gli-rs = { git = "https://github.com/kentzhang-geek/gli-rs" }
 
+# use log and env_logger to debug on runtime
+log = "*"
+env_logger = "*"
+
 # below should use for debug , and to remove when visualize has other method
 three = "*"
-genmesh="*"
-mint="*"
+genmesh = "*"
+mint = "*"
+
+# those asset format should be supported: fbx, gltf(glb), obj
+# espacially fbx
+fbxcel = "*"
+
+[dependencies.gltf]
+version = "1.0"
+features = ["extras", "names", "KHR_lights_punctual", "KHR_materials_pbrSpecularGlossiness", "KHR_materials_unlit", "KHR_texture_transform", "KHR_materials_variants", "KHR_materials_volume", "KHR_materials_specular"]
+
+# use flatbuffers as scene file encoder and decoder
+[dependencies.flatbuffers]
+version = "*"
+
 
 [dev-dependencies]
 three = "*"
-genmesh="*"
-mint="*"
+genmesh = "*"
+mint = "*"

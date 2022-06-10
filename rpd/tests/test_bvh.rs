@@ -6,6 +6,7 @@ mod tests_film {
     use std::fmt::Debug;
     use std::ops::Mul;
     use std::sync::{Arc, Weak};
+    use gltf::Gltf;
     use image::codecs::png::CompressionType::Default;
     use nalgebra::sup;
     use rpd::interface::shape;
@@ -110,5 +111,6 @@ mod tests_film {
         ray.show_self();
 
         println!("Tested");
+
     }
 }

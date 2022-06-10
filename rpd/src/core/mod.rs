@@ -11,6 +11,7 @@ pub mod primitive;
 pub mod material;
 pub mod spectrum;
 pub mod light;
+pub mod api;
 
 pub use light::*;
 pub use spectrum::*;
