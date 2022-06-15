@@ -1,0 +1,5 @@
+include "common.fbs";
+
+table BVHAccel {
+    test : [Vec3d];
+}

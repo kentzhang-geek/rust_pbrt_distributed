@@ -5,8 +5,6 @@ mod tests {
 
     #[test]
     fn test01() {
-        let s = shape::STest { v: 12i32 };
-        s.test();
     }
 }
 
@@ -34,7 +32,7 @@ mod test_other {
 
     #[test]
     fn test_ray_01() {
-        let r = Ray::new(Point3d::Zero(), Vector3d::new(1.0f64, 0f64, 0f64));
+        let r = Ray::new(Vector3d::Zero(), Vector3d::new(1.0f64, 0f64, 0f64));
         r.show_self();
         let res = r.at(12f64);
         assert!(res.x == 12.0f64);
