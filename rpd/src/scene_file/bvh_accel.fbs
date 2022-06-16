@@ -1,5 +1,6 @@
 include "common.fbs";
 
 table BVHAccel {
-    test : [Vec3d];
 }
+
+root_type BVHAccel;

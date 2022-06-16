@@ -24,7 +24,9 @@ mint = "*"
 
 # those asset format should be supported: fbx, gltf(glb), obj
 # espacially fbx
-fbxcel = "*"
+[dependencies.fbxcel]
+version = "*"
+features = ["writer", "tree", "indextree"]
 
 [dependencies.gltf]
 version = "1.0"
