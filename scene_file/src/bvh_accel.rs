@@ -2,6 +2,7 @@
 
 
 
+use crate::mesh_primitive::*;
 use crate::common::*;
 use std::mem;
 use std::cmp::Ordering;
@@ -9,162 +10,236 @@ use std::cmp::Ordering;
 extern crate flatbuffers;
 use self::flatbuffers::{EndianScalar, Follow};
 
-pub enum BVHAccelOffset {}
+pub enum BVHNodeOffset {}
 #[derive(Copy, Clone, PartialEq)]
 
-pub struct BVHAccel<'a> {
+pub struct BVHNode<'a> {
   pub _tab: flatbuffers::Table<'a>,
 }
 
-impl<'a> flatbuffers::Follow<'a> for BVHAccel<'a> {
-    type Inner = BVHAccel<'a>;
+impl<'a> flatbuffers::Follow<'a> for BVHNode<'a> {
+    type Inner = BVHNode<'a>;
     #[inline]
     fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
         Self { _tab: flatbuffers::Table { buf, loc } }
     }
 }
 
-impl<'a> BVHAccel<'a> {
+impl<'a> BVHNode<'a> {
     #[inline]
     pub fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
-        BVHAccel { _tab: table }
+        BVHNode { _tab: table }
     }
     #[allow(unused_mut)]
     pub fn create<'bldr: 'args, 'args: 'mut_bldr, 'mut_bldr>(
         _fbb: &'mut_bldr mut flatbuffers::FlatBufferBuilder<'bldr>,
-        _args: &'args BVHAccelArgs) -> flatbuffers::WIPOffset<BVHAccel<'bldr>> {
-      let mut builder = BVHAccelBuilder::new(_fbb);
+        args: &'args BVHNodeArgs<'args>) -> flatbuffers::WIPOffset<BVHNode<'bldr>> {
+      let mut builder = BVHNodeBuilder::new(_fbb);
+      if let Some(x) = args.global_transform { builder.add_global_transform(x); }
+      if let Some(x) = args.local_transform { builder.add_local_transform(x); }
+      if let Some(x) = args.meshes { builder.add_meshes(x); }
+      if let Some(x) = args.children { builder.add_children(x); }
+      if let Some(x) = args.name { builder.add_name(x); }
       builder.finish()
     }
 
+    pub const VT_NAME: flatbuffers::VOffsetT = 4;
+    pub const VT_CHILDREN: flatbuffers::VOffsetT = 6;
+    pub const VT_MESHES: flatbuffers::VOffsetT = 8;
+    pub const VT_LOCAL_TRANSFORM: flatbuffers::VOffsetT = 10;
+    pub const VT_GLOBAL_TRANSFORM: flatbuffers::VOffsetT = 12;
+
+  #[inline]
+  pub fn name(&self) -> &'a str {
+    self._tab.get::<flatbuffers::ForwardsUOffset<&str>>(BVHNode::VT_NAME, None).unwrap()
+  }
+  #[inline]
+  pub fn children(&self) -> Option<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<BVHNode<'a>>>> {
+    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<BVHNode>>>>(BVHNode::VT_CHILDREN, None)
+  }
+  #[inline]
+  pub fn meshes(&self) -> Option<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<MeshPrimitive<'a>>>> {
+    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<MeshPrimitive>>>>(BVHNode::VT_MESHES, None)
+  }
+  #[inline]
+  pub fn local_transform(&self) -> &'a Matrix44d {
+    self._tab.get::<Matrix44d>(BVHNode::VT_LOCAL_TRANSFORM, None).unwrap()
+  }
+  /// for convenient
+  #[inline]
+  pub fn global_transform(&self) -> Option<&'a Matrix44d> {
+    self._tab.get::<Matrix44d>(BVHNode::VT_GLOBAL_TRANSFORM, None)
+  }
 }
 
-impl flatbuffers::Verifiable for BVHAccel<'_> {
+impl flatbuffers::Verifiable for BVHNode<'_> {
   #[inline]
   fn run_verifier(
     v: &mut flatbuffers::Verifier, pos: usize
   ) -> Result<(), flatbuffers::InvalidFlatbuffer> {
     use self::flatbuffers::Verifiable;
     v.visit_table(pos)?
+     .visit_field::<flatbuffers::ForwardsUOffset<&str>>(&"name", Self::VT_NAME, true)?
+     .visit_field::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<BVHNode>>>>(&"children", Self::VT_CHILDREN, false)?
+     .visit_field::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<MeshPrimitive>>>>(&"meshes", Self::VT_MESHES, false)?
+     .visit_field::<Matrix44d>(&"local_transform", Self::VT_LOCAL_TRANSFORM, true)?
+     .visit_field::<Matrix44d>(&"global_transform", Self::VT_GLOBAL_TRANSFORM, false)?
      .finish();
     Ok(())
   }
 }
-pub struct BVHAccelArgs {
+pub struct BVHNodeArgs<'a> {
+    pub name: Option<flatbuffers::WIPOffset<&'a str>>,
+    pub children: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<BVHNode<'a>>>>>,
+    pub meshes: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<MeshPrimitive<'a>>>>>,
+    pub local_transform: Option<&'a Matrix44d>,
+    pub global_transform: Option<&'a Matrix44d>,
 }
-impl<'a> Default for BVHAccelArgs {
+impl<'a> Default for BVHNodeArgs<'a> {
     #[inline]
     fn default() -> Self {
-        BVHAccelArgs {
+        BVHNodeArgs {
+            name: None, // required field
+            children: None,
+            meshes: None,
+            local_transform: None, // required field
+            global_transform: None,
         }
     }
 }
-pub struct BVHAccelBuilder<'a: 'b, 'b> {
+pub struct BVHNodeBuilder<'a: 'b, 'b> {
   fbb_: &'b mut flatbuffers::FlatBufferBuilder<'a>,
   start_: flatbuffers::WIPOffset<flatbuffers::TableUnfinishedWIPOffset>,
 }
-impl<'a: 'b, 'b> BVHAccelBuilder<'a, 'b> {
+impl<'a: 'b, 'b> BVHNodeBuilder<'a, 'b> {
   #[inline]
-  pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a>) -> BVHAccelBuilder<'a, 'b> {
+  pub fn add_name(&mut self, name: flatbuffers::WIPOffset<&'b  str>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(BVHNode::VT_NAME, name);
+  }
+  #[inline]
+  pub fn add_children(&mut self, children: flatbuffers::WIPOffset<flatbuffers::Vector<'b , flatbuffers::ForwardsUOffset<BVHNode<'b >>>>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(BVHNode::VT_CHILDREN, children);
+  }
+  #[inline]
+  pub fn add_meshes(&mut self, meshes: flatbuffers::WIPOffset<flatbuffers::Vector<'b , flatbuffers::ForwardsUOffset<MeshPrimitive<'b >>>>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(BVHNode::VT_MESHES, meshes);
+  }
+  #[inline]
+  pub fn add_local_transform(&mut self, local_transform: &Matrix44d) {
+    self.fbb_.push_slot_always::<&Matrix44d>(BVHNode::VT_LOCAL_TRANSFORM, local_transform);
+  }
+  #[inline]
+  pub fn add_global_transform(&mut self, global_transform: &Matrix44d) {
+    self.fbb_.push_slot_always::<&Matrix44d>(BVHNode::VT_GLOBAL_TRANSFORM, global_transform);
+  }
+  #[inline]
+  pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a>) -> BVHNodeBuilder<'a, 'b> {
     let start = _fbb.start_table();
-    BVHAccelBuilder {
+    BVHNodeBuilder {
       fbb_: _fbb,
       start_: start,
     }
   }
   #[inline]
-  pub fn finish(self) -> flatbuffers::WIPOffset<BVHAccel<'a>> {
+  pub fn finish(self) -> flatbuffers::WIPOffset<BVHNode<'a>> {
     let o = self.fbb_.end_table(self.start_);
+    self.fbb_.required(o, BVHNode::VT_NAME,"name");
+    self.fbb_.required(o, BVHNode::VT_LOCAL_TRANSFORM,"local_transform");
     flatbuffers::WIPOffset::new(o.value())
   }
 }
 
-impl std::fmt::Debug for BVHAccel<'_> {
+impl std::fmt::Debug for BVHNode<'_> {
   fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-    let mut ds = f.debug_struct("BVHAccel");
+    let mut ds = f.debug_struct("BVHNode");
+      ds.field("name", &self.name());
+      ds.field("children", &self.children());
+      ds.field("meshes", &self.meshes());
+      ds.field("local_transform", &self.local_transform());
+      ds.field("global_transform", &self.global_transform());
       ds.finish()
   }
 }
 #[inline]
 #[deprecated(since="2.0.0", note="Deprecated in favor of `root_as...` methods.")]
-pub fn get_root_as_bvhaccel<'a>(buf: &'a [u8]) -> BVHAccel<'a> {
-  unsafe { flatbuffers::root_unchecked::<BVHAccel<'a>>(buf) }
+pub fn get_root_as_bvhnode<'a>(buf: &'a [u8]) -> BVHNode<'a> {
+  unsafe { flatbuffers::root_unchecked::<BVHNode<'a>>(buf) }
 }
 
 #[inline]
 #[deprecated(since="2.0.0", note="Deprecated in favor of `root_as...` methods.")]
-pub fn get_size_prefixed_root_as_bvhaccel<'a>(buf: &'a [u8]) -> BVHAccel<'a> {
-  unsafe { flatbuffers::size_prefixed_root_unchecked::<BVHAccel<'a>>(buf) }
+pub fn get_size_prefixed_root_as_bvhnode<'a>(buf: &'a [u8]) -> BVHNode<'a> {
+  unsafe { flatbuffers::size_prefixed_root_unchecked::<BVHNode<'a>>(buf) }
 }
 
 #[inline]
-/// Verifies that a buffer of bytes contains a `BVHAccel`
+/// Verifies that a buffer of bytes contains a `BVHNode`
 /// and returns it.
 /// Note that verification is still experimental and may not
 /// catch every error, or be maximally performant. For the
 /// previous, unchecked, behavior use
-/// `root_as_bvhaccel_unchecked`.
-pub fn root_as_bvhaccel(buf: &[u8]) -> Result<BVHAccel, flatbuffers::InvalidFlatbuffer> {
-  flatbuffers::root::<BVHAccel>(buf)
+/// `root_as_bvhnode_unchecked`.
+pub fn root_as_bvhnode(buf: &[u8]) -> Result<BVHNode, flatbuffers::InvalidFlatbuffer> {
+  flatbuffers::root::<BVHNode>(buf)
 }
 #[inline]
 /// Verifies that a buffer of bytes contains a size prefixed
-/// `BVHAccel` and returns it.
+/// `BVHNode` and returns it.
 /// Note that verification is still experimental and may not
 /// catch every error, or be maximally performant. For the
 /// previous, unchecked, behavior use
-/// `size_prefixed_root_as_bvhaccel_unchecked`.
-pub fn size_prefixed_root_as_bvhaccel(buf: &[u8]) -> Result<BVHAccel, flatbuffers::InvalidFlatbuffer> {
-  flatbuffers::size_prefixed_root::<BVHAccel>(buf)
+/// `size_prefixed_root_as_bvhnode_unchecked`.
+pub fn size_prefixed_root_as_bvhnode(buf: &[u8]) -> Result<BVHNode, flatbuffers::InvalidFlatbuffer> {
+  flatbuffers::size_prefixed_root::<BVHNode>(buf)
 }
 #[inline]
 /// Verifies, with the given options, that a buffer of bytes
-/// contains a `BVHAccel` and returns it.
+/// contains a `BVHNode` and returns it.
 /// Note that verification is still experimental and may not
 /// catch every error, or be maximally performant. For the
 /// previous, unchecked, behavior use
-/// `root_as_bvhaccel_unchecked`.
-pub fn root_as_bvhaccel_with_opts<'b, 'o>(
+/// `root_as_bvhnode_unchecked`.
+pub fn root_as_bvhnode_with_opts<'b, 'o>(
   opts: &'o flatbuffers::VerifierOptions,
   buf: &'b [u8],
-) -> Result<BVHAccel<'b>, flatbuffers::InvalidFlatbuffer> {
-  flatbuffers::root_with_opts::<BVHAccel<'b>>(opts, buf)
+) -> Result<BVHNode<'b>, flatbuffers::InvalidFlatbuffer> {
+  flatbuffers::root_with_opts::<BVHNode<'b>>(opts, buf)
 }
 #[inline]
 /// Verifies, with the given verifier options, that a buffer of
-/// bytes contains a size prefixed `BVHAccel` and returns
+/// bytes contains a size prefixed `BVHNode` and returns
 /// it. Note that verification is still experimental and may not
 /// catch every error, or be maximally performant. For the
 /// previous, unchecked, behavior use
-/// `root_as_bvhaccel_unchecked`.
-pub fn size_prefixed_root_as_bvhaccel_with_opts<'b, 'o>(
+/// `root_as_bvhnode_unchecked`.
+pub fn size_prefixed_root_as_bvhnode_with_opts<'b, 'o>(
   opts: &'o flatbuffers::VerifierOptions,
   buf: &'b [u8],
-) -> Result<BVHAccel<'b>, flatbuffers::InvalidFlatbuffer> {
-  flatbuffers::size_prefixed_root_with_opts::<BVHAccel<'b>>(opts, buf)
+) -> Result<BVHNode<'b>, flatbuffers::InvalidFlatbuffer> {
+  flatbuffers::size_prefixed_root_with_opts::<BVHNode<'b>>(opts, buf)
 }
 #[inline]
-/// Assumes, without verification, that a buffer of bytes contains a BVHAccel and returns it.
+/// Assumes, without verification, that a buffer of bytes contains a BVHNode and returns it.
 /// # Safety
-/// Callers must trust the given bytes do indeed contain a valid `BVHAccel`.
-pub unsafe fn root_as_bvhaccel_unchecked(buf: &[u8]) -> BVHAccel {
-  flatbuffers::root_unchecked::<BVHAccel>(buf)
+/// Callers must trust the given bytes do indeed contain a valid `BVHNode`.
+pub unsafe fn root_as_bvhnode_unchecked(buf: &[u8]) -> BVHNode {
+  flatbuffers::root_unchecked::<BVHNode>(buf)
 }
 #[inline]
-/// Assumes, without verification, that a buffer of bytes contains a size prefixed BVHAccel and returns it.
+/// Assumes, without verification, that a buffer of bytes contains a size prefixed BVHNode and returns it.
 /// # Safety
-/// Callers must trust the given bytes do indeed contain a valid size prefixed `BVHAccel`.
-pub unsafe fn size_prefixed_root_as_bvhaccel_unchecked(buf: &[u8]) -> BVHAccel {
-  flatbuffers::size_prefixed_root_unchecked::<BVHAccel>(buf)
+/// Callers must trust the given bytes do indeed contain a valid size prefixed `BVHNode`.
+pub unsafe fn size_prefixed_root_as_bvhnode_unchecked(buf: &[u8]) -> BVHNode {
+  flatbuffers::size_prefixed_root_unchecked::<BVHNode>(buf)
 }
 #[inline]
-pub fn finish_bvhaccel_buffer<'a, 'b>(
+pub fn finish_bvhnode_buffer<'a, 'b>(
     fbb: &'b mut flatbuffers::FlatBufferBuilder<'a>,
-    root: flatbuffers::WIPOffset<BVHAccel<'a>>) {
+    root: flatbuffers::WIPOffset<BVHNode<'a>>) {
   fbb.finish(root, None);
 }
 
 #[inline]
-pub fn finish_size_prefixed_bvhaccel_buffer<'a, 'b>(fbb: &'b mut flatbuffers::FlatBufferBuilder<'a>, root: flatbuffers::WIPOffset<BVHAccel<'a>>) {
+pub fn finish_size_prefixed_bvhnode_buffer<'a, 'b>(fbb: &'b mut flatbuffers::FlatBufferBuilder<'a>, root: flatbuffers::WIPOffset<BVHNode<'a>>) {
   fbb.finish_size_prefixed(root, None);
 }

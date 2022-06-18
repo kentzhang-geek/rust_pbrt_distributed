@@ -255,3 +255,270 @@ impl<'a> BoundingBox {
 
 }
 
+// struct Vec4d, aligned to 8
+#[repr(transparent)]
+#[derive(Clone, Copy, PartialEq)]
+pub struct Vec4d(pub [u8; 32]);
+impl Default for Vec4d { 
+  fn default() -> Self { 
+    Self([0; 32])
+  }
+}
+impl std::fmt::Debug for Vec4d {
+  fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+    f.debug_struct("Vec4d")
+      .field("x", &self.x())
+      .field("y", &self.y())
+      .field("z", &self.z())
+      .field("w", &self.w())
+      .finish()
+  }
+}
+
+impl flatbuffers::SimpleToVerifyInSlice for Vec4d {}
+impl flatbuffers::SafeSliceAccess for Vec4d {}
+impl<'a> flatbuffers::Follow<'a> for Vec4d {
+  type Inner = &'a Vec4d;
+  #[inline]
+  fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
+    <&'a Vec4d>::follow(buf, loc)
+  }
+}
+impl<'a> flatbuffers::Follow<'a> for &'a Vec4d {
+  type Inner = &'a Vec4d;
+  #[inline]
+  fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
+    flatbuffers::follow_cast_ref::<Vec4d>(buf, loc)
+  }
+}
+impl<'b> flatbuffers::Push for Vec4d {
+    type Output = Vec4d;
+    #[inline]
+    fn push(&self, dst: &mut [u8], _rest: &[u8]) {
+        let src = unsafe {
+            ::std::slice::from_raw_parts(self as *const Vec4d as *const u8, Self::size())
+        };
+        dst.copy_from_slice(src);
+    }
+}
+impl<'b> flatbuffers::Push for &'b Vec4d {
+    type Output = Vec4d;
+
+    #[inline]
+    fn push(&self, dst: &mut [u8], _rest: &[u8]) {
+        let src = unsafe {
+            ::std::slice::from_raw_parts(*self as *const Vec4d as *const u8, Self::size())
+        };
+        dst.copy_from_slice(src);
+    }
+}
+
+impl<'a> flatbuffers::Verifiable for Vec4d {
+  #[inline]
+  fn run_verifier(
+    v: &mut flatbuffers::Verifier, pos: usize
+  ) -> Result<(), flatbuffers::InvalidFlatbuffer> {
+    use self::flatbuffers::Verifiable;
+    v.in_buffer::<Self>(pos)
+  }
+}
+impl<'a> Vec4d {
+  #[allow(clippy::too_many_arguments)]
+  pub fn new(
+    x: f64,
+    y: f64,
+    z: f64,
+    w: f64,
+  ) -> Self {
+    let mut s = Self([0; 32]);
+    s.set_x(x);
+    s.set_y(y);
+    s.set_z(z);
+    s.set_w(w);
+    s
+  }
+
+  pub fn x(&self) -> f64 {
+    let mut mem = core::mem::MaybeUninit::<f64>::uninit();
+    unsafe {
+      core::ptr::copy_nonoverlapping(
+        self.0[0..].as_ptr(),
+        mem.as_mut_ptr() as *mut u8,
+        core::mem::size_of::<f64>(),
+      );
+      mem.assume_init()
+    }.from_little_endian()
+  }
+
+  pub fn set_x(&mut self, x: f64) {
+    let x_le = x.to_little_endian();
+    unsafe {
+      core::ptr::copy_nonoverlapping(
+        &x_le as *const f64 as *const u8,
+        self.0[0..].as_mut_ptr(),
+        core::mem::size_of::<f64>(),
+      );
+    }
+  }
+
+  pub fn y(&self) -> f64 {
+    let mut mem = core::mem::MaybeUninit::<f64>::uninit();
+    unsafe {
+      core::ptr::copy_nonoverlapping(
+        self.0[8..].as_ptr(),
+        mem.as_mut_ptr() as *mut u8,
+        core::mem::size_of::<f64>(),
+      );
+      mem.assume_init()
+    }.from_little_endian()
+  }
+
+  pub fn set_y(&mut self, x: f64) {
+    let x_le = x.to_little_endian();
+    unsafe {
+      core::ptr::copy_nonoverlapping(
+        &x_le as *const f64 as *const u8,
+        self.0[8..].as_mut_ptr(),
+        core::mem::size_of::<f64>(),
+      );
+    }
+  }
+
+  pub fn z(&self) -> f64 {
+    let mut mem = core::mem::MaybeUninit::<f64>::uninit();
+    unsafe {
+      core::ptr::copy_nonoverlapping(
+        self.0[16..].as_ptr(),
+        mem.as_mut_ptr() as *mut u8,
+        core::mem::size_of::<f64>(),
+      );
+      mem.assume_init()
+    }.from_little_endian()
+  }
+
+  pub fn set_z(&mut self, x: f64) {
+    let x_le = x.to_little_endian();
+    unsafe {
+      core::ptr::copy_nonoverlapping(
+        &x_le as *const f64 as *const u8,
+        self.0[16..].as_mut_ptr(),
+        core::mem::size_of::<f64>(),
+      );
+    }
+  }
+
+  pub fn w(&self) -> f64 {
+    let mut mem = core::mem::MaybeUninit::<f64>::uninit();
+    unsafe {
+      core::ptr::copy_nonoverlapping(
+        self.0[24..].as_ptr(),
+        mem.as_mut_ptr() as *mut u8,
+        core::mem::size_of::<f64>(),
+      );
+      mem.assume_init()
+    }.from_little_endian()
+  }
+
+  pub fn set_w(&mut self, x: f64) {
+    let x_le = x.to_little_endian();
+    unsafe {
+      core::ptr::copy_nonoverlapping(
+        &x_le as *const f64 as *const u8,
+        self.0[24..].as_mut_ptr(),
+        core::mem::size_of::<f64>(),
+      );
+    }
+  }
+
+}
+
+// struct Matrix44d, aligned to 8
+#[repr(transparent)]
+#[derive(Clone, Copy, PartialEq)]
+pub struct Matrix44d(pub [u8; 128]);
+impl Default for Matrix44d { 
+  fn default() -> Self { 
+    Self([0; 128])
+  }
+}
+impl std::fmt::Debug for Matrix44d {
+  fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+    f.debug_struct("Matrix44d")
+      .field("idx", &self.idx())
+      .finish()
+  }
+}
+
+impl flatbuffers::SimpleToVerifyInSlice for Matrix44d {}
+impl flatbuffers::SafeSliceAccess for Matrix44d {}
+impl<'a> flatbuffers::Follow<'a> for Matrix44d {
+  type Inner = &'a Matrix44d;
+  #[inline]
+  fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
+    <&'a Matrix44d>::follow(buf, loc)
+  }
+}
+impl<'a> flatbuffers::Follow<'a> for &'a Matrix44d {
+  type Inner = &'a Matrix44d;
+  #[inline]
+  fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
+    flatbuffers::follow_cast_ref::<Matrix44d>(buf, loc)
+  }
+}
+impl<'b> flatbuffers::Push for Matrix44d {
+    type Output = Matrix44d;
+    #[inline]
+    fn push(&self, dst: &mut [u8], _rest: &[u8]) {
+        let src = unsafe {
+            ::std::slice::from_raw_parts(self as *const Matrix44d as *const u8, Self::size())
+        };
+        dst.copy_from_slice(src);
+    }
+}
+impl<'b> flatbuffers::Push for &'b Matrix44d {
+    type Output = Matrix44d;
+
+    #[inline]
+    fn push(&self, dst: &mut [u8], _rest: &[u8]) {
+        let src = unsafe {
+            ::std::slice::from_raw_parts(*self as *const Matrix44d as *const u8, Self::size())
+        };
+        dst.copy_from_slice(src);
+    }
+}
+
+impl<'a> flatbuffers::Verifiable for Matrix44d {
+  #[inline]
+  fn run_verifier(
+    v: &mut flatbuffers::Verifier, pos: usize
+  ) -> Result<(), flatbuffers::InvalidFlatbuffer> {
+    use self::flatbuffers::Verifiable;
+    v.in_buffer::<Self>(pos)
+  }
+}
+impl<'a> Matrix44d {
+  #[allow(clippy::too_many_arguments)]
+  pub fn new(
+    idx: &[Vec4d; 4],
+  ) -> Self {
+    let mut s = Self([0; 128]);
+    s.set_idx(&idx);
+    s
+  }
+
+  pub fn idx(&'a self) -> flatbuffers::Array<'a, Vec4d, 4> {
+    flatbuffers::Array::follow(&self.0, 0)
+  }
+
+  pub fn set_idx(&mut self, x: &[Vec4d; 4]) {
+    unsafe {
+      std::ptr::copy(
+        x.as_ptr() as *const u8,
+        self.0.as_mut_ptr().add(0),
+        128,
+      );
+    }
+  }
+
+}
+
