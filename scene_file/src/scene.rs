@@ -2,8 +2,8 @@
 
 
 
-use super::common_generated::*;
-use super::bvh_accel_generated::*;
+use crate::common::*;
+use crate::bvh_accel::*;
 use std::mem;
 use std::cmp::Ordering;
 

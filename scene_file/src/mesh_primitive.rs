@@ -2,7 +2,7 @@
 
 
 
-use super::common_generated::*;
+use crate::common::*;
 use std::mem;
 use std::cmp::Ordering;
 
