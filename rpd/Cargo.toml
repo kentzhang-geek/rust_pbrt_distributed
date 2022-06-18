@@ -24,9 +24,10 @@ mint = "*"
 
 # those asset format should be supported: fbx, gltf(glb), obj
 # espacially fbx
-[dependencies.fbxcel]
-version = "*"
-features = ["writer", "tree", "indextree"]
+# FUCK ! this is not usable, I will write CPP code and export API to convert fbx to flatbuffers!
+#[dependencies.fbxcel]
+#version = "*"
+#features = ["writer", "tree", "indextree"]
 
 [dependencies.gltf]
 version = "1.0"
