@@ -158,6 +158,29 @@ impl<'a> Vec3d {
     }
   }
 
+  pub fn unpack(&self) -> Vec3dT {
+    Vec3dT {
+      x: self.x(),
+      y: self.y(),
+      z: self.z(),
+    }
+  }
+}
+
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Vec3dT {
+  pub x: f64,
+  pub y: f64,
+  pub z: f64,
+}
+impl Vec3dT {
+  pub fn pack(&self) -> Vec3d {
+    Vec3d::new(
+      self.x,
+      self.y,
+      self.z,
+    )
+  }
 }
 
 // struct BoundingBox, aligned to 8
@@ -253,6 +276,26 @@ impl<'a> BoundingBox {
     self.0[24..24+24].copy_from_slice(&x.0)
   }
 
+  pub fn unpack(&self) -> BoundingBoxT {
+    BoundingBoxT {
+      p_min: self.p_min().unpack(),
+      p_max: self.p_max().unpack(),
+    }
+  }
+}
+
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct BoundingBoxT {
+  pub p_min: Vec3dT,
+  pub p_max: Vec3dT,
+}
+impl BoundingBoxT {
+  pub fn pack(&self) -> BoundingBox {
+    BoundingBox::new(
+      &self.p_min.pack(),
+      &self.p_max.pack(),
+    )
+  }
 }
 
 // struct Vec4d, aligned to 8
@@ -430,6 +473,32 @@ impl<'a> Vec4d {
     }
   }
 
+  pub fn unpack(&self) -> Vec4dT {
+    Vec4dT {
+      x: self.x(),
+      y: self.y(),
+      z: self.z(),
+      w: self.w(),
+    }
+  }
+}
+
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Vec4dT {
+  pub x: f64,
+  pub y: f64,
+  pub z: f64,
+  pub w: f64,
+}
+impl Vec4dT {
+  pub fn pack(&self) -> Vec4d {
+    Vec4d::new(
+      self.x,
+      self.y,
+      self.z,
+      self.w,
+    )
+  }
 }
 
 // struct Matrix44d, aligned to 8
@@ -520,5 +589,22 @@ impl<'a> Matrix44d {
     }
   }
 
+  pub fn unpack(&self) -> Matrix44dT {
+    Matrix44dT {
+      idx: { let idx = self.idx(); flatbuffers::array_init(|i| idx.get(i).unpack()) },
+    }
+  }
+}
+
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Matrix44dT {
+  pub idx: [Vec4dT; 4],
+}
+impl Matrix44dT {
+  pub fn pack(&self) -> Matrix44d {
+    Matrix44d::new(
+      &flatbuffers::array_init(|i| self.idx[i].pack()),
+    )
+  }
 }
 

@@ -43,6 +43,32 @@ impl<'a> BVHNode<'a> {
       builder.finish()
     }
 
+    pub fn unpack(&self) -> BVHNodeT {
+      let name = {
+        let x = self.name();
+        x.to_string()
+      };
+      let children = self.children().map(|x| {
+        x.iter().map(|t| t.unpack()).collect()
+      });
+      let meshes = self.meshes().map(|x| {
+        x.iter().map(|t| t.unpack()).collect()
+      });
+      let local_transform = {
+        let x = self.local_transform();
+        x.unpack()
+      };
+      let global_transform = self.global_transform().map(|x| {
+        x.unpack()
+      });
+      BVHNodeT {
+        name,
+        children,
+        meshes,
+        local_transform,
+        global_transform,
+      }
+    }
     pub const VT_NAME: flatbuffers::VOffsetT = 4;
     pub const VT_CHILDREN: flatbuffers::VOffsetT = 6;
     pub const VT_MESHES: flatbuffers::VOffsetT = 8;
@@ -158,6 +184,54 @@ impl std::fmt::Debug for BVHNode<'_> {
       ds.field("local_transform", &self.local_transform());
       ds.field("global_transform", &self.global_transform());
       ds.finish()
+  }
+}
+#[non_exhaustive]
+#[derive(Debug, Clone, PartialEq)]
+pub struct BVHNodeT {
+  pub name: String,
+  pub children: Option<Vec<BVHNodeT>>,
+  pub meshes: Option<Vec<MeshPrimitiveT>>,
+  pub local_transform: Matrix44dT,
+  pub global_transform: Option<Matrix44dT>,
+}
+impl Default for BVHNodeT {
+  fn default() -> Self {
+    Self {
+      name: "".to_string(),
+      children: None,
+      meshes: None,
+      local_transform: Default::default(),
+      global_transform: None,
+    }
+  }
+}
+impl BVHNodeT {
+  pub fn pack<'b>(
+    &self,
+    _fbb: &mut flatbuffers::FlatBufferBuilder<'b>
+  ) -> flatbuffers::WIPOffset<BVHNode<'b>> {
+    let name = Some({
+      let x = &self.name;
+      _fbb.create_string(x)
+    });
+    let children = self.children.as_ref().map(|x|{
+      let w: Vec<_> = x.iter().map(|t| t.pack(_fbb)).collect();_fbb.create_vector(&w)
+    });
+    let meshes = self.meshes.as_ref().map(|x|{
+      let w: Vec<_> = x.iter().map(|t| t.pack(_fbb)).collect();_fbb.create_vector(&w)
+    });
+    let local_transform_tmp = Some(self.local_transform.pack());
+    let local_transform = local_transform_tmp.as_ref();
+    let global_transform_tmp = self.global_transform.as_ref().map(|x| x.pack());
+    let global_transform = global_transform_tmp.as_ref();
+    BVHNode::create(_fbb, &BVHNodeArgs{
+      name,
+      children,
+      meshes,
+      local_transform,
+      global_transform,
+    })
   }
 }
 #[inline]

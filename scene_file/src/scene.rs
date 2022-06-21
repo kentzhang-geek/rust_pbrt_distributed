@@ -40,6 +40,14 @@ impl<'a> Scene<'a> {
       builder.finish()
     }
 
+    pub fn unpack(&self) -> SceneT {
+      let root = self.root().map(|x| {
+        Box::new(x.unpack())
+      });
+      SceneT {
+        root,
+      }
+    }
     pub const VT_ROOT: flatbuffers::VOffsetT = 4;
 
   #[inline]
@@ -100,6 +108,31 @@ impl std::fmt::Debug for Scene<'_> {
     let mut ds = f.debug_struct("Scene");
       ds.field("root", &self.root());
       ds.finish()
+  }
+}
+#[non_exhaustive]
+#[derive(Debug, Clone, PartialEq)]
+pub struct SceneT {
+  pub root: Option<Box<BVHNodeT>>,
+}
+impl Default for SceneT {
+  fn default() -> Self {
+    Self {
+      root: None,
+    }
+  }
+}
+impl SceneT {
+  pub fn pack<'b>(
+    &self,
+    _fbb: &mut flatbuffers::FlatBufferBuilder<'b>
+  ) -> flatbuffers::WIPOffset<Scene<'b>> {
+    let root = self.root.as_ref().map(|x|{
+      x.pack(_fbb)
+    });
+    Scene::create(_fbb, &SceneArgs{
+      root,
+    })
   }
 }
 #[inline]

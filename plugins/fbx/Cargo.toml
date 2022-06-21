@@ -2,6 +2,7 @@
 name = "fbx"
 version = "0.1.0"
 edition = "2021"
+crate-type=['rlib']
 
 build = "build.rs"
 
@@ -9,3 +10,6 @@ build = "build.rs"
 
 [dependencies]
 scene_file = {path="../../scene_file"}
+
+[dependencies.flatbuffers]
+version = "*"

@@ -9,6 +9,97 @@ use std::cmp::Ordering;
 extern crate flatbuffers;
 use self::flatbuffers::{EndianScalar, Follow};
 
+#[deprecated(since = "2.0.0", note = "Use associated constants instead. This will no longer be generated in 2021.")]
+pub const ENUM_MIN_NORMAL_MAP_MODE: u8 = 0;
+#[deprecated(since = "2.0.0", note = "Use associated constants instead. This will no longer be generated in 2021.")]
+pub const ENUM_MAX_NORMAL_MAP_MODE: u8 = 2;
+#[deprecated(since = "2.0.0", note = "Use associated constants instead. This will no longer be generated in 2021.")]
+#[allow(non_camel_case_types)]
+pub const ENUM_VALUES_NORMAL_MAP_MODE: [NormalMapMode; 3] = [
+  NormalMapMode::eNone,
+  NormalMapMode::eByVertex,
+  NormalMapMode::eByIndex,
+];
+
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Default)]
+#[repr(transparent)]
+pub struct NormalMapMode(pub u8);
+#[allow(non_upper_case_globals)]
+impl NormalMapMode {
+  pub const eNone: Self = Self(0);
+  pub const eByVertex: Self = Self(1);
+  pub const eByIndex: Self = Self(2);
+
+  pub const ENUM_MIN: u8 = 0;
+  pub const ENUM_MAX: u8 = 2;
+  pub const ENUM_VALUES: &'static [Self] = &[
+    Self::eNone,
+    Self::eByVertex,
+    Self::eByIndex,
+  ];
+  /// Returns the variant's name or "" if unknown.
+  pub fn variant_name(self) -> Option<&'static str> {
+    match self {
+      Self::eNone => Some("eNone"),
+      Self::eByVertex => Some("eByVertex"),
+      Self::eByIndex => Some("eByIndex"),
+      _ => None,
+    }
+  }
+}
+impl std::fmt::Debug for NormalMapMode {
+  fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+    if let Some(name) = self.variant_name() {
+      f.write_str(name)
+    } else {
+      f.write_fmt(format_args!("<UNKNOWN {:?}>", self.0))
+    }
+  }
+}
+impl<'a> flatbuffers::Follow<'a> for NormalMapMode {
+  type Inner = Self;
+  #[inline]
+  fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
+    let b = unsafe {
+      flatbuffers::read_scalar_at::<u8>(buf, loc)
+    };
+    Self(b)
+  }
+}
+
+impl flatbuffers::Push for NormalMapMode {
+    type Output = NormalMapMode;
+    #[inline]
+    fn push(&self, dst: &mut [u8], _rest: &[u8]) {
+        unsafe { flatbuffers::emplace_scalar::<u8>(dst, self.0); }
+    }
+}
+
+impl flatbuffers::EndianScalar for NormalMapMode {
+  #[inline]
+  fn to_little_endian(self) -> Self {
+    let b = u8::to_le(self.0);
+    Self(b)
+  }
+  #[inline]
+  #[allow(clippy::wrong_self_convention)]
+  fn from_little_endian(self) -> Self {
+    let b = u8::from_le(self.0);
+    Self(b)
+  }
+}
+
+impl<'a> flatbuffers::Verifiable for NormalMapMode {
+  #[inline]
+  fn run_verifier(
+    v: &mut flatbuffers::Verifier, pos: usize
+  ) -> Result<(), flatbuffers::InvalidFlatbuffer> {
+    use self::flatbuffers::Verifiable;
+    u8::run_verifier(v, pos)
+  }
+}
+
+impl flatbuffers::SimpleToVerifyInSlice for NormalMapMode {}
 // struct TriangleIndexTuple, aligned to 4
 #[repr(transparent)]
 #[derive(Clone, Copy, PartialEq)]
@@ -21,7 +112,9 @@ impl Default for TriangleIndexTuple {
 impl std::fmt::Debug for TriangleIndexTuple {
   fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
     f.debug_struct("TriangleIndexTuple")
-      .field("idx", &self.idx())
+      .field("idx0", &self.idx0())
+      .field("idx1", &self.idx1())
+      .field("idx2", &self.idx2())
       .finish()
   }
 }
@@ -76,21 +169,109 @@ impl<'a> flatbuffers::Verifiable for TriangleIndexTuple {
 impl<'a> TriangleIndexTuple {
   #[allow(clippy::too_many_arguments)]
   pub fn new(
-    idx: &[i32; 3],
+    idx0: i32,
+    idx1: i32,
+    idx2: i32,
   ) -> Self {
     let mut s = Self([0; 12]);
-    s.set_idx(&idx);
+    s.set_idx0(idx0);
+    s.set_idx1(idx1);
+    s.set_idx2(idx2);
     s
   }
 
-  pub fn idx(&'a self) -> flatbuffers::Array<'a, i32, 3> {
-    flatbuffers::Array::follow(&self.0, 0)
+  pub fn idx0(&self) -> i32 {
+    let mut mem = core::mem::MaybeUninit::<i32>::uninit();
+    unsafe {
+      core::ptr::copy_nonoverlapping(
+        self.0[0..].as_ptr(),
+        mem.as_mut_ptr() as *mut u8,
+        core::mem::size_of::<i32>(),
+      );
+      mem.assume_init()
+    }.from_little_endian()
   }
 
-  pub fn set_idx(&mut self, items: &[i32; 3]) {
-    flatbuffers::emplace_scalar_array(&mut self.0, 0, items);
+  pub fn set_idx0(&mut self, x: i32) {
+    let x_le = x.to_little_endian();
+    unsafe {
+      core::ptr::copy_nonoverlapping(
+        &x_le as *const i32 as *const u8,
+        self.0[0..].as_mut_ptr(),
+        core::mem::size_of::<i32>(),
+      );
+    }
   }
 
+  pub fn idx1(&self) -> i32 {
+    let mut mem = core::mem::MaybeUninit::<i32>::uninit();
+    unsafe {
+      core::ptr::copy_nonoverlapping(
+        self.0[4..].as_ptr(),
+        mem.as_mut_ptr() as *mut u8,
+        core::mem::size_of::<i32>(),
+      );
+      mem.assume_init()
+    }.from_little_endian()
+  }
+
+  pub fn set_idx1(&mut self, x: i32) {
+    let x_le = x.to_little_endian();
+    unsafe {
+      core::ptr::copy_nonoverlapping(
+        &x_le as *const i32 as *const u8,
+        self.0[4..].as_mut_ptr(),
+        core::mem::size_of::<i32>(),
+      );
+    }
+  }
+
+  pub fn idx2(&self) -> i32 {
+    let mut mem = core::mem::MaybeUninit::<i32>::uninit();
+    unsafe {
+      core::ptr::copy_nonoverlapping(
+        self.0[8..].as_ptr(),
+        mem.as_mut_ptr() as *mut u8,
+        core::mem::size_of::<i32>(),
+      );
+      mem.assume_init()
+    }.from_little_endian()
+  }
+
+  pub fn set_idx2(&mut self, x: i32) {
+    let x_le = x.to_little_endian();
+    unsafe {
+      core::ptr::copy_nonoverlapping(
+        &x_le as *const i32 as *const u8,
+        self.0[8..].as_mut_ptr(),
+        core::mem::size_of::<i32>(),
+      );
+    }
+  }
+
+  pub fn unpack(&self) -> TriangleIndexTupleT {
+    TriangleIndexTupleT {
+      idx0: self.idx0(),
+      idx1: self.idx1(),
+      idx2: self.idx2(),
+    }
+  }
+}
+
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct TriangleIndexTupleT {
+  pub idx0: i32,
+  pub idx1: i32,
+  pub idx2: i32,
+}
+impl TriangleIndexTupleT {
+  pub fn pack(&self) -> TriangleIndexTuple {
+    TriangleIndexTuple::new(
+      self.idx0,
+      self.idx1,
+      self.idx2,
+    )
+  }
 }
 
 pub enum MeshPrimitiveOffset {}
@@ -119,20 +300,50 @@ impl<'a> MeshPrimitive<'a> {
         args: &'args MeshPrimitiveArgs<'args>) -> flatbuffers::WIPOffset<MeshPrimitive<'bldr>> {
       let mut builder = MeshPrimitiveBuilder::new(_fbb);
       if let Some(x) = args.triangles { builder.add_triangles(x); }
+      if let Some(x) = args.normals { builder.add_normals(x); }
       if let Some(x) = args.vertexs { builder.add_vertexs(x); }
+      builder.add_normalMapMode(args.normalMapMode);
       builder.finish()
     }
 
+    pub fn unpack(&self) -> MeshPrimitiveT {
+      let vertexs = self.vertexs().map(|x| {
+        x.iter().map(|t| t.unpack()).collect()
+      });
+      let normals = self.normals().map(|x| {
+        x.iter().map(|t| t.unpack()).collect()
+      });
+      let triangles = self.triangles().map(|x| {
+        x.iter().map(|t| t.unpack()).collect()
+      });
+      let normalMapMode = self.normalMapMode();
+      MeshPrimitiveT {
+        vertexs,
+        normals,
+        triangles,
+        normalMapMode,
+      }
+    }
     pub const VT_VERTEXS: flatbuffers::VOffsetT = 4;
-    pub const VT_TRIANGLES: flatbuffers::VOffsetT = 6;
+    pub const VT_NORMALS: flatbuffers::VOffsetT = 6;
+    pub const VT_TRIANGLES: flatbuffers::VOffsetT = 8;
+    pub const VT_NORMALMAPMODE: flatbuffers::VOffsetT = 10;
 
   #[inline]
   pub fn vertexs(&self) -> Option<&'a [Vec3d]> {
     self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'a, Vec3d>>>(MeshPrimitive::VT_VERTEXS, None).map(|v| v.safe_slice())
   }
   #[inline]
+  pub fn normals(&self) -> Option<&'a [Vec3d]> {
+    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'a, Vec3d>>>(MeshPrimitive::VT_NORMALS, None).map(|v| v.safe_slice())
+  }
+  #[inline]
   pub fn triangles(&self) -> Option<&'a [TriangleIndexTuple]> {
     self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'a, TriangleIndexTuple>>>(MeshPrimitive::VT_TRIANGLES, None).map(|v| v.safe_slice())
+  }
+  #[inline]
+  pub fn normalMapMode(&self) -> NormalMapMode {
+    self._tab.get::<NormalMapMode>(MeshPrimitive::VT_NORMALMAPMODE, Some(NormalMapMode::eNone)).unwrap()
   }
 }
 
@@ -144,21 +355,27 @@ impl flatbuffers::Verifiable for MeshPrimitive<'_> {
     use self::flatbuffers::Verifiable;
     v.visit_table(pos)?
      .visit_field::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, Vec3d>>>(&"vertexs", Self::VT_VERTEXS, false)?
+     .visit_field::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, Vec3d>>>(&"normals", Self::VT_NORMALS, false)?
      .visit_field::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, TriangleIndexTuple>>>(&"triangles", Self::VT_TRIANGLES, false)?
+     .visit_field::<NormalMapMode>(&"normalMapMode", Self::VT_NORMALMAPMODE, false)?
      .finish();
     Ok(())
   }
 }
 pub struct MeshPrimitiveArgs<'a> {
     pub vertexs: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a, Vec3d>>>,
+    pub normals: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a, Vec3d>>>,
     pub triangles: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a, TriangleIndexTuple>>>,
+    pub normalMapMode: NormalMapMode,
 }
 impl<'a> Default for MeshPrimitiveArgs<'a> {
     #[inline]
     fn default() -> Self {
         MeshPrimitiveArgs {
             vertexs: None,
+            normals: None,
             triangles: None,
+            normalMapMode: NormalMapMode::eNone,
         }
     }
 }
@@ -172,8 +389,16 @@ impl<'a: 'b, 'b> MeshPrimitiveBuilder<'a, 'b> {
     self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(MeshPrimitive::VT_VERTEXS, vertexs);
   }
   #[inline]
+  pub fn add_normals(&mut self, normals: flatbuffers::WIPOffset<flatbuffers::Vector<'b , Vec3d>>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(MeshPrimitive::VT_NORMALS, normals);
+  }
+  #[inline]
   pub fn add_triangles(&mut self, triangles: flatbuffers::WIPOffset<flatbuffers::Vector<'b , TriangleIndexTuple>>) {
     self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(MeshPrimitive::VT_TRIANGLES, triangles);
+  }
+  #[inline]
+  pub fn add_normalMapMode(&mut self, normalMapMode: NormalMapMode) {
+    self.fbb_.push_slot::<NormalMapMode>(MeshPrimitive::VT_NORMALMAPMODE, normalMapMode, NormalMapMode::eNone);
   }
   #[inline]
   pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a>) -> MeshPrimitiveBuilder<'a, 'b> {
@@ -194,7 +419,50 @@ impl std::fmt::Debug for MeshPrimitive<'_> {
   fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
     let mut ds = f.debug_struct("MeshPrimitive");
       ds.field("vertexs", &self.vertexs());
+      ds.field("normals", &self.normals());
       ds.field("triangles", &self.triangles());
+      ds.field("normalMapMode", &self.normalMapMode());
       ds.finish()
+  }
+}
+#[non_exhaustive]
+#[derive(Debug, Clone, PartialEq)]
+pub struct MeshPrimitiveT {
+  pub vertexs: Option<Vec<Vec3dT>>,
+  pub normals: Option<Vec<Vec3dT>>,
+  pub triangles: Option<Vec<TriangleIndexTupleT>>,
+  pub normalMapMode: NormalMapMode,
+}
+impl Default for MeshPrimitiveT {
+  fn default() -> Self {
+    Self {
+      vertexs: None,
+      normals: None,
+      triangles: None,
+      normalMapMode: NormalMapMode::eNone,
+    }
+  }
+}
+impl MeshPrimitiveT {
+  pub fn pack<'b>(
+    &self,
+    _fbb: &mut flatbuffers::FlatBufferBuilder<'b>
+  ) -> flatbuffers::WIPOffset<MeshPrimitive<'b>> {
+    let vertexs = self.vertexs.as_ref().map(|x|{
+      let w: Vec<_> = x.iter().map(|t| t.pack()).collect();_fbb.create_vector(&w)
+    });
+    let normals = self.normals.as_ref().map(|x|{
+      let w: Vec<_> = x.iter().map(|t| t.pack()).collect();_fbb.create_vector(&w)
+    });
+    let triangles = self.triangles.as_ref().map(|x|{
+      let w: Vec<_> = x.iter().map(|t| t.pack()).collect();_fbb.create_vector(&w)
+    });
+    let normalMapMode = self.normalMapMode;
+    MeshPrimitive::create(_fbb, &MeshPrimitiveArgs{
+      vertexs,
+      normals,
+      triangles,
+      normalMapMode,
+    })
   }
 }
