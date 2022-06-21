@@ -1,10 +1,20 @@
 include "common.fbs";
 
 struct TriangleIndexTuple {
-    idx : [int32:3];
+    idx0 : int32;
+    idx1 : int32;
+    idx2 : int32;
+}
+
+enum NormalMapMode : ubyte {
+    eNone = 0,
+    eByVertex = 1,
+    eByIndex = 2,
 }
 
 table MeshPrimitive {
     vertexs : [Vec3d];
+    normals : [Vec3d];
     triangles : [TriangleIndexTuple];
+    normalMapMode : NormalMapMode;
 }
