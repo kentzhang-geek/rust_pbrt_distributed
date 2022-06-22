@@ -8,18 +8,18 @@ use crate::interface::shape::Shape;
 /// Primitive interfaces, similar to Node in OSG,
 /// # WIP
 pub trait Primitive {
-    fn worldBound(&self)->Bounds3;
-    fn intersect(self: Arc<Self>, ray : & mut Ray, isect : & mut SurfaceInteraction) ->bool;
-    fn intersectWithBounds(self : Arc<Self>, ray : & mut Ray) ->bool;
-    fn getMaterial(&self) ->Option<Arc<dyn Material>>;
-    fn getAreaLight(&self)->Option<Arc<dyn AreaLight>>;
+    fn worldBound(&self) -> Bounds3;
+    fn intersect(self: Arc<Self>, ray: &mut Ray, isect: &mut SurfaceInteraction) -> bool;
+    fn intersectWithBounds(self: Arc<Self>, ray: &mut Ray) -> bool;
+    fn getMaterial(&self) -> Option<Arc<dyn Material>>;
+    fn getAreaLight(&self) -> Option<Arc<dyn AreaLight>>;
 }
 
 /// Primitive that contain a geometry shape
 pub struct ShapePrimitive {
-    pub shape : Arc<dyn Shape>,
-    pub material : Option<Arc<dyn Material>>,
-    pub areaLight : Option<Arc<dyn AreaLight>>,
+    pub shape: Arc<dyn Shape>,
+    pub material: Option<Arc<dyn Material>>,
+    pub areaLight: Option<Arc<dyn AreaLight>>,
 }
 
 impl Primitive for ShapePrimitive {
@@ -27,9 +27,9 @@ impl Primitive for ShapePrimitive {
         return self.shape.worldBound();
     }
 
-    fn intersect(self: Arc<Self>, ray: & mut Ray, isect: & mut SurfaceInteraction) -> bool {
+    fn intersect(self: Arc<Self>, ray: &mut Ray, isect: &mut SurfaceInteraction) -> bool {
         let mut tHit = 0f64;
-        let res = self.shape.clone().intersect(ray, false, & mut tHit,  isect);
+        let res = self.shape.clone().intersect(ray, false, &mut tHit, isect);
         if let Ok(b) = res {
             if b {
                 ray.tmax = tHit.min(ray.tmax);
@@ -42,7 +42,7 @@ impl Primitive for ShapePrimitive {
     fn intersectWithBounds(self: Arc<Self>, ray: &mut Ray) -> bool {
         // will not same as PBRT book
         // just check bounding box
-        if let Ok(p) = self.worldBound().intersect( ray) {
+        if let Ok(p) = self.worldBound().intersect(ray) {
             return true;
         }
         return false;
@@ -58,5 +58,4 @@ impl Primitive for ShapePrimitive {
 }
 
 /// this interface is aim to separate Primitive and Accaleration structures
-pub trait Aggregate : Primitive {
-}
+pub trait Aggregate: Primitive {}

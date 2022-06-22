@@ -10,7 +10,7 @@ use crate::core::transform::Transform;
 pub trait Shape  {
     fn objectBound(self: &Self) -> Bounds3;
     fn worldBound(&self) -> Bounds3;
-    fn intersect(self: Arc<Self>, ray: &Ray, testAlphaTexture: bool, t: &mut f64, isect: &mut SurfaceInteraction) -> Res<bool>;
+    fn intersect(self: Arc<Self>, ray: & mut Ray, testAlphaTexture: bool, t: &mut f64, isect: &mut SurfaceInteraction) -> Res<bool>;
     fn area(&self)->f64;
     // Sample a point on the surface of the shape and return the PDF with
     // respect to area on the surface.

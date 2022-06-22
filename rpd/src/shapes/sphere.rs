@@ -30,7 +30,7 @@ impl Shape for Sphere {
         return Bounds3 { pMin: Vector3d::new(center.x - self.radius, center.y - self.radius, center.z - self.radius), pMax: Vector3d::new(center.x + self.radius, center.y + self.radius, center.z + self.radius) };
     }
 
-    fn intersect(self: Arc<Self>, r: &Ray, testAlphaTexture: bool, t: &mut f64, isect: &mut SurfaceInteraction) -> Res<bool> {
+    fn intersect(self: Arc<Self>, r: & mut Ray, testAlphaTexture: bool, t: &mut f64, isect: &mut SurfaceInteraction) -> Res<bool> {
         let newo = self.shapeData.worldToObject.m.mul(Vector4d::new(r.o.x, r.o.y, r.o.z, 1.0f64));
         let newd = self.shapeData.worldToObject.m.mul(Vector4d::new(r.d.x, r.d.y, r.d.z, 0.0f64));
         let ray = Ray::new(Vector3d::new(newo.x, newo.y, newo.z), Vector3d::new(newd.x, newd.y, newd.z));
@@ -51,6 +51,7 @@ impl Shape for Sphere {
             isect.interaction.p = p;
             isect.shading.n = isect.interaction.n;
             isect.shape = Some(self.clone());
+            r.tmax = *t;
             return Ok(true);
         }
         return Err(String::from("No intersection on this sphere"));

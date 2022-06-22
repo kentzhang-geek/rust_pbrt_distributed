@@ -81,10 +81,11 @@ impl Shape for Triangle<'_> {
         let a = (self.pa - self.pc).cross(&(self.pb - self.pc));
         return a.norm();
     }
-    fn intersect(self: Arc<Self>, ray: &Ray, testAlphaTexture: bool, t: &mut f64, isect: &mut SurfaceInteraction) -> Res<bool> {
+    fn intersect(self: Arc<Self>, ray: & mut Ray, testAlphaTexture: bool, t: &mut f64, isect: &mut SurfaceInteraction) -> Res<bool> {
         if let Some(bt) = self.intersectByMollerAlgorithm(ray) {
             let pt = self.pa * bt.x + self.pb * bt.y + self.pc * bt.z;
             *t = (pt - ray.o).norm();
+            ray.tmax = *t;
             isect.interaction.p = pt;
             isect.interaction.n = self.na * bt.x + self.nb * bt.y + self.nc * bt.z;
             isect.shading.n = isect.interaction.n;

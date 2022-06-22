@@ -29,7 +29,7 @@ impl Shape for Mesh {
     fn area(&self) -> f64 {
         todo!()
     }
-    fn intersect(self: Arc<Self>, ray: &Ray, testAlphaTexture: bool, t: &mut f64, isect: &mut SurfaceInteraction) -> Res<bool> {
+    fn intersect(self: Arc<Self>, ray: & mut Ray, testAlphaTexture: bool, t: &mut f64, isect: &mut SurfaceInteraction) -> Res<bool> {
         todo!()
     }
     fn worldBound(&self) -> Bounds3 {
