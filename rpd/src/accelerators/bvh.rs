@@ -2,10 +2,13 @@ use std::borrow::BorrowMut;
 use std::collections::LinkedList;
 use std::fmt::{Debug, Formatter};
 use std::sync::Arc;
+use scene_file::bvh_accel::BVHNodeT;
+use scene_file::scene::SceneT;
 use crate::core::{AreaLight, Res};
 use crate::core::geometry::{Bounds3, Ray};
 use crate::core::interaction::SurfaceInteraction;
 use crate::core::material::Material;
+use crate::interface::io::Pack;
 use super::super::core::primitive::*;
 
 /// BVH Acceleration Structure
@@ -27,8 +30,7 @@ impl Primitive for BVHAccel {
     fn intersect(self: Arc<Self>, ray: &mut Ray, isect: &mut SurfaceInteraction) -> bool {
         if self.root.clone().intersectWithBounds(ray) {
             return self.root.clone().intersect(ray, isect);
-        }
-        else {
+        } else {
             return false;
         }
     }
@@ -261,5 +263,30 @@ impl Debug for BVHNode {
             .field("numPrimitives", &self.primitives.len())
             .field("bounds", &self.bounds)
             .finish()
+    }
+}
+
+impl Pack<BVHNodeT> for BVHNode {
+    fn pack(&self) -> Box<BVHNodeT> {
+        let mut ret = Box::new(BVHNodeT::default());
+        if self.isLeaf {
+            // leaf then only process mesh TODO
+        } else {
+            // process children
+            let mut children : Vec<BVHNodeT> = Vec::new();
+            for c in & self.children {
+                children.push(*c.pack());
+            }
+            ret.children = Some(children);
+        }
+        return ret;
+    }
+}
+
+impl Pack<SceneT> for BVHAccel {
+    fn pack(&self) -> Box<SceneT> {
+        let mut ret = Box::new(SceneT::default());
+        ret.root = Some(self.root.pack());
+        return ret;
     }
 }

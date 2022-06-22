@@ -22,6 +22,9 @@ three = "*"
 genmesh = "*"
 mint = "*"
 
+# scene_file used for store scene
+scene_file = {path="../scene_file"}
+
 # those asset format should be supported: fbx, gltf(glb), obj
 # espacially fbx
 # FUCK ! this is not usable, I will write CPP code and export API to convert fbx to flatbuffers!
@@ -36,7 +39,6 @@ features = ["extras", "names", "KHR_lights_punctual", "KHR_materials_pbrSpecular
 # use flatbuffers as scene file encoder and decoder
 [dependencies.flatbuffers]
 version = "*"
-
 
 [dev-dependencies]
 three = "*"

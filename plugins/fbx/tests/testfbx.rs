@@ -21,7 +21,7 @@ mod tests {
             if let Ok(s) = s {
                 s.root().unwrap().name().show_self();
             }
-            sceneToFile(String::from("testout.fbx"), data.clone());
+            // sceneToFile(String::from("testout.fbx"), data.clone());
         }
     }
 }
