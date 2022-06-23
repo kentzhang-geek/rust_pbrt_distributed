@@ -1,3 +1,4 @@
+use std::any::{Any, TypeId};
 use std::sync::Arc;
 use crate::core::geometry::{Bounds3, Ray};
 use crate::core::interaction::SurfaceInteraction;
@@ -7,7 +8,7 @@ use crate::interface::shape::Shape;
 
 /// Primitive interfaces, similar to Node in OSG,
 /// # WIP
-pub trait Primitive {
+pub trait Primitive : Any {
     fn worldBound(&self) -> Bounds3;
     fn intersect(self: Arc<Self>, ray: &mut Ray, isect: &mut SurfaceInteraction) -> bool;
     fn intersectWithBounds(self: Arc<Self>, ray: &mut Ray) -> bool;

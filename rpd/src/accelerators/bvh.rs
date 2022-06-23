@@ -3,12 +3,14 @@ use std::collections::LinkedList;
 use std::fmt::{Debug, Formatter};
 use std::sync::Arc;
 use scene_file::bvh_accel::BVHNodeT;
+use scene_file::mesh_primitive::MeshPrimitiveT;
 use scene_file::scene::SceneT;
 use crate::core::{AreaLight, Res};
 use crate::core::geometry::{Bounds3, Ray};
 use crate::core::interaction::SurfaceInteraction;
 use crate::core::material::Material;
 use crate::interface::io::Pack;
+use crate::shapes::mesh::Mesh;
 use super::super::core::primitive::*;
 
 /// BVH Acceleration Structure
@@ -270,7 +272,15 @@ impl Pack<BVHNodeT> for BVHNode {
     fn pack(&self) -> Box<BVHNodeT> {
         let mut ret = Box::new(BVHNodeT::default());
         if self.isLeaf {
-            // leaf then only process mesh TODO
+            // leaf then only process mesh
+            let mut meshes : Vec<MeshPrimitiveT> = Vec::new();
+            for primitive in &self.primitives {
+                // TODO : convert from primitive to ShapePrimitive
+                todo!()
+                // if let &Mesh = primitive.as_ref() {
+                //     println!("Got m");
+                // }
+            }
         } else {
             // process children
             let mut children : Vec<BVHNodeT> = Vec::new();
