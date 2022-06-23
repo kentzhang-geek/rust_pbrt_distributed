@@ -1,4 +1,5 @@
 use std::borrow::BorrowMut;
+use std::f64::consts::PI;
 use std::ops::{Deref, Mul};
 use std::rc::Rc;
 use std::sync::{Arc, Mutex, Weak};
@@ -11,6 +12,7 @@ use crate::core::Res;
 use crate::core::tools::PrintSelf;
 use crate::core::transform::Transform;
 use crate::interface::shape::{Shape, ShapeData};
+use crate::shapes::mesh::{GenerateMesh, Mesh};
 
 #[derive(Debug, Clone, Default)]
 pub struct Sphere {
@@ -94,5 +96,34 @@ impl Sphere {
     pub fn center(&self) -> Vector3d {
         let c = self.shapeData.objectToWorld.m.mul(Vector4d::new(0f64, 0f64, 0f64, 1f64));
         return c.xyz() / c.w;
+    }
+}
+
+impl GenerateMesh for Sphere {
+    fn toMesh(&self, detailHint: i32) -> Mesh {
+        let mut mesh = Mesh::default();
+        // top and bottom
+        mesh.vertexs.push(Vector3d::new(0f64, 0f64, self.radius));
+        mesh.vertexs.push(Vector3d::new(0f64, 0f64, -self.radius));
+        // divisions, total detailHint * detailHint points
+        for row in 0..detailHint {
+            let z : f64 = ((row / detailHint) as f64 * PI).cos();
+            for colmn in 0..detailHint {
+                let x : f64 = ((row / detailHint) as f64 * PI * 2f64).cos();
+                let y : f64 = ((row / detailHint) as f64 * PI * 2f64).sin();
+                let pt = Vector3d::new(x, y, z) * self.radius;
+                mesh.vertexs.push(pt);
+            }
+        }
+        // triangles
+        // top
+        for i in 0..detailHint {
+            mesh.indecis.push((0usize, i as usize + 2usize, i as usize + 3usize));
+        }
+        // normals
+        for v in &mesh.vertexs {
+            mesh.normal.push(v.normalize());
+        }
+        return mesh;
     }
 }

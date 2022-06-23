@@ -24,6 +24,7 @@ mint = "*"
 
 # scene_file used for store scene
 scene_file = {path="../scene_file"}
+fbx = {path="../plugins/fbx"}
 
 # those asset format should be supported: fbx, gltf(glb), obj
 # espacially fbx
