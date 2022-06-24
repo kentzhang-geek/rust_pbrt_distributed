@@ -1,3 +1,4 @@
+use std::any::Any;
 use std::rc::Rc;
 use std::sync::{Arc, Weak};
 use crate::core::geometry::{Bounds3, Ray};
@@ -12,6 +13,7 @@ pub trait Shape  {
     fn worldBound(&self) -> Bounds3;
     fn intersect(self: Arc<Self>, ray: & mut Ray, testAlphaTexture: bool, t: &mut f64, isect: &mut SurfaceInteraction) -> Res<bool>;
     fn area(&self)->f64;
+    fn as_any(&self)->& dyn Any;
     // Sample a point on the surface of the shape and return the PDF with
     // respect to area on the surface.
     // fn Sample(&self, u : & Point2f, pdf : & mut f64)->dyn InteractionInterface;

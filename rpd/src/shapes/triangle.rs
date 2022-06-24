@@ -1,5 +1,7 @@
+use std::any::Any;
 use std::ops::Mul;
 use std::sync::Arc;
+use image::codecs::png::CompressionType::Default;
 use crate::core::geometry::{Bounds3, Ray};
 use crate::core::interaction::SurfaceInteraction;
 use crate::core::math::{Vector3d, CommonTools, Vector4d};
@@ -75,6 +77,9 @@ impl Triangle<'_> {
 }
 
 impl Shape for Triangle<'_> {
+    fn as_any(& self) -> & dyn Any {
+        todo!()
+    }
     fn objectBound(self: &Self) -> Bounds3 {
         let mut bnd = Bounds3 {
             pMin: Vector3d::MinPerComponent(self.pa, self.pb),

@@ -8,12 +8,13 @@ use crate::interface::shape::Shape;
 
 /// Primitive interfaces, similar to Node in OSG,
 /// # WIP
-pub trait Primitive : Any {
+pub trait Primitive {
     fn worldBound(&self) -> Bounds3;
     fn intersect(self: Arc<Self>, ray: &mut Ray, isect: &mut SurfaceInteraction) -> bool;
     fn intersectWithBounds(self: Arc<Self>, ray: &mut Ray) -> bool;
     fn getMaterial(&self) -> Option<Arc<dyn Material>>;
     fn getAreaLight(&self) -> Option<Arc<dyn AreaLight>>;
+    fn as_any(&self) ->& dyn Any;
 }
 
 /// Primitive that contain a geometry shape
@@ -24,6 +25,9 @@ pub struct ShapePrimitive {
 }
 
 impl Primitive for ShapePrimitive {
+    fn as_any(&self) -> &dyn Any {
+        self
+    }
     fn worldBound(&self) -> Bounds3 {
         return self.shape.worldBound();
     }

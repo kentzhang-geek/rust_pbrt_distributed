@@ -1,3 +1,4 @@
+use std::any::Any;
 use std::borrow::BorrowMut;
 use std::f64::consts::PI;
 use std::ops::{Deref, Mul};
@@ -12,7 +13,7 @@ use crate::core::Res;
 use crate::core::tools::PrintSelf;
 use crate::core::transform::Transform;
 use crate::interface::shape::{Shape, ShapeData};
-use crate::shapes::mesh::{GenerateMesh, Mesh};
+use crate::shapes::mesh::{AttributeMappingMode, GenerateMesh, Mesh};
 
 #[derive(Debug, Clone, Default)]
 pub struct Sphere {
@@ -22,6 +23,9 @@ pub struct Sphere {
 }
 
 impl Shape for Sphere {
+    fn as_any(&self) -> &dyn Any {
+        self
+    }
     fn objectBound(self: &Self) -> Bounds3 {
         return Bounds3 { pMin: Vector3d::new(-self.radius, -self.radius, -self.radius), pMax: Vector3d::new(self.radius, self.radius, self.radius) };
     }
@@ -107,10 +111,11 @@ impl GenerateMesh for Sphere {
         mesh.vertexs.push(Vector3d::new(0f64, 0f64, -self.radius));
         // divisions, total detailHint * detailHint points
         for row in 0..detailHint {
-            let z : f64 = ((row / detailHint) as f64 * PI).cos();
-            for colmn in 0..detailHint {
-                let x : f64 = ((row / detailHint) as f64 * PI * 2f64).cos();
-                let y : f64 = ((row / detailHint) as f64 * PI * 2f64).sin();
+            // TODO : algorithm error, should fix
+            let z : f64 = (((row + 1i32) as f64 / (detailHint + 2i32) as f64) * PI).cos();
+            for colmn in 0..(detailHint + 1i32) {
+                let x : f64 = ((colmn as f64 / detailHint as f64) as f64 * PI * 2f64).cos();
+                let y : f64 = ((colmn as f64 / detailHint as f64) as f64 * PI * 2f64).sin();
                 let pt = Vector3d::new(x, y, z) * self.radius;
                 mesh.vertexs.push(pt);
             }
@@ -124,6 +129,7 @@ impl GenerateMesh for Sphere {
         for v in &mesh.vertexs {
             mesh.normal.push(v.normalize());
         }
+        mesh.normalMappingMode = AttributeMappingMode::BindByVertex;
         return mesh;
     }
 }

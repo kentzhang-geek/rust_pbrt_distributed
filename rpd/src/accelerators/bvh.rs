@@ -1,8 +1,10 @@
+use std::any::Any;
 use std::borrow::BorrowMut;
 use std::collections::LinkedList;
 use std::fmt::{Debug, Formatter};
 use std::sync::Arc;
 use scene_file::bvh_accel::BVHNodeT;
+use scene_file::common::Matrix44dT;
 use scene_file::mesh_primitive::MeshPrimitiveT;
 use scene_file::scene::SceneT;
 use crate::core::{AreaLight, Res};
@@ -25,6 +27,9 @@ pub struct BVHAccel {
 }
 
 impl Primitive for BVHAccel {
+    fn as_any(&self) -> &dyn Any {
+        self
+    }
     fn worldBound(&self) -> Bounds3 {
         return self.computedBounds.clone();
     }
@@ -98,6 +103,9 @@ impl BVHNode {
 }
 
 impl Primitive for BVHNode {
+    fn as_any(&self) -> &dyn Any {
+        self
+    }
     fn worldBound(&self) -> Bounds3 {
         return self.bounds;
     }
@@ -271,24 +279,25 @@ impl Debug for BVHNode {
 impl Pack<BVHNodeT> for BVHNode {
     fn pack(&self) -> Box<BVHNodeT> {
         let mut ret = Box::new(BVHNodeT::default());
+        ret.name = String::from("bvh_group");
+        ret.local_transform = Matrix44dT::unit_mat();
+        let mut children : Vec<BVHNodeT> = Vec::new();
         if self.isLeaf {
             // leaf then only process mesh
-            let mut meshes : Vec<MeshPrimitiveT> = Vec::new();
             for primitive in &self.primitives {
-                // TODO : convert from primitive to ShapePrimitive
-                todo!()
-                // if let &Mesh = primitive.as_ref() {
-                //     println!("Got m");
-                // }
+                if let Some(shape_primitive) = primitive.as_any().downcast_ref::<ShapePrimitive>() {
+                    if let Some(mesh) = shape_primitive.shape.as_any().downcast_ref::<Mesh>() {
+                        children.push(*mesh.pack());
+                    }
+                }
             }
         } else {
             // process children
-            let mut children : Vec<BVHNodeT> = Vec::new();
             for c in & self.children {
                 children.push(*c.pack());
             }
-            ret.children = Some(children);
         }
+        ret.children = Some(children);
         return ret;
     }
 }

@@ -1,7 +1,9 @@
+use std::any::Any;
 use std::fmt::{Debug, Formatter};
 use std::sync::Arc;
 use log::log;
 use ndarray::indices;
+use scene_file::bvh_accel::BVHNodeT;
 use scene_file::common::Vec3dT;
 use scene_file::mesh_primitive::{MeshPrimitiveT, NormalMapMode, TriangleIndexTupleT};
 use crate::core::geometry::{Bounds3, Ray};
@@ -41,7 +43,7 @@ const DefaultNormal: Vector3d = Vector3d::new(0f64, 0f64, 0f64);
 
 /// A trait indicates some shape can generate mesh
 pub trait GenerateMesh {
-     fn toMesh(&self, detailHint : i32)->Mesh;
+    fn toMesh(&self, detailHint: i32) -> Mesh;
 }
 
 impl Mesh {
@@ -103,6 +105,9 @@ impl Mesh {
 }
 
 impl Shape for Mesh {
+    fn as_any(&self) -> &dyn Any {
+        self
+    }
     fn area(&self) -> f64 {
         let mut a = 0f64;
         for idx in 0..self.triangleCount() {
@@ -137,44 +142,54 @@ impl Shape for Mesh {
     }
 }
 
-impl Pack<MeshPrimitiveT> for Mesh {
-    fn pack(&self) -> Box<MeshPrimitiveT> {
-        let mut ret = Box::new(MeshPrimitiveT::default());
+impl Mesh {
+    fn pack_mesh(&self) -> MeshPrimitiveT {
+        let mut ret = MeshPrimitiveT::default();
         // vertex
-        let mut vtxs : Vec<Vec3dT> = Vec::new();
+        let mut vtxs: Vec<Vec3dT> = Vec::new();
         for pt in &self.vertexs {
-            vtxs.push(Vec3dT{
+            vtxs.push(Vec3dT {
                 x: pt.x,
                 y: pt.y,
-                z: pt.z
+                z: pt.z,
             });
         }
         ret.vertexs = Some(vtxs);
         // triangles
-        let mut tris : Vec<TriangleIndexTupleT> = Vec::new();
+        let mut tris: Vec<TriangleIndexTupleT> = Vec::new();
         for idxs in &self.indecis {
-            tris.push(TriangleIndexTupleT{
+            tris.push(TriangleIndexTupleT {
                 idx0: idxs.0 as i32,
                 idx1: idxs.1 as i32,
-                idx2: idxs.2 as i32
+                idx2: idxs.2 as i32,
             });
         }
         ret.triangles = Some(tris);
         // normals
         ret.normalMapMode = match &self.normalMappingMode {
-            AttributeMappingMode::BindByVertex => {NormalMapMode::eByVertex}
-            AttributeMappingMode::BindByIndexes => {NormalMapMode::eByIndex}
-            _=>{NormalMapMode::eNone}
+            AttributeMappingMode::BindByVertex => { NormalMapMode::eByVertex }
+            AttributeMappingMode::BindByIndexes => { NormalMapMode::eByIndex }
+            _ => { NormalMapMode::eNone }
         };
-        let mut nors : Vec<Vec3dT> = Vec::new();
+        let mut nors: Vec<Vec3dT> = Vec::new();
         for nor in &self.normal {
-            nors.push(Vec3dT{
+            nors.push(Vec3dT {
                 x: nor.x,
                 y: nor.y,
-                z: nor.z
+                z: nor.z,
             });
         }
         ret.normals = Some(nors);
+        return ret;
+    }
+}
+
+impl Pack<BVHNodeT> for Mesh {
+    fn pack(&self) -> Box<BVHNodeT> {
+        let mut ret = Box::new(BVHNodeT::default());
+        ret.name = String::from("mesh_node");
+        ret.local_transform = *self.base.objectToWorld.pack();
+        ret.meshes = Some(Vec::from([self.pack_mesh()]));
         return ret;
     }
 }
