@@ -36,7 +36,7 @@ impl Shape for Sphere {
         return Bounds3 { pMin: Vector3d::new(center.x - self.radius, center.y - self.radius, center.z - self.radius), pMax: Vector3d::new(center.x + self.radius, center.y + self.radius, center.z + self.radius) };
     }
 
-    fn intersect(self: Arc<Self>, r: & mut Ray, testAlphaTexture: bool, t: &mut f64, isect: &mut SurfaceInteraction) -> Res<bool> {
+    fn intersect(self: Arc<Self>, r: &mut Ray, testAlphaTexture: bool, t: &mut f64, isect: &mut SurfaceInteraction) -> Res<bool> {
         let newo = self.shapeData.worldToObject.m.mul(Vector4d::new(r.o.x, r.o.y, r.o.z, 1.0f64));
         let newd = self.shapeData.worldToObject.m.mul(Vector4d::new(r.d.x, r.d.y, r.d.z, 0.0f64));
         let ray = Ray::new(Vector3d::new(newo.x, newo.y, newo.z), Vector3d::new(newd.x, newd.y, newd.z));
@@ -105,26 +105,46 @@ impl Sphere {
 
 impl GenerateMesh for Sphere {
     fn toMesh(&self, detailHint: i32) -> Mesh {
+        let detailHint = detailHint as usize;
         let mut mesh = Mesh::default();
         // top and bottom
         mesh.vertexs.push(Vector3d::new(0f64, 0f64, self.radius));
         mesh.vertexs.push(Vector3d::new(0f64, 0f64, -self.radius));
         // divisions, total detailHint * detailHint points
         for row in 0..detailHint {
-            // TODO : algorithm error, should fix
-            let z : f64 = (((row + 1i32) as f64 / (detailHint + 2i32) as f64) * PI).cos();
-            for colmn in 0..(detailHint + 1i32) {
-                let x : f64 = ((colmn as f64 / detailHint as f64) as f64 * PI * 2f64).cos();
-                let y : f64 = ((colmn as f64 / detailHint as f64) as f64 * PI * 2f64).sin();
+            let ratio = (row + 1usize) as f64 / ((detailHint + 1usize) as f64);
+            let z = (ratio * PI).cos();
+            for colmn in 0..detailHint {
+                let x: f64 = ((colmn as f64 / detailHint as f64) as f64 * PI * 2f64).cos() * (ratio * PI).sin();
+                let y: f64 = ((colmn as f64 / detailHint as f64) as f64 * PI * 2f64).sin() * (ratio * PI).sin();
                 let pt = Vector3d::new(x, y, z) * self.radius;
                 mesh.vertexs.push(pt);
+            }
+            // triangles for per layer
+            if row > 0 {
+                for i in 0..(detailHint - 1usize) {
+                    // one quad for each
+                    let current_idx = row * detailHint + i + 2usize;
+                    mesh.indecis.push((current_idx, current_idx + 1usize, current_idx - detailHint));
+                    mesh.indecis.push((current_idx + 1usize, current_idx - detailHint + 1usize, current_idx - detailHint));
+                }
+                let current_idx = row * detailHint + 2usize;
+                mesh.indecis.push((current_idx + detailHint - 1usize, current_idx, current_idx - 1usize));
+                mesh.indecis.push((current_idx, current_idx - detailHint, current_idx - 1usize));
             }
         }
         // triangles
         // top
-        for i in 0..detailHint {
+        for i in 0..(detailHint - 1usize) {
             mesh.indecis.push((0usize, i as usize + 2usize, i as usize + 3usize));
         }
+        mesh.indecis.push((0usize, detailHint + 1usize, 2usize));
+        // bottom
+        let last_line_base = detailHint as usize * (detailHint - 1usize) as usize + 2usize;
+        for i in 0..(detailHint - 1usize) {
+            mesh.indecis.push((last_line_base + i as usize, 1usize, last_line_base + i as usize + 1usize));
+        }
+        mesh.indecis.push((last_line_base + detailHint - 1usize, 1, last_line_base));
         // normals
         for v in &mesh.vertexs {
             mesh.normal.push(v.normalize());
