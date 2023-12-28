@@ -1,0 +1,18 @@
+[package]
+name = "simple_low_dependency_seq"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "simple_low_dependency_seq_tool"
+test = false
+bench = false
+path="src/main.rs"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+ddsfile = "0.5"
+rand = "0.8.5"
+plotters = "0.3.5"
+plotters-backend = "0.3.5"
