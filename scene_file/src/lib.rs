@@ -2,6 +2,7 @@ pub mod common;
 pub mod bvh_accel;
 pub mod mesh_primitive;
 pub mod scene;
+pub mod camera;
 
 impl common::Matrix44dT {
     pub fn unit_mat()->common::Matrix44dT{

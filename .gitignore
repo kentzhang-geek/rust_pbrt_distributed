@@ -213,3 +213,6 @@ cmake-build-relwithdebinfo/
 cmake-build*/
 .idea/
 samplefbx/
+scene_file/scene_flat/
+scene_file/scene_flat
+*.fbx

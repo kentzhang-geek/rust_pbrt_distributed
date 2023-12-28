@@ -2,14 +2,34 @@
 
 
 
-use crate::mesh_primitive::*;
-use crate::bvh_accel::*;
 use crate::common::*;
+use crate::texture::*;
+use crate::bvh_accel::*;
+use crate::camera::*;
+use crate::material::*;
+use crate::light::*;
+use crate::mesh_primitive::*;
 use std::mem;
 use std::cmp::Ordering;
 
 extern crate flatbuffers;
 use self::flatbuffers::{EndianScalar, Follow};
+
+#[allow(unused_imports, dead_code)]
+pub mod sf {
+
+  use crate::common::*;
+  use crate::texture::*;
+  use crate::bvh_accel::*;
+  use crate::camera::*;
+  use crate::material::*;
+  use crate::light::*;
+  use crate::mesh_primitive::*;
+  use std::mem;
+  use std::cmp::Ordering;
+
+  extern crate flatbuffers;
+  use self::flatbuffers::{EndianScalar, Follow};
 
 pub enum SceneOffset {}
 #[derive(Copy, Clone, PartialEq)]
@@ -36,6 +56,9 @@ impl<'a> Scene<'a> {
         _fbb: &'mut_bldr mut flatbuffers::FlatBufferBuilder<'bldr>,
         args: &'args SceneArgs<'args>) -> flatbuffers::WIPOffset<Scene<'bldr>> {
       let mut builder = SceneBuilder::new(_fbb);
+      if let Some(x) = args.lights { builder.add_lights(x); }
+      if let Some(x) = args.cameras { builder.add_cameras(x); }
+      if let Some(x) = args.materials { builder.add_materials(x); }
       if let Some(x) = args.root { builder.add_root(x); }
       builder.finish()
     }
@@ -44,15 +67,42 @@ impl<'a> Scene<'a> {
       let root = self.root().map(|x| {
         Box::new(x.unpack())
       });
+      let materials = self.materials().map(|x| {
+        x.iter().map(|t| t.unpack()).collect()
+      });
+      let cameras = self.cameras().map(|x| {
+        x.iter().map(|t| t.unpack()).collect()
+      });
+      let lights = self.lights().map(|x| {
+        x.iter().map(|t| t.unpack()).collect()
+      });
       SceneT {
         root,
+        materials,
+        cameras,
+        lights,
       }
     }
     pub const VT_ROOT: flatbuffers::VOffsetT = 4;
+    pub const VT_MATERIALS: flatbuffers::VOffsetT = 6;
+    pub const VT_CAMERAS: flatbuffers::VOffsetT = 8;
+    pub const VT_LIGHTS: flatbuffers::VOffsetT = 10;
 
   #[inline]
   pub fn root(&self) -> Option<BVHNode<'a>> {
     self._tab.get::<flatbuffers::ForwardsUOffset<BVHNode>>(Scene::VT_ROOT, None)
+  }
+  #[inline]
+  pub fn materials(&self) -> Option<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<Material<'a>>>> {
+    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<Material>>>>(Scene::VT_MATERIALS, None)
+  }
+  #[inline]
+  pub fn cameras(&self) -> Option<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<Camera<'a>>>> {
+    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<Camera>>>>(Scene::VT_CAMERAS, None)
+  }
+  #[inline]
+  pub fn lights(&self) -> Option<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<Light<'a>>>> {
+    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<Light>>>>(Scene::VT_LIGHTS, None)
   }
 }
 
@@ -64,18 +114,27 @@ impl flatbuffers::Verifiable for Scene<'_> {
     use self::flatbuffers::Verifiable;
     v.visit_table(pos)?
      .visit_field::<flatbuffers::ForwardsUOffset<BVHNode>>(&"root", Self::VT_ROOT, false)?
+     .visit_field::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<Material>>>>(&"materials", Self::VT_MATERIALS, false)?
+     .visit_field::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<Camera>>>>(&"cameras", Self::VT_CAMERAS, false)?
+     .visit_field::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<Light>>>>(&"lights", Self::VT_LIGHTS, false)?
      .finish();
     Ok(())
   }
 }
 pub struct SceneArgs<'a> {
     pub root: Option<flatbuffers::WIPOffset<BVHNode<'a>>>,
+    pub materials: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<Material<'a>>>>>,
+    pub cameras: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<Camera<'a>>>>>,
+    pub lights: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<Light<'a>>>>>,
 }
 impl<'a> Default for SceneArgs<'a> {
     #[inline]
     fn default() -> Self {
         SceneArgs {
             root: None,
+            materials: None,
+            cameras: None,
+            lights: None,
         }
     }
 }
@@ -87,6 +146,18 @@ impl<'a: 'b, 'b> SceneBuilder<'a, 'b> {
   #[inline]
   pub fn add_root(&mut self, root: flatbuffers::WIPOffset<BVHNode<'b >>) {
     self.fbb_.push_slot_always::<flatbuffers::WIPOffset<BVHNode>>(Scene::VT_ROOT, root);
+  }
+  #[inline]
+  pub fn add_materials(&mut self, materials: flatbuffers::WIPOffset<flatbuffers::Vector<'b , flatbuffers::ForwardsUOffset<Material<'b >>>>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(Scene::VT_MATERIALS, materials);
+  }
+  #[inline]
+  pub fn add_cameras(&mut self, cameras: flatbuffers::WIPOffset<flatbuffers::Vector<'b , flatbuffers::ForwardsUOffset<Camera<'b >>>>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(Scene::VT_CAMERAS, cameras);
+  }
+  #[inline]
+  pub fn add_lights(&mut self, lights: flatbuffers::WIPOffset<flatbuffers::Vector<'b , flatbuffers::ForwardsUOffset<Light<'b >>>>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(Scene::VT_LIGHTS, lights);
   }
   #[inline]
   pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a>) -> SceneBuilder<'a, 'b> {
@@ -107,6 +178,9 @@ impl std::fmt::Debug for Scene<'_> {
   fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
     let mut ds = f.debug_struct("Scene");
       ds.field("root", &self.root());
+      ds.field("materials", &self.materials());
+      ds.field("cameras", &self.cameras());
+      ds.field("lights", &self.lights());
       ds.finish()
   }
 }
@@ -114,11 +188,17 @@ impl std::fmt::Debug for Scene<'_> {
 #[derive(Debug, Clone, PartialEq)]
 pub struct SceneT {
   pub root: Option<Box<BVHNodeT>>,
+  pub materials: Option<Vec<MaterialT>>,
+  pub cameras: Option<Vec<CameraT>>,
+  pub lights: Option<Vec<LightT>>,
 }
 impl Default for SceneT {
   fn default() -> Self {
     Self {
       root: None,
+      materials: None,
+      cameras: None,
+      lights: None,
     }
   }
 }
@@ -130,8 +210,20 @@ impl SceneT {
     let root = self.root.as_ref().map(|x|{
       x.pack(_fbb)
     });
+    let materials = self.materials.as_ref().map(|x|{
+      let w: Vec<_> = x.iter().map(|t| t.pack(_fbb)).collect();_fbb.create_vector(&w)
+    });
+    let cameras = self.cameras.as_ref().map(|x|{
+      let w: Vec<_> = x.iter().map(|t| t.pack(_fbb)).collect();_fbb.create_vector(&w)
+    });
+    let lights = self.lights.as_ref().map(|x|{
+      let w: Vec<_> = x.iter().map(|t| t.pack(_fbb)).collect();_fbb.create_vector(&w)
+    });
     Scene::create(_fbb, &SceneArgs{
       root,
+      materials,
+      cameras,
+      lights,
     })
   }
 }
@@ -218,3 +310,5 @@ pub fn finish_scene_buffer<'a, 'b>(
 pub fn finish_size_prefixed_scene_buffer<'a, 'b>(fbb: &'b mut flatbuffers::FlatBufferBuilder<'a>, root: flatbuffers::WIPOffset<Scene<'a>>) {
   fbb.finish_size_prefixed(root, None);
 }
+}  // pub mod sf
+

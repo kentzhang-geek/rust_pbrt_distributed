@@ -9,23 +9,33 @@ use std::cmp::Ordering;
 extern crate flatbuffers;
 use self::flatbuffers::{EndianScalar, Follow};
 
+#[allow(unused_imports, dead_code)]
+pub mod sf {
+
+  use crate::common::*;
+  use std::mem;
+  use std::cmp::Ordering;
+
+  extern crate flatbuffers;
+  use self::flatbuffers::{EndianScalar, Follow};
+
 #[deprecated(since = "2.0.0", note = "Use associated constants instead. This will no longer be generated in 2021.")]
-pub const ENUM_MIN_NORMAL_MAP_MODE: u8 = 0;
+pub const ENUM_MIN_ATTRIBUTE_MAP_MODE: u8 = 0;
 #[deprecated(since = "2.0.0", note = "Use associated constants instead. This will no longer be generated in 2021.")]
-pub const ENUM_MAX_NORMAL_MAP_MODE: u8 = 2;
+pub const ENUM_MAX_ATTRIBUTE_MAP_MODE: u8 = 2;
 #[deprecated(since = "2.0.0", note = "Use associated constants instead. This will no longer be generated in 2021.")]
 #[allow(non_camel_case_types)]
-pub const ENUM_VALUES_NORMAL_MAP_MODE: [NormalMapMode; 3] = [
-  NormalMapMode::eNone,
-  NormalMapMode::eByVertex,
-  NormalMapMode::eByIndex,
+pub const ENUM_VALUES_ATTRIBUTE_MAP_MODE: [AttributeMapMode; 3] = [
+  AttributeMapMode::eNone,
+  AttributeMapMode::eByVertex,
+  AttributeMapMode::eByIndex,
 ];
 
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Default)]
 #[repr(transparent)]
-pub struct NormalMapMode(pub u8);
+pub struct AttributeMapMode(pub u8);
 #[allow(non_upper_case_globals)]
-impl NormalMapMode {
+impl AttributeMapMode {
   pub const eNone: Self = Self(0);
   pub const eByVertex: Self = Self(1);
   pub const eByIndex: Self = Self(2);
@@ -47,7 +57,7 @@ impl NormalMapMode {
     }
   }
 }
-impl std::fmt::Debug for NormalMapMode {
+impl std::fmt::Debug for AttributeMapMode {
   fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
     if let Some(name) = self.variant_name() {
       f.write_str(name)
@@ -56,7 +66,7 @@ impl std::fmt::Debug for NormalMapMode {
     }
   }
 }
-impl<'a> flatbuffers::Follow<'a> for NormalMapMode {
+impl<'a> flatbuffers::Follow<'a> for AttributeMapMode {
   type Inner = Self;
   #[inline]
   fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
@@ -67,15 +77,15 @@ impl<'a> flatbuffers::Follow<'a> for NormalMapMode {
   }
 }
 
-impl flatbuffers::Push for NormalMapMode {
-    type Output = NormalMapMode;
+impl flatbuffers::Push for AttributeMapMode {
+    type Output = AttributeMapMode;
     #[inline]
     fn push(&self, dst: &mut [u8], _rest: &[u8]) {
         unsafe { flatbuffers::emplace_scalar::<u8>(dst, self.0); }
     }
 }
 
-impl flatbuffers::EndianScalar for NormalMapMode {
+impl flatbuffers::EndianScalar for AttributeMapMode {
   #[inline]
   fn to_little_endian(self) -> Self {
     let b = u8::to_le(self.0);
@@ -89,7 +99,7 @@ impl flatbuffers::EndianScalar for NormalMapMode {
   }
 }
 
-impl<'a> flatbuffers::Verifiable for NormalMapMode {
+impl<'a> flatbuffers::Verifiable for AttributeMapMode {
   #[inline]
   fn run_verifier(
     v: &mut flatbuffers::Verifier, pos: usize
@@ -99,7 +109,7 @@ impl<'a> flatbuffers::Verifiable for NormalMapMode {
   }
 }
 
-impl flatbuffers::SimpleToVerifyInSlice for NormalMapMode {}
+impl flatbuffers::SimpleToVerifyInSlice for AttributeMapMode {}
 // struct TriangleIndexTuple, aligned to 4
 #[repr(transparent)]
 #[derive(Clone, Copy, PartialEq)]
@@ -274,6 +284,150 @@ impl TriangleIndexTupleT {
   }
 }
 
+pub enum MeshTexCoordsOffset {}
+#[derive(Copy, Clone, PartialEq)]
+
+pub struct MeshTexCoords<'a> {
+  pub _tab: flatbuffers::Table<'a>,
+}
+
+impl<'a> flatbuffers::Follow<'a> for MeshTexCoords<'a> {
+    type Inner = MeshTexCoords<'a>;
+    #[inline]
+    fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
+        Self { _tab: flatbuffers::Table { buf, loc } }
+    }
+}
+
+impl<'a> MeshTexCoords<'a> {
+    #[inline]
+    pub fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
+        MeshTexCoords { _tab: table }
+    }
+    #[allow(unused_mut)]
+    pub fn create<'bldr: 'args, 'args: 'mut_bldr, 'mut_bldr>(
+        _fbb: &'mut_bldr mut flatbuffers::FlatBufferBuilder<'bldr>,
+        args: &'args MeshTexCoordsArgs<'args>) -> flatbuffers::WIPOffset<MeshTexCoords<'bldr>> {
+      let mut builder = MeshTexCoordsBuilder::new(_fbb);
+      if let Some(x) = args.texCoords { builder.add_texCoords(x); }
+      builder.add_texCoordMapMode(args.texCoordMapMode);
+      builder.finish()
+    }
+
+    pub fn unpack(&self) -> MeshTexCoordsT {
+      let texCoords = self.texCoords().map(|x| {
+        x.iter().map(|t| t.unpack()).collect()
+      });
+      let texCoordMapMode = self.texCoordMapMode();
+      MeshTexCoordsT {
+        texCoords,
+        texCoordMapMode,
+      }
+    }
+    pub const VT_TEXCOORDS: flatbuffers::VOffsetT = 4;
+    pub const VT_TEXCOORDMAPMODE: flatbuffers::VOffsetT = 6;
+
+  #[inline]
+  pub fn texCoords(&self) -> Option<&'a [Vec2d]> {
+    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'a, Vec2d>>>(MeshTexCoords::VT_TEXCOORDS, None).map(|v| v.safe_slice())
+  }
+  #[inline]
+  pub fn texCoordMapMode(&self) -> AttributeMapMode {
+    self._tab.get::<AttributeMapMode>(MeshTexCoords::VT_TEXCOORDMAPMODE, Some(AttributeMapMode::eNone)).unwrap()
+  }
+}
+
+impl flatbuffers::Verifiable for MeshTexCoords<'_> {
+  #[inline]
+  fn run_verifier(
+    v: &mut flatbuffers::Verifier, pos: usize
+  ) -> Result<(), flatbuffers::InvalidFlatbuffer> {
+    use self::flatbuffers::Verifiable;
+    v.visit_table(pos)?
+     .visit_field::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, Vec2d>>>(&"texCoords", Self::VT_TEXCOORDS, false)?
+     .visit_field::<AttributeMapMode>(&"texCoordMapMode", Self::VT_TEXCOORDMAPMODE, false)?
+     .finish();
+    Ok(())
+  }
+}
+pub struct MeshTexCoordsArgs<'a> {
+    pub texCoords: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a, Vec2d>>>,
+    pub texCoordMapMode: AttributeMapMode,
+}
+impl<'a> Default for MeshTexCoordsArgs<'a> {
+    #[inline]
+    fn default() -> Self {
+        MeshTexCoordsArgs {
+            texCoords: None,
+            texCoordMapMode: AttributeMapMode::eNone,
+        }
+    }
+}
+pub struct MeshTexCoordsBuilder<'a: 'b, 'b> {
+  fbb_: &'b mut flatbuffers::FlatBufferBuilder<'a>,
+  start_: flatbuffers::WIPOffset<flatbuffers::TableUnfinishedWIPOffset>,
+}
+impl<'a: 'b, 'b> MeshTexCoordsBuilder<'a, 'b> {
+  #[inline]
+  pub fn add_texCoords(&mut self, texCoords: flatbuffers::WIPOffset<flatbuffers::Vector<'b , Vec2d>>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(MeshTexCoords::VT_TEXCOORDS, texCoords);
+  }
+  #[inline]
+  pub fn add_texCoordMapMode(&mut self, texCoordMapMode: AttributeMapMode) {
+    self.fbb_.push_slot::<AttributeMapMode>(MeshTexCoords::VT_TEXCOORDMAPMODE, texCoordMapMode, AttributeMapMode::eNone);
+  }
+  #[inline]
+  pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a>) -> MeshTexCoordsBuilder<'a, 'b> {
+    let start = _fbb.start_table();
+    MeshTexCoordsBuilder {
+      fbb_: _fbb,
+      start_: start,
+    }
+  }
+  #[inline]
+  pub fn finish(self) -> flatbuffers::WIPOffset<MeshTexCoords<'a>> {
+    let o = self.fbb_.end_table(self.start_);
+    flatbuffers::WIPOffset::new(o.value())
+  }
+}
+
+impl std::fmt::Debug for MeshTexCoords<'_> {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    let mut ds = f.debug_struct("MeshTexCoords");
+      ds.field("texCoords", &self.texCoords());
+      ds.field("texCoordMapMode", &self.texCoordMapMode());
+      ds.finish()
+  }
+}
+#[non_exhaustive]
+#[derive(Debug, Clone, PartialEq)]
+pub struct MeshTexCoordsT {
+  pub texCoords: Option<Vec<Vec2dT>>,
+  pub texCoordMapMode: AttributeMapMode,
+}
+impl Default for MeshTexCoordsT {
+  fn default() -> Self {
+    Self {
+      texCoords: None,
+      texCoordMapMode: AttributeMapMode::eNone,
+    }
+  }
+}
+impl MeshTexCoordsT {
+  pub fn pack<'b>(
+    &self,
+    _fbb: &mut flatbuffers::FlatBufferBuilder<'b>
+  ) -> flatbuffers::WIPOffset<MeshTexCoords<'b>> {
+    let texCoords = self.texCoords.as_ref().map(|x|{
+      let w: Vec<_> = x.iter().map(|t| t.pack()).collect();_fbb.create_vector(&w)
+    });
+    let texCoordMapMode = self.texCoordMapMode;
+    MeshTexCoords::create(_fbb, &MeshTexCoordsArgs{
+      texCoords,
+      texCoordMapMode,
+    })
+  }
+}
 pub enum MeshPrimitiveOffset {}
 #[derive(Copy, Clone, PartialEq)]
 
@@ -299,6 +453,13 @@ impl<'a> MeshPrimitive<'a> {
         _fbb: &'mut_bldr mut flatbuffers::FlatBufferBuilder<'bldr>,
         args: &'args MeshPrimitiveArgs<'args>) -> flatbuffers::WIPOffset<MeshPrimitive<'bldr>> {
       let mut builder = MeshPrimitiveBuilder::new(_fbb);
+      builder.add_materialIdx(args.materialIdx);
+      if let Some(x) = args.otherTexCoord { builder.add_otherTexCoord(x); }
+      if let Some(x) = args.roughMetalTexCoord { builder.add_roughMetalTexCoord(x); }
+      if let Some(x) = args.normalTexCoord { builder.add_normalTexCoord(x); }
+      if let Some(x) = args.specularTexCoord { builder.add_specularTexCoord(x); }
+      if let Some(x) = args.ambientTexCoord { builder.add_ambientTexCoord(x); }
+      if let Some(x) = args.diffuseTexCoord { builder.add_diffuseTexCoord(x); }
       if let Some(x) = args.triangles { builder.add_triangles(x); }
       if let Some(x) = args.normals { builder.add_normals(x); }
       if let Some(x) = args.vertexs { builder.add_vertexs(x); }
@@ -317,17 +478,50 @@ impl<'a> MeshPrimitive<'a> {
         x.iter().map(|t| t.unpack()).collect()
       });
       let normalMapMode = self.normalMapMode();
+      let diffuseTexCoord = self.diffuseTexCoord().map(|x| {
+        Box::new(x.unpack())
+      });
+      let ambientTexCoord = self.ambientTexCoord().map(|x| {
+        Box::new(x.unpack())
+      });
+      let specularTexCoord = self.specularTexCoord().map(|x| {
+        Box::new(x.unpack())
+      });
+      let normalTexCoord = self.normalTexCoord().map(|x| {
+        Box::new(x.unpack())
+      });
+      let roughMetalTexCoord = self.roughMetalTexCoord().map(|x| {
+        Box::new(x.unpack())
+      });
+      let otherTexCoord = self.otherTexCoord().map(|x| {
+        x.iter().map(|t| t.unpack()).collect()
+      });
+      let materialIdx = self.materialIdx();
       MeshPrimitiveT {
         vertexs,
         normals,
         triangles,
         normalMapMode,
+        diffuseTexCoord,
+        ambientTexCoord,
+        specularTexCoord,
+        normalTexCoord,
+        roughMetalTexCoord,
+        otherTexCoord,
+        materialIdx,
       }
     }
     pub const VT_VERTEXS: flatbuffers::VOffsetT = 4;
     pub const VT_NORMALS: flatbuffers::VOffsetT = 6;
     pub const VT_TRIANGLES: flatbuffers::VOffsetT = 8;
     pub const VT_NORMALMAPMODE: flatbuffers::VOffsetT = 10;
+    pub const VT_DIFFUSETEXCOORD: flatbuffers::VOffsetT = 12;
+    pub const VT_AMBIENTTEXCOORD: flatbuffers::VOffsetT = 14;
+    pub const VT_SPECULARTEXCOORD: flatbuffers::VOffsetT = 16;
+    pub const VT_NORMALTEXCOORD: flatbuffers::VOffsetT = 18;
+    pub const VT_ROUGHMETALTEXCOORD: flatbuffers::VOffsetT = 20;
+    pub const VT_OTHERTEXCOORD: flatbuffers::VOffsetT = 22;
+    pub const VT_MATERIALIDX: flatbuffers::VOffsetT = 24;
 
   #[inline]
   pub fn vertexs(&self) -> Option<&'a [Vec3d]> {
@@ -342,8 +536,36 @@ impl<'a> MeshPrimitive<'a> {
     self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'a, TriangleIndexTuple>>>(MeshPrimitive::VT_TRIANGLES, None).map(|v| v.safe_slice())
   }
   #[inline]
-  pub fn normalMapMode(&self) -> NormalMapMode {
-    self._tab.get::<NormalMapMode>(MeshPrimitive::VT_NORMALMAPMODE, Some(NormalMapMode::eNone)).unwrap()
+  pub fn normalMapMode(&self) -> AttributeMapMode {
+    self._tab.get::<AttributeMapMode>(MeshPrimitive::VT_NORMALMAPMODE, Some(AttributeMapMode::eNone)).unwrap()
+  }
+  #[inline]
+  pub fn diffuseTexCoord(&self) -> Option<MeshTexCoords<'a>> {
+    self._tab.get::<flatbuffers::ForwardsUOffset<MeshTexCoords>>(MeshPrimitive::VT_DIFFUSETEXCOORD, None)
+  }
+  #[inline]
+  pub fn ambientTexCoord(&self) -> Option<MeshTexCoords<'a>> {
+    self._tab.get::<flatbuffers::ForwardsUOffset<MeshTexCoords>>(MeshPrimitive::VT_AMBIENTTEXCOORD, None)
+  }
+  #[inline]
+  pub fn specularTexCoord(&self) -> Option<MeshTexCoords<'a>> {
+    self._tab.get::<flatbuffers::ForwardsUOffset<MeshTexCoords>>(MeshPrimitive::VT_SPECULARTEXCOORD, None)
+  }
+  #[inline]
+  pub fn normalTexCoord(&self) -> Option<MeshTexCoords<'a>> {
+    self._tab.get::<flatbuffers::ForwardsUOffset<MeshTexCoords>>(MeshPrimitive::VT_NORMALTEXCOORD, None)
+  }
+  #[inline]
+  pub fn roughMetalTexCoord(&self) -> Option<MeshTexCoords<'a>> {
+    self._tab.get::<flatbuffers::ForwardsUOffset<MeshTexCoords>>(MeshPrimitive::VT_ROUGHMETALTEXCOORD, None)
+  }
+  #[inline]
+  pub fn otherTexCoord(&self) -> Option<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<MeshTexCoords<'a>>>> {
+    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<MeshTexCoords>>>>(MeshPrimitive::VT_OTHERTEXCOORD, None)
+  }
+  #[inline]
+  pub fn materialIdx(&self) -> u64 {
+    self._tab.get::<u64>(MeshPrimitive::VT_MATERIALIDX, Some(0)).unwrap()
   }
 }
 
@@ -357,7 +579,14 @@ impl flatbuffers::Verifiable for MeshPrimitive<'_> {
      .visit_field::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, Vec3d>>>(&"vertexs", Self::VT_VERTEXS, false)?
      .visit_field::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, Vec3d>>>(&"normals", Self::VT_NORMALS, false)?
      .visit_field::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, TriangleIndexTuple>>>(&"triangles", Self::VT_TRIANGLES, false)?
-     .visit_field::<NormalMapMode>(&"normalMapMode", Self::VT_NORMALMAPMODE, false)?
+     .visit_field::<AttributeMapMode>(&"normalMapMode", Self::VT_NORMALMAPMODE, false)?
+     .visit_field::<flatbuffers::ForwardsUOffset<MeshTexCoords>>(&"diffuseTexCoord", Self::VT_DIFFUSETEXCOORD, false)?
+     .visit_field::<flatbuffers::ForwardsUOffset<MeshTexCoords>>(&"ambientTexCoord", Self::VT_AMBIENTTEXCOORD, false)?
+     .visit_field::<flatbuffers::ForwardsUOffset<MeshTexCoords>>(&"specularTexCoord", Self::VT_SPECULARTEXCOORD, false)?
+     .visit_field::<flatbuffers::ForwardsUOffset<MeshTexCoords>>(&"normalTexCoord", Self::VT_NORMALTEXCOORD, false)?
+     .visit_field::<flatbuffers::ForwardsUOffset<MeshTexCoords>>(&"roughMetalTexCoord", Self::VT_ROUGHMETALTEXCOORD, false)?
+     .visit_field::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<MeshTexCoords>>>>(&"otherTexCoord", Self::VT_OTHERTEXCOORD, false)?
+     .visit_field::<u64>(&"materialIdx", Self::VT_MATERIALIDX, false)?
      .finish();
     Ok(())
   }
@@ -366,7 +595,14 @@ pub struct MeshPrimitiveArgs<'a> {
     pub vertexs: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a, Vec3d>>>,
     pub normals: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a, Vec3d>>>,
     pub triangles: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a, TriangleIndexTuple>>>,
-    pub normalMapMode: NormalMapMode,
+    pub normalMapMode: AttributeMapMode,
+    pub diffuseTexCoord: Option<flatbuffers::WIPOffset<MeshTexCoords<'a>>>,
+    pub ambientTexCoord: Option<flatbuffers::WIPOffset<MeshTexCoords<'a>>>,
+    pub specularTexCoord: Option<flatbuffers::WIPOffset<MeshTexCoords<'a>>>,
+    pub normalTexCoord: Option<flatbuffers::WIPOffset<MeshTexCoords<'a>>>,
+    pub roughMetalTexCoord: Option<flatbuffers::WIPOffset<MeshTexCoords<'a>>>,
+    pub otherTexCoord: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<MeshTexCoords<'a>>>>>,
+    pub materialIdx: u64,
 }
 impl<'a> Default for MeshPrimitiveArgs<'a> {
     #[inline]
@@ -375,7 +611,14 @@ impl<'a> Default for MeshPrimitiveArgs<'a> {
             vertexs: None,
             normals: None,
             triangles: None,
-            normalMapMode: NormalMapMode::eNone,
+            normalMapMode: AttributeMapMode::eNone,
+            diffuseTexCoord: None,
+            ambientTexCoord: None,
+            specularTexCoord: None,
+            normalTexCoord: None,
+            roughMetalTexCoord: None,
+            otherTexCoord: None,
+            materialIdx: 0,
         }
     }
 }
@@ -397,8 +640,36 @@ impl<'a: 'b, 'b> MeshPrimitiveBuilder<'a, 'b> {
     self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(MeshPrimitive::VT_TRIANGLES, triangles);
   }
   #[inline]
-  pub fn add_normalMapMode(&mut self, normalMapMode: NormalMapMode) {
-    self.fbb_.push_slot::<NormalMapMode>(MeshPrimitive::VT_NORMALMAPMODE, normalMapMode, NormalMapMode::eNone);
+  pub fn add_normalMapMode(&mut self, normalMapMode: AttributeMapMode) {
+    self.fbb_.push_slot::<AttributeMapMode>(MeshPrimitive::VT_NORMALMAPMODE, normalMapMode, AttributeMapMode::eNone);
+  }
+  #[inline]
+  pub fn add_diffuseTexCoord(&mut self, diffuseTexCoord: flatbuffers::WIPOffset<MeshTexCoords<'b >>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<MeshTexCoords>>(MeshPrimitive::VT_DIFFUSETEXCOORD, diffuseTexCoord);
+  }
+  #[inline]
+  pub fn add_ambientTexCoord(&mut self, ambientTexCoord: flatbuffers::WIPOffset<MeshTexCoords<'b >>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<MeshTexCoords>>(MeshPrimitive::VT_AMBIENTTEXCOORD, ambientTexCoord);
+  }
+  #[inline]
+  pub fn add_specularTexCoord(&mut self, specularTexCoord: flatbuffers::WIPOffset<MeshTexCoords<'b >>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<MeshTexCoords>>(MeshPrimitive::VT_SPECULARTEXCOORD, specularTexCoord);
+  }
+  #[inline]
+  pub fn add_normalTexCoord(&mut self, normalTexCoord: flatbuffers::WIPOffset<MeshTexCoords<'b >>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<MeshTexCoords>>(MeshPrimitive::VT_NORMALTEXCOORD, normalTexCoord);
+  }
+  #[inline]
+  pub fn add_roughMetalTexCoord(&mut self, roughMetalTexCoord: flatbuffers::WIPOffset<MeshTexCoords<'b >>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<MeshTexCoords>>(MeshPrimitive::VT_ROUGHMETALTEXCOORD, roughMetalTexCoord);
+  }
+  #[inline]
+  pub fn add_otherTexCoord(&mut self, otherTexCoord: flatbuffers::WIPOffset<flatbuffers::Vector<'b , flatbuffers::ForwardsUOffset<MeshTexCoords<'b >>>>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(MeshPrimitive::VT_OTHERTEXCOORD, otherTexCoord);
+  }
+  #[inline]
+  pub fn add_materialIdx(&mut self, materialIdx: u64) {
+    self.fbb_.push_slot::<u64>(MeshPrimitive::VT_MATERIALIDX, materialIdx, 0);
   }
   #[inline]
   pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a>) -> MeshPrimitiveBuilder<'a, 'b> {
@@ -422,6 +693,13 @@ impl std::fmt::Debug for MeshPrimitive<'_> {
       ds.field("normals", &self.normals());
       ds.field("triangles", &self.triangles());
       ds.field("normalMapMode", &self.normalMapMode());
+      ds.field("diffuseTexCoord", &self.diffuseTexCoord());
+      ds.field("ambientTexCoord", &self.ambientTexCoord());
+      ds.field("specularTexCoord", &self.specularTexCoord());
+      ds.field("normalTexCoord", &self.normalTexCoord());
+      ds.field("roughMetalTexCoord", &self.roughMetalTexCoord());
+      ds.field("otherTexCoord", &self.otherTexCoord());
+      ds.field("materialIdx", &self.materialIdx());
       ds.finish()
   }
 }
@@ -431,7 +709,14 @@ pub struct MeshPrimitiveT {
   pub vertexs: Option<Vec<Vec3dT>>,
   pub normals: Option<Vec<Vec3dT>>,
   pub triangles: Option<Vec<TriangleIndexTupleT>>,
-  pub normalMapMode: NormalMapMode,
+  pub normalMapMode: AttributeMapMode,
+  pub diffuseTexCoord: Option<Box<MeshTexCoordsT>>,
+  pub ambientTexCoord: Option<Box<MeshTexCoordsT>>,
+  pub specularTexCoord: Option<Box<MeshTexCoordsT>>,
+  pub normalTexCoord: Option<Box<MeshTexCoordsT>>,
+  pub roughMetalTexCoord: Option<Box<MeshTexCoordsT>>,
+  pub otherTexCoord: Option<Vec<MeshTexCoordsT>>,
+  pub materialIdx: u64,
 }
 impl Default for MeshPrimitiveT {
   fn default() -> Self {
@@ -439,7 +724,14 @@ impl Default for MeshPrimitiveT {
       vertexs: None,
       normals: None,
       triangles: None,
-      normalMapMode: NormalMapMode::eNone,
+      normalMapMode: AttributeMapMode::eNone,
+      diffuseTexCoord: None,
+      ambientTexCoord: None,
+      specularTexCoord: None,
+      normalTexCoord: None,
+      roughMetalTexCoord: None,
+      otherTexCoord: None,
+      materialIdx: 0,
     }
   }
 }
@@ -458,11 +750,39 @@ impl MeshPrimitiveT {
       let w: Vec<_> = x.iter().map(|t| t.pack()).collect();_fbb.create_vector(&w)
     });
     let normalMapMode = self.normalMapMode;
+    let diffuseTexCoord = self.diffuseTexCoord.as_ref().map(|x|{
+      x.pack(_fbb)
+    });
+    let ambientTexCoord = self.ambientTexCoord.as_ref().map(|x|{
+      x.pack(_fbb)
+    });
+    let specularTexCoord = self.specularTexCoord.as_ref().map(|x|{
+      x.pack(_fbb)
+    });
+    let normalTexCoord = self.normalTexCoord.as_ref().map(|x|{
+      x.pack(_fbb)
+    });
+    let roughMetalTexCoord = self.roughMetalTexCoord.as_ref().map(|x|{
+      x.pack(_fbb)
+    });
+    let otherTexCoord = self.otherTexCoord.as_ref().map(|x|{
+      let w: Vec<_> = x.iter().map(|t| t.pack(_fbb)).collect();_fbb.create_vector(&w)
+    });
+    let materialIdx = self.materialIdx;
     MeshPrimitive::create(_fbb, &MeshPrimitiveArgs{
       vertexs,
       normals,
       triangles,
       normalMapMode,
+      diffuseTexCoord,
+      ambientTexCoord,
+      specularTexCoord,
+      normalTexCoord,
+      roughMetalTexCoord,
+      otherTexCoord,
+      materialIdx,
     })
   }
 }
+}  // pub mod sf
+

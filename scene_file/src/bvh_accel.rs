@@ -2,13 +2,24 @@
 
 
 
-use crate::mesh_primitive::*;
 use crate::common::*;
+use crate::mesh_primitive::*;
 use std::mem;
 use std::cmp::Ordering;
 
 extern crate flatbuffers;
 use self::flatbuffers::{EndianScalar, Follow};
+
+#[allow(unused_imports, dead_code)]
+pub mod sf {
+
+  use crate::common::*;
+  use crate::mesh_primitive::*;
+  use std::mem;
+  use std::cmp::Ordering;
+
+  extern crate flatbuffers;
+  use self::flatbuffers::{EndianScalar, Follow};
 
 pub enum BVHNodeOffset {}
 #[derive(Copy, Clone, PartialEq)]
@@ -317,3 +328,5 @@ pub fn finish_bvhnode_buffer<'a, 'b>(
 pub fn finish_size_prefixed_bvhnode_buffer<'a, 'b>(fbb: &'b mut flatbuffers::FlatBufferBuilder<'a>, root: flatbuffers::WIPOffset<BVHNode<'a>>) {
   fbb.finish_size_prefixed(root, None);
 }
+}  // pub mod sf
+

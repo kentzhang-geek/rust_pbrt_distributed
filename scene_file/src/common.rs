@@ -8,6 +8,532 @@ use std::cmp::Ordering;
 extern crate flatbuffers;
 use self::flatbuffers::{EndianScalar, Follow};
 
+#[allow(unused_imports, dead_code)]
+pub mod sf {
+
+  use std::mem;
+  use std::cmp::Ordering;
+
+  extern crate flatbuffers;
+  use self::flatbuffers::{EndianScalar, Follow};
+
+#[deprecated(since = "2.0.0", note = "Use associated constants instead. This will no longer be generated in 2021.")]
+pub const ENUM_MIN_IMAGE_TYPE: u8 = 0;
+#[deprecated(since = "2.0.0", note = "Use associated constants instead. This will no longer be generated in 2021.")]
+pub const ENUM_MAX_IMAGE_TYPE: u8 = 2;
+#[deprecated(since = "2.0.0", note = "Use associated constants instead. This will no longer be generated in 2021.")]
+#[allow(non_camel_case_types)]
+pub const ENUM_VALUES_IMAGE_TYPE: [ImageType; 3] = [
+  ImageType::eNone,
+  ImageType::eFileData,
+  ImageType::eRawData,
+];
+
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Default)]
+#[repr(transparent)]
+pub struct ImageType(pub u8);
+#[allow(non_upper_case_globals)]
+impl ImageType {
+  pub const eNone: Self = Self(0);
+  pub const eFileData: Self = Self(1);
+  pub const eRawData: Self = Self(2);
+
+  pub const ENUM_MIN: u8 = 0;
+  pub const ENUM_MAX: u8 = 2;
+  pub const ENUM_VALUES: &'static [Self] = &[
+    Self::eNone,
+    Self::eFileData,
+    Self::eRawData,
+  ];
+  /// Returns the variant's name or "" if unknown.
+  pub fn variant_name(self) -> Option<&'static str> {
+    match self {
+      Self::eNone => Some("eNone"),
+      Self::eFileData => Some("eFileData"),
+      Self::eRawData => Some("eRawData"),
+      _ => None,
+    }
+  }
+}
+impl std::fmt::Debug for ImageType {
+  fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+    if let Some(name) = self.variant_name() {
+      f.write_str(name)
+    } else {
+      f.write_fmt(format_args!("<UNKNOWN {:?}>", self.0))
+    }
+  }
+}
+impl<'a> flatbuffers::Follow<'a> for ImageType {
+  type Inner = Self;
+  #[inline]
+  fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
+    let b = unsafe {
+      flatbuffers::read_scalar_at::<u8>(buf, loc)
+    };
+    Self(b)
+  }
+}
+
+impl flatbuffers::Push for ImageType {
+    type Output = ImageType;
+    #[inline]
+    fn push(&self, dst: &mut [u8], _rest: &[u8]) {
+        unsafe { flatbuffers::emplace_scalar::<u8>(dst, self.0); }
+    }
+}
+
+impl flatbuffers::EndianScalar for ImageType {
+  #[inline]
+  fn to_little_endian(self) -> Self {
+    let b = u8::to_le(self.0);
+    Self(b)
+  }
+  #[inline]
+  #[allow(clippy::wrong_self_convention)]
+  fn from_little_endian(self) -> Self {
+    let b = u8::from_le(self.0);
+    Self(b)
+  }
+}
+
+impl<'a> flatbuffers::Verifiable for ImageType {
+  #[inline]
+  fn run_verifier(
+    v: &mut flatbuffers::Verifier, pos: usize
+  ) -> Result<(), flatbuffers::InvalidFlatbuffer> {
+    use self::flatbuffers::Verifiable;
+    u8::run_verifier(v, pos)
+  }
+}
+
+impl flatbuffers::SimpleToVerifyInSlice for ImageType {}
+#[deprecated(since = "2.0.0", note = "Use associated constants instead. This will no longer be generated in 2021.")]
+pub const ENUM_MIN_PIXEL_TYPE: u8 = 0;
+#[deprecated(since = "2.0.0", note = "Use associated constants instead. This will no longer be generated in 2021.")]
+pub const ENUM_MAX_PIXEL_TYPE: u8 = 33;
+#[deprecated(since = "2.0.0", note = "Use associated constants instead. This will no longer be generated in 2021.")]
+#[allow(non_camel_case_types)]
+pub const ENUM_VALUES_PIXEL_TYPE: [PixelType; 34] = [
+  PixelType::eNone,
+  PixelType::eRu8,
+  PixelType::eRi8,
+  PixelType::eRu16,
+  PixelType::eRi16,
+  PixelType::eRf16,
+  PixelType::eRu32,
+  PixelType::eRi32,
+  PixelType::eRf32,
+  PixelType::eRGu8,
+  PixelType::eRGi8,
+  PixelType::eRGu16,
+  PixelType::eRGi16,
+  PixelType::eRGf16,
+  PixelType::eRGu32,
+  PixelType::eRGi32,
+  PixelType::eRGf32,
+  PixelType::eRGBu8,
+  PixelType::eRGBi8,
+  PixelType::eRGBu16,
+  PixelType::eRGBi16,
+  PixelType::eRGBf16,
+  PixelType::eRGBu32,
+  PixelType::eRGBi32,
+  PixelType::eRGBf32,
+  PixelType::eRGBAu8,
+  PixelType::eRGBAi8,
+  PixelType::eRGBAu16,
+  PixelType::eRGBAi16,
+  PixelType::eRGBAf16,
+  PixelType::eRGBAu32,
+  PixelType::eRGBAi32,
+  PixelType::eRGBAf32,
+  PixelType::eRGBA8_SRGB,
+];
+
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Default)]
+#[repr(transparent)]
+pub struct PixelType(pub u8);
+#[allow(non_upper_case_globals)]
+impl PixelType {
+  pub const eNone: Self = Self(0);
+  pub const eRu8: Self = Self(1);
+  pub const eRi8: Self = Self(2);
+  pub const eRu16: Self = Self(3);
+  pub const eRi16: Self = Self(4);
+  pub const eRf16: Self = Self(5);
+  pub const eRu32: Self = Self(6);
+  pub const eRi32: Self = Self(7);
+  pub const eRf32: Self = Self(8);
+  pub const eRGu8: Self = Self(9);
+  pub const eRGi8: Self = Self(10);
+  pub const eRGu16: Self = Self(11);
+  pub const eRGi16: Self = Self(12);
+  pub const eRGf16: Self = Self(13);
+  pub const eRGu32: Self = Self(14);
+  pub const eRGi32: Self = Self(15);
+  pub const eRGf32: Self = Self(16);
+  pub const eRGBu8: Self = Self(17);
+  pub const eRGBi8: Self = Self(18);
+  pub const eRGBu16: Self = Self(19);
+  pub const eRGBi16: Self = Self(20);
+  pub const eRGBf16: Self = Self(21);
+  pub const eRGBu32: Self = Self(22);
+  pub const eRGBi32: Self = Self(23);
+  pub const eRGBf32: Self = Self(24);
+  pub const eRGBAu8: Self = Self(25);
+  pub const eRGBAi8: Self = Self(26);
+  pub const eRGBAu16: Self = Self(27);
+  pub const eRGBAi16: Self = Self(28);
+  pub const eRGBAf16: Self = Self(29);
+  pub const eRGBAu32: Self = Self(30);
+  pub const eRGBAi32: Self = Self(31);
+  pub const eRGBAf32: Self = Self(32);
+  pub const eRGBA8_SRGB: Self = Self(33);
+
+  pub const ENUM_MIN: u8 = 0;
+  pub const ENUM_MAX: u8 = 33;
+  pub const ENUM_VALUES: &'static [Self] = &[
+    Self::eNone,
+    Self::eRu8,
+    Self::eRi8,
+    Self::eRu16,
+    Self::eRi16,
+    Self::eRf16,
+    Self::eRu32,
+    Self::eRi32,
+    Self::eRf32,
+    Self::eRGu8,
+    Self::eRGi8,
+    Self::eRGu16,
+    Self::eRGi16,
+    Self::eRGf16,
+    Self::eRGu32,
+    Self::eRGi32,
+    Self::eRGf32,
+    Self::eRGBu8,
+    Self::eRGBi8,
+    Self::eRGBu16,
+    Self::eRGBi16,
+    Self::eRGBf16,
+    Self::eRGBu32,
+    Self::eRGBi32,
+    Self::eRGBf32,
+    Self::eRGBAu8,
+    Self::eRGBAi8,
+    Self::eRGBAu16,
+    Self::eRGBAi16,
+    Self::eRGBAf16,
+    Self::eRGBAu32,
+    Self::eRGBAi32,
+    Self::eRGBAf32,
+    Self::eRGBA8_SRGB,
+  ];
+  /// Returns the variant's name or "" if unknown.
+  pub fn variant_name(self) -> Option<&'static str> {
+    match self {
+      Self::eNone => Some("eNone"),
+      Self::eRu8 => Some("eRu8"),
+      Self::eRi8 => Some("eRi8"),
+      Self::eRu16 => Some("eRu16"),
+      Self::eRi16 => Some("eRi16"),
+      Self::eRf16 => Some("eRf16"),
+      Self::eRu32 => Some("eRu32"),
+      Self::eRi32 => Some("eRi32"),
+      Self::eRf32 => Some("eRf32"),
+      Self::eRGu8 => Some("eRGu8"),
+      Self::eRGi8 => Some("eRGi8"),
+      Self::eRGu16 => Some("eRGu16"),
+      Self::eRGi16 => Some("eRGi16"),
+      Self::eRGf16 => Some("eRGf16"),
+      Self::eRGu32 => Some("eRGu32"),
+      Self::eRGi32 => Some("eRGi32"),
+      Self::eRGf32 => Some("eRGf32"),
+      Self::eRGBu8 => Some("eRGBu8"),
+      Self::eRGBi8 => Some("eRGBi8"),
+      Self::eRGBu16 => Some("eRGBu16"),
+      Self::eRGBi16 => Some("eRGBi16"),
+      Self::eRGBf16 => Some("eRGBf16"),
+      Self::eRGBu32 => Some("eRGBu32"),
+      Self::eRGBi32 => Some("eRGBi32"),
+      Self::eRGBf32 => Some("eRGBf32"),
+      Self::eRGBAu8 => Some("eRGBAu8"),
+      Self::eRGBAi8 => Some("eRGBAi8"),
+      Self::eRGBAu16 => Some("eRGBAu16"),
+      Self::eRGBAi16 => Some("eRGBAi16"),
+      Self::eRGBAf16 => Some("eRGBAf16"),
+      Self::eRGBAu32 => Some("eRGBAu32"),
+      Self::eRGBAi32 => Some("eRGBAi32"),
+      Self::eRGBAf32 => Some("eRGBAf32"),
+      Self::eRGBA8_SRGB => Some("eRGBA8_SRGB"),
+      _ => None,
+    }
+  }
+}
+impl std::fmt::Debug for PixelType {
+  fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+    if let Some(name) = self.variant_name() {
+      f.write_str(name)
+    } else {
+      f.write_fmt(format_args!("<UNKNOWN {:?}>", self.0))
+    }
+  }
+}
+impl<'a> flatbuffers::Follow<'a> for PixelType {
+  type Inner = Self;
+  #[inline]
+  fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
+    let b = unsafe {
+      flatbuffers::read_scalar_at::<u8>(buf, loc)
+    };
+    Self(b)
+  }
+}
+
+impl flatbuffers::Push for PixelType {
+    type Output = PixelType;
+    #[inline]
+    fn push(&self, dst: &mut [u8], _rest: &[u8]) {
+        unsafe { flatbuffers::emplace_scalar::<u8>(dst, self.0); }
+    }
+}
+
+impl flatbuffers::EndianScalar for PixelType {
+  #[inline]
+  fn to_little_endian(self) -> Self {
+    let b = u8::to_le(self.0);
+    Self(b)
+  }
+  #[inline]
+  #[allow(clippy::wrong_self_convention)]
+  fn from_little_endian(self) -> Self {
+    let b = u8::from_le(self.0);
+    Self(b)
+  }
+}
+
+impl<'a> flatbuffers::Verifiable for PixelType {
+  #[inline]
+  fn run_verifier(
+    v: &mut flatbuffers::Verifier, pos: usize
+  ) -> Result<(), flatbuffers::InvalidFlatbuffer> {
+    use self::flatbuffers::Verifiable;
+    u8::run_verifier(v, pos)
+  }
+}
+
+impl flatbuffers::SimpleToVerifyInSlice for PixelType {}
+#[deprecated(since = "2.0.0", note = "Use associated constants instead. This will no longer be generated in 2021.")]
+pub const ENUM_MIN_ELEMENT_TYPE: u8 = 0;
+#[deprecated(since = "2.0.0", note = "Use associated constants instead. This will no longer be generated in 2021.")]
+pub const ENUM_MAX_ELEMENT_TYPE: u8 = 32;
+#[deprecated(since = "2.0.0", note = "Use associated constants instead. This will no longer be generated in 2021.")]
+#[allow(non_camel_case_types)]
+pub const ENUM_VALUES_ELEMENT_TYPE: [ElementType; 33] = [
+  ElementType::eNone,
+  ElementType::eXu8,
+  ElementType::eXi8,
+  ElementType::eXu16,
+  ElementType::eXi16,
+  ElementType::eXf16,
+  ElementType::eXu32,
+  ElementType::eXi32,
+  ElementType::eXf32,
+  ElementType::eXYu8,
+  ElementType::eXYi8,
+  ElementType::eXYu16,
+  ElementType::eXYi16,
+  ElementType::eXYf16,
+  ElementType::eXYu32,
+  ElementType::eXYi32,
+  ElementType::eXYf32,
+  ElementType::eXYZu8,
+  ElementType::eXYZi8,
+  ElementType::eXYZu16,
+  ElementType::eXYZi16,
+  ElementType::eXYZf16,
+  ElementType::eXYZu32,
+  ElementType::eXYZi32,
+  ElementType::eXYZf32,
+  ElementType::eXYZWu8,
+  ElementType::eXYZWi8,
+  ElementType::eXYZWu16,
+  ElementType::eXYZWi16,
+  ElementType::eXYZWf16,
+  ElementType::eXYZWu32,
+  ElementType::eXYZWi32,
+  ElementType::eXYZWf32,
+];
+
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Default)]
+#[repr(transparent)]
+pub struct ElementType(pub u8);
+#[allow(non_upper_case_globals)]
+impl ElementType {
+  pub const eNone: Self = Self(0);
+  pub const eXu8: Self = Self(1);
+  pub const eXi8: Self = Self(2);
+  pub const eXu16: Self = Self(3);
+  pub const eXi16: Self = Self(4);
+  pub const eXf16: Self = Self(5);
+  pub const eXu32: Self = Self(6);
+  pub const eXi32: Self = Self(7);
+  pub const eXf32: Self = Self(8);
+  pub const eXYu8: Self = Self(9);
+  pub const eXYi8: Self = Self(10);
+  pub const eXYu16: Self = Self(11);
+  pub const eXYi16: Self = Self(12);
+  pub const eXYf16: Self = Self(13);
+  pub const eXYu32: Self = Self(14);
+  pub const eXYi32: Self = Self(15);
+  pub const eXYf32: Self = Self(16);
+  pub const eXYZu8: Self = Self(17);
+  pub const eXYZi8: Self = Self(18);
+  pub const eXYZu16: Self = Self(19);
+  pub const eXYZi16: Self = Self(20);
+  pub const eXYZf16: Self = Self(21);
+  pub const eXYZu32: Self = Self(22);
+  pub const eXYZi32: Self = Self(23);
+  pub const eXYZf32: Self = Self(24);
+  pub const eXYZWu8: Self = Self(25);
+  pub const eXYZWi8: Self = Self(26);
+  pub const eXYZWu16: Self = Self(27);
+  pub const eXYZWi16: Self = Self(28);
+  pub const eXYZWf16: Self = Self(29);
+  pub const eXYZWu32: Self = Self(30);
+  pub const eXYZWi32: Self = Self(31);
+  pub const eXYZWf32: Self = Self(32);
+
+  pub const ENUM_MIN: u8 = 0;
+  pub const ENUM_MAX: u8 = 32;
+  pub const ENUM_VALUES: &'static [Self] = &[
+    Self::eNone,
+    Self::eXu8,
+    Self::eXi8,
+    Self::eXu16,
+    Self::eXi16,
+    Self::eXf16,
+    Self::eXu32,
+    Self::eXi32,
+    Self::eXf32,
+    Self::eXYu8,
+    Self::eXYi8,
+    Self::eXYu16,
+    Self::eXYi16,
+    Self::eXYf16,
+    Self::eXYu32,
+    Self::eXYi32,
+    Self::eXYf32,
+    Self::eXYZu8,
+    Self::eXYZi8,
+    Self::eXYZu16,
+    Self::eXYZi16,
+    Self::eXYZf16,
+    Self::eXYZu32,
+    Self::eXYZi32,
+    Self::eXYZf32,
+    Self::eXYZWu8,
+    Self::eXYZWi8,
+    Self::eXYZWu16,
+    Self::eXYZWi16,
+    Self::eXYZWf16,
+    Self::eXYZWu32,
+    Self::eXYZWi32,
+    Self::eXYZWf32,
+  ];
+  /// Returns the variant's name or "" if unknown.
+  pub fn variant_name(self) -> Option<&'static str> {
+    match self {
+      Self::eNone => Some("eNone"),
+      Self::eXu8 => Some("eXu8"),
+      Self::eXi8 => Some("eXi8"),
+      Self::eXu16 => Some("eXu16"),
+      Self::eXi16 => Some("eXi16"),
+      Self::eXf16 => Some("eXf16"),
+      Self::eXu32 => Some("eXu32"),
+      Self::eXi32 => Some("eXi32"),
+      Self::eXf32 => Some("eXf32"),
+      Self::eXYu8 => Some("eXYu8"),
+      Self::eXYi8 => Some("eXYi8"),
+      Self::eXYu16 => Some("eXYu16"),
+      Self::eXYi16 => Some("eXYi16"),
+      Self::eXYf16 => Some("eXYf16"),
+      Self::eXYu32 => Some("eXYu32"),
+      Self::eXYi32 => Some("eXYi32"),
+      Self::eXYf32 => Some("eXYf32"),
+      Self::eXYZu8 => Some("eXYZu8"),
+      Self::eXYZi8 => Some("eXYZi8"),
+      Self::eXYZu16 => Some("eXYZu16"),
+      Self::eXYZi16 => Some("eXYZi16"),
+      Self::eXYZf16 => Some("eXYZf16"),
+      Self::eXYZu32 => Some("eXYZu32"),
+      Self::eXYZi32 => Some("eXYZi32"),
+      Self::eXYZf32 => Some("eXYZf32"),
+      Self::eXYZWu8 => Some("eXYZWu8"),
+      Self::eXYZWi8 => Some("eXYZWi8"),
+      Self::eXYZWu16 => Some("eXYZWu16"),
+      Self::eXYZWi16 => Some("eXYZWi16"),
+      Self::eXYZWf16 => Some("eXYZWf16"),
+      Self::eXYZWu32 => Some("eXYZWu32"),
+      Self::eXYZWi32 => Some("eXYZWi32"),
+      Self::eXYZWf32 => Some("eXYZWf32"),
+      _ => None,
+    }
+  }
+}
+impl std::fmt::Debug for ElementType {
+  fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+    if let Some(name) = self.variant_name() {
+      f.write_str(name)
+    } else {
+      f.write_fmt(format_args!("<UNKNOWN {:?}>", self.0))
+    }
+  }
+}
+impl<'a> flatbuffers::Follow<'a> for ElementType {
+  type Inner = Self;
+  #[inline]
+  fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
+    let b = unsafe {
+      flatbuffers::read_scalar_at::<u8>(buf, loc)
+    };
+    Self(b)
+  }
+}
+
+impl flatbuffers::Push for ElementType {
+    type Output = ElementType;
+    #[inline]
+    fn push(&self, dst: &mut [u8], _rest: &[u8]) {
+        unsafe { flatbuffers::emplace_scalar::<u8>(dst, self.0); }
+    }
+}
+
+impl flatbuffers::EndianScalar for ElementType {
+  #[inline]
+  fn to_little_endian(self) -> Self {
+    let b = u8::to_le(self.0);
+    Self(b)
+  }
+  #[inline]
+  #[allow(clippy::wrong_self_convention)]
+  fn from_little_endian(self) -> Self {
+    let b = u8::from_le(self.0);
+    Self(b)
+  }
+}
+
+impl<'a> flatbuffers::Verifiable for ElementType {
+  #[inline]
+  fn run_verifier(
+    v: &mut flatbuffers::Verifier, pos: usize
+  ) -> Result<(), flatbuffers::InvalidFlatbuffer> {
+    use self::flatbuffers::Verifiable;
+    u8::run_verifier(v, pos)
+  }
+}
+
+impl flatbuffers::SimpleToVerifyInSlice for ElementType {}
 /// this flatbuffer scheme described all basic data structure that needs serialization
 // struct Vec3d, aligned to 8
 #[repr(transparent)]
@@ -179,6 +705,151 @@ impl Vec3dT {
       self.x,
       self.y,
       self.z,
+    )
+  }
+}
+
+// struct Vec2d, aligned to 8
+#[repr(transparent)]
+#[derive(Clone, Copy, PartialEq)]
+pub struct Vec2d(pub [u8; 16]);
+impl Default for Vec2d { 
+  fn default() -> Self { 
+    Self([0; 16])
+  }
+}
+impl std::fmt::Debug for Vec2d {
+  fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+    f.debug_struct("Vec2d")
+      .field("x", &self.x())
+      .field("y", &self.y())
+      .finish()
+  }
+}
+
+impl flatbuffers::SimpleToVerifyInSlice for Vec2d {}
+impl flatbuffers::SafeSliceAccess for Vec2d {}
+impl<'a> flatbuffers::Follow<'a> for Vec2d {
+  type Inner = &'a Vec2d;
+  #[inline]
+  fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
+    <&'a Vec2d>::follow(buf, loc)
+  }
+}
+impl<'a> flatbuffers::Follow<'a> for &'a Vec2d {
+  type Inner = &'a Vec2d;
+  #[inline]
+  fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
+    flatbuffers::follow_cast_ref::<Vec2d>(buf, loc)
+  }
+}
+impl<'b> flatbuffers::Push for Vec2d {
+    type Output = Vec2d;
+    #[inline]
+    fn push(&self, dst: &mut [u8], _rest: &[u8]) {
+        let src = unsafe {
+            ::std::slice::from_raw_parts(self as *const Vec2d as *const u8, Self::size())
+        };
+        dst.copy_from_slice(src);
+    }
+}
+impl<'b> flatbuffers::Push for &'b Vec2d {
+    type Output = Vec2d;
+
+    #[inline]
+    fn push(&self, dst: &mut [u8], _rest: &[u8]) {
+        let src = unsafe {
+            ::std::slice::from_raw_parts(*self as *const Vec2d as *const u8, Self::size())
+        };
+        dst.copy_from_slice(src);
+    }
+}
+
+impl<'a> flatbuffers::Verifiable for Vec2d {
+  #[inline]
+  fn run_verifier(
+    v: &mut flatbuffers::Verifier, pos: usize
+  ) -> Result<(), flatbuffers::InvalidFlatbuffer> {
+    use self::flatbuffers::Verifiable;
+    v.in_buffer::<Self>(pos)
+  }
+}
+impl<'a> Vec2d {
+  #[allow(clippy::too_many_arguments)]
+  pub fn new(
+    x: f64,
+    y: f64,
+  ) -> Self {
+    let mut s = Self([0; 16]);
+    s.set_x(x);
+    s.set_y(y);
+    s
+  }
+
+  pub fn x(&self) -> f64 {
+    let mut mem = core::mem::MaybeUninit::<f64>::uninit();
+    unsafe {
+      core::ptr::copy_nonoverlapping(
+        self.0[0..].as_ptr(),
+        mem.as_mut_ptr() as *mut u8,
+        core::mem::size_of::<f64>(),
+      );
+      mem.assume_init()
+    }.from_little_endian()
+  }
+
+  pub fn set_x(&mut self, x: f64) {
+    let x_le = x.to_little_endian();
+    unsafe {
+      core::ptr::copy_nonoverlapping(
+        &x_le as *const f64 as *const u8,
+        self.0[0..].as_mut_ptr(),
+        core::mem::size_of::<f64>(),
+      );
+    }
+  }
+
+  pub fn y(&self) -> f64 {
+    let mut mem = core::mem::MaybeUninit::<f64>::uninit();
+    unsafe {
+      core::ptr::copy_nonoverlapping(
+        self.0[8..].as_ptr(),
+        mem.as_mut_ptr() as *mut u8,
+        core::mem::size_of::<f64>(),
+      );
+      mem.assume_init()
+    }.from_little_endian()
+  }
+
+  pub fn set_y(&mut self, x: f64) {
+    let x_le = x.to_little_endian();
+    unsafe {
+      core::ptr::copy_nonoverlapping(
+        &x_le as *const f64 as *const u8,
+        self.0[8..].as_mut_ptr(),
+        core::mem::size_of::<f64>(),
+      );
+    }
+  }
+
+  pub fn unpack(&self) -> Vec2dT {
+    Vec2dT {
+      x: self.x(),
+      y: self.y(),
+    }
+  }
+}
+
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Vec2dT {
+  pub x: f64,
+  pub y: f64,
+}
+impl Vec2dT {
+  pub fn pack(&self) -> Vec2d {
+    Vec2d::new(
+      self.x,
+      self.y,
     )
   }
 }
@@ -513,7 +1184,7 @@ impl Default for Matrix44d {
 impl std::fmt::Debug for Matrix44d {
   fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
     f.debug_struct("Matrix44d")
-      .field("idx", &self.idx())
+      .field("rows", &self.rows())
       .finish()
   }
 }
@@ -568,18 +1239,18 @@ impl<'a> flatbuffers::Verifiable for Matrix44d {
 impl<'a> Matrix44d {
   #[allow(clippy::too_many_arguments)]
   pub fn new(
-    idx: &[Vec4d; 4],
+    rows: &[Vec4d; 4],
   ) -> Self {
     let mut s = Self([0; 128]);
-    s.set_idx(&idx);
+    s.set_rows(&rows);
     s
   }
 
-  pub fn idx(&'a self) -> flatbuffers::Array<'a, Vec4d, 4> {
+  pub fn rows(&'a self) -> flatbuffers::Array<'a, Vec4d, 4> {
     flatbuffers::Array::follow(&self.0, 0)
   }
 
-  pub fn set_idx(&mut self, x: &[Vec4d; 4]) {
+  pub fn set_rows(&mut self, x: &[Vec4d; 4]) {
     unsafe {
       std::ptr::copy(
         x.as_ptr() as *const u8,
@@ -591,20 +1262,22 @@ impl<'a> Matrix44d {
 
   pub fn unpack(&self) -> Matrix44dT {
     Matrix44dT {
-      idx: { let idx = self.idx(); flatbuffers::array_init(|i| idx.get(i).unpack()) },
+      rows: { let rows = self.rows(); flatbuffers::array_init(|i| rows.get(i).unpack()) },
     }
   }
 }
 
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct Matrix44dT {
-  pub idx: [Vec4dT; 4],
+  pub rows: [Vec4dT; 4],
 }
 impl Matrix44dT {
   pub fn pack(&self) -> Matrix44d {
     Matrix44d::new(
-      &flatbuffers::array_init(|i| self.idx[i].pack()),
+      &flatbuffers::array_init(|i| self.rows[i].pack()),
     )
   }
 }
+
+}  // pub mod sf
 
