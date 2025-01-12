@@ -1,2 +1,4 @@
-FOR %%i IN (scene_flat\fbs\*.*) DO flatc -r -o src/ --gen-object-api --filename-suffix "" %%i
+%% git submodule update --recursive --remote
+cd scene_flat && python gen.py -rust && cd ..
+copy /Y scene_flat\generated\rust\* src\
 pause
