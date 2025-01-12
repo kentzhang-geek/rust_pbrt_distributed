@@ -2,13 +2,6 @@
 
 
 
-use crate::common::*;
-use crate::texture::*;
-use crate::bvh_accel::*;
-use crate::camera::*;
-use crate::material::*;
-use crate::light::*;
-use crate::mesh_primitive::*;
 use std::mem;
 use std::cmp::Ordering;
 
@@ -18,19 +11,4064 @@ use self::flatbuffers::{EndianScalar, Follow};
 #[allow(unused_imports, dead_code)]
 pub mod sf {
 
-  use crate::common::*;
-  use crate::texture::*;
-  use crate::bvh_accel::*;
-  use crate::camera::*;
-  use crate::material::*;
-  use crate::light::*;
-  use crate::mesh_primitive::*;
   use std::mem;
   use std::cmp::Ordering;
 
   extern crate flatbuffers;
   use self::flatbuffers::{EndianScalar, Follow};
 
+#[deprecated(since = "2.0.0", note = "Use associated constants instead. This will no longer be generated in 2021.")]
+pub const ENUM_MIN_IMAGE_TYPE: u8 = 0;
+#[deprecated(since = "2.0.0", note = "Use associated constants instead. This will no longer be generated in 2021.")]
+pub const ENUM_MAX_IMAGE_TYPE: u8 = 2;
+#[deprecated(since = "2.0.0", note = "Use associated constants instead. This will no longer be generated in 2021.")]
+#[allow(non_camel_case_types)]
+pub const ENUM_VALUES_IMAGE_TYPE: [ImageType; 3] = [
+  ImageType::eNone,
+  ImageType::eFileData,
+  ImageType::eRawData,
+];
+
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Default)]
+#[repr(transparent)]
+pub struct ImageType(pub u8);
+#[allow(non_upper_case_globals)]
+impl ImageType {
+  pub const eNone: Self = Self(0);
+  pub const eFileData: Self = Self(1);
+  pub const eRawData: Self = Self(2);
+
+  pub const ENUM_MIN: u8 = 0;
+  pub const ENUM_MAX: u8 = 2;
+  pub const ENUM_VALUES: &'static [Self] = &[
+    Self::eNone,
+    Self::eFileData,
+    Self::eRawData,
+  ];
+  /// Returns the variant's name or "" if unknown.
+  pub fn variant_name(self) -> Option<&'static str> {
+    match self {
+      Self::eNone => Some("eNone"),
+      Self::eFileData => Some("eFileData"),
+      Self::eRawData => Some("eRawData"),
+      _ => None,
+    }
+  }
+}
+impl std::fmt::Debug for ImageType {
+  fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+    if let Some(name) = self.variant_name() {
+      f.write_str(name)
+    } else {
+      f.write_fmt(format_args!("<UNKNOWN {:?}>", self.0))
+    }
+  }
+}
+impl<'a> flatbuffers::Follow<'a> for ImageType {
+  type Inner = Self;
+  #[inline]
+  fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
+    let b = unsafe {
+      flatbuffers::read_scalar_at::<u8>(buf, loc)
+    };
+    Self(b)
+  }
+}
+
+impl flatbuffers::Push for ImageType {
+    type Output = ImageType;
+    #[inline]
+    fn push(&self, dst: &mut [u8], _rest: &[u8]) {
+        unsafe { flatbuffers::emplace_scalar::<u8>(dst, self.0); }
+    }
+}
+
+impl flatbuffers::EndianScalar for ImageType {
+  #[inline]
+  fn to_little_endian(self) -> Self {
+    let b = u8::to_le(self.0);
+    Self(b)
+  }
+  #[inline]
+  #[allow(clippy::wrong_self_convention)]
+  fn from_little_endian(self) -> Self {
+    let b = u8::from_le(self.0);
+    Self(b)
+  }
+}
+
+impl<'a> flatbuffers::Verifiable for ImageType {
+  #[inline]
+  fn run_verifier(
+    v: &mut flatbuffers::Verifier, pos: usize
+  ) -> Result<(), flatbuffers::InvalidFlatbuffer> {
+    use self::flatbuffers::Verifiable;
+    u8::run_verifier(v, pos)
+  }
+}
+
+impl flatbuffers::SimpleToVerifyInSlice for ImageType {}
+#[deprecated(since = "2.0.0", note = "Use associated constants instead. This will no longer be generated in 2021.")]
+pub const ENUM_MIN_PIXEL_TYPE: u8 = 0;
+#[deprecated(since = "2.0.0", note = "Use associated constants instead. This will no longer be generated in 2021.")]
+pub const ENUM_MAX_PIXEL_TYPE: u8 = 33;
+#[deprecated(since = "2.0.0", note = "Use associated constants instead. This will no longer be generated in 2021.")]
+#[allow(non_camel_case_types)]
+pub const ENUM_VALUES_PIXEL_TYPE: [PixelType; 34] = [
+  PixelType::eNone,
+  PixelType::eRu8,
+  PixelType::eRi8,
+  PixelType::eRu16,
+  PixelType::eRi16,
+  PixelType::eRf16,
+  PixelType::eRu32,
+  PixelType::eRi32,
+  PixelType::eRf32,
+  PixelType::eRGu8,
+  PixelType::eRGi8,
+  PixelType::eRGu16,
+  PixelType::eRGi16,
+  PixelType::eRGf16,
+  PixelType::eRGu32,
+  PixelType::eRGi32,
+  PixelType::eRGf32,
+  PixelType::eRGBu8,
+  PixelType::eRGBi8,
+  PixelType::eRGBu16,
+  PixelType::eRGBi16,
+  PixelType::eRGBf16,
+  PixelType::eRGBu32,
+  PixelType::eRGBi32,
+  PixelType::eRGBf32,
+  PixelType::eRGBAu8,
+  PixelType::eRGBAi8,
+  PixelType::eRGBAu16,
+  PixelType::eRGBAi16,
+  PixelType::eRGBAf16,
+  PixelType::eRGBAu32,
+  PixelType::eRGBAi32,
+  PixelType::eRGBAf32,
+  PixelType::eRGBA8_SRGB,
+];
+
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Default)]
+#[repr(transparent)]
+pub struct PixelType(pub u8);
+#[allow(non_upper_case_globals)]
+impl PixelType {
+  pub const eNone: Self = Self(0);
+  pub const eRu8: Self = Self(1);
+  pub const eRi8: Self = Self(2);
+  pub const eRu16: Self = Self(3);
+  pub const eRi16: Self = Self(4);
+  pub const eRf16: Self = Self(5);
+  pub const eRu32: Self = Self(6);
+  pub const eRi32: Self = Self(7);
+  pub const eRf32: Self = Self(8);
+  pub const eRGu8: Self = Self(9);
+  pub const eRGi8: Self = Self(10);
+  pub const eRGu16: Self = Self(11);
+  pub const eRGi16: Self = Self(12);
+  pub const eRGf16: Self = Self(13);
+  pub const eRGu32: Self = Self(14);
+  pub const eRGi32: Self = Self(15);
+  pub const eRGf32: Self = Self(16);
+  pub const eRGBu8: Self = Self(17);
+  pub const eRGBi8: Self = Self(18);
+  pub const eRGBu16: Self = Self(19);
+  pub const eRGBi16: Self = Self(20);
+  pub const eRGBf16: Self = Self(21);
+  pub const eRGBu32: Self = Self(22);
+  pub const eRGBi32: Self = Self(23);
+  pub const eRGBf32: Self = Self(24);
+  pub const eRGBAu8: Self = Self(25);
+  pub const eRGBAi8: Self = Self(26);
+  pub const eRGBAu16: Self = Self(27);
+  pub const eRGBAi16: Self = Self(28);
+  pub const eRGBAf16: Self = Self(29);
+  pub const eRGBAu32: Self = Self(30);
+  pub const eRGBAi32: Self = Self(31);
+  pub const eRGBAf32: Self = Self(32);
+  pub const eRGBA8_SRGB: Self = Self(33);
+
+  pub const ENUM_MIN: u8 = 0;
+  pub const ENUM_MAX: u8 = 33;
+  pub const ENUM_VALUES: &'static [Self] = &[
+    Self::eNone,
+    Self::eRu8,
+    Self::eRi8,
+    Self::eRu16,
+    Self::eRi16,
+    Self::eRf16,
+    Self::eRu32,
+    Self::eRi32,
+    Self::eRf32,
+    Self::eRGu8,
+    Self::eRGi8,
+    Self::eRGu16,
+    Self::eRGi16,
+    Self::eRGf16,
+    Self::eRGu32,
+    Self::eRGi32,
+    Self::eRGf32,
+    Self::eRGBu8,
+    Self::eRGBi8,
+    Self::eRGBu16,
+    Self::eRGBi16,
+    Self::eRGBf16,
+    Self::eRGBu32,
+    Self::eRGBi32,
+    Self::eRGBf32,
+    Self::eRGBAu8,
+    Self::eRGBAi8,
+    Self::eRGBAu16,
+    Self::eRGBAi16,
+    Self::eRGBAf16,
+    Self::eRGBAu32,
+    Self::eRGBAi32,
+    Self::eRGBAf32,
+    Self::eRGBA8_SRGB,
+  ];
+  /// Returns the variant's name or "" if unknown.
+  pub fn variant_name(self) -> Option<&'static str> {
+    match self {
+      Self::eNone => Some("eNone"),
+      Self::eRu8 => Some("eRu8"),
+      Self::eRi8 => Some("eRi8"),
+      Self::eRu16 => Some("eRu16"),
+      Self::eRi16 => Some("eRi16"),
+      Self::eRf16 => Some("eRf16"),
+      Self::eRu32 => Some("eRu32"),
+      Self::eRi32 => Some("eRi32"),
+      Self::eRf32 => Some("eRf32"),
+      Self::eRGu8 => Some("eRGu8"),
+      Self::eRGi8 => Some("eRGi8"),
+      Self::eRGu16 => Some("eRGu16"),
+      Self::eRGi16 => Some("eRGi16"),
+      Self::eRGf16 => Some("eRGf16"),
+      Self::eRGu32 => Some("eRGu32"),
+      Self::eRGi32 => Some("eRGi32"),
+      Self::eRGf32 => Some("eRGf32"),
+      Self::eRGBu8 => Some("eRGBu8"),
+      Self::eRGBi8 => Some("eRGBi8"),
+      Self::eRGBu16 => Some("eRGBu16"),
+      Self::eRGBi16 => Some("eRGBi16"),
+      Self::eRGBf16 => Some("eRGBf16"),
+      Self::eRGBu32 => Some("eRGBu32"),
+      Self::eRGBi32 => Some("eRGBi32"),
+      Self::eRGBf32 => Some("eRGBf32"),
+      Self::eRGBAu8 => Some("eRGBAu8"),
+      Self::eRGBAi8 => Some("eRGBAi8"),
+      Self::eRGBAu16 => Some("eRGBAu16"),
+      Self::eRGBAi16 => Some("eRGBAi16"),
+      Self::eRGBAf16 => Some("eRGBAf16"),
+      Self::eRGBAu32 => Some("eRGBAu32"),
+      Self::eRGBAi32 => Some("eRGBAi32"),
+      Self::eRGBAf32 => Some("eRGBAf32"),
+      Self::eRGBA8_SRGB => Some("eRGBA8_SRGB"),
+      _ => None,
+    }
+  }
+}
+impl std::fmt::Debug for PixelType {
+  fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+    if let Some(name) = self.variant_name() {
+      f.write_str(name)
+    } else {
+      f.write_fmt(format_args!("<UNKNOWN {:?}>", self.0))
+    }
+  }
+}
+impl<'a> flatbuffers::Follow<'a> for PixelType {
+  type Inner = Self;
+  #[inline]
+  fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
+    let b = unsafe {
+      flatbuffers::read_scalar_at::<u8>(buf, loc)
+    };
+    Self(b)
+  }
+}
+
+impl flatbuffers::Push for PixelType {
+    type Output = PixelType;
+    #[inline]
+    fn push(&self, dst: &mut [u8], _rest: &[u8]) {
+        unsafe { flatbuffers::emplace_scalar::<u8>(dst, self.0); }
+    }
+}
+
+impl flatbuffers::EndianScalar for PixelType {
+  #[inline]
+  fn to_little_endian(self) -> Self {
+    let b = u8::to_le(self.0);
+    Self(b)
+  }
+  #[inline]
+  #[allow(clippy::wrong_self_convention)]
+  fn from_little_endian(self) -> Self {
+    let b = u8::from_le(self.0);
+    Self(b)
+  }
+}
+
+impl<'a> flatbuffers::Verifiable for PixelType {
+  #[inline]
+  fn run_verifier(
+    v: &mut flatbuffers::Verifier, pos: usize
+  ) -> Result<(), flatbuffers::InvalidFlatbuffer> {
+    use self::flatbuffers::Verifiable;
+    u8::run_verifier(v, pos)
+  }
+}
+
+impl flatbuffers::SimpleToVerifyInSlice for PixelType {}
+#[deprecated(since = "2.0.0", note = "Use associated constants instead. This will no longer be generated in 2021.")]
+pub const ENUM_MIN_ELEMENT_TYPE: u8 = 0;
+#[deprecated(since = "2.0.0", note = "Use associated constants instead. This will no longer be generated in 2021.")]
+pub const ENUM_MAX_ELEMENT_TYPE: u8 = 32;
+#[deprecated(since = "2.0.0", note = "Use associated constants instead. This will no longer be generated in 2021.")]
+#[allow(non_camel_case_types)]
+pub const ENUM_VALUES_ELEMENT_TYPE: [ElementType; 33] = [
+  ElementType::eNone,
+  ElementType::eXu8,
+  ElementType::eXi8,
+  ElementType::eXu16,
+  ElementType::eXi16,
+  ElementType::eXf16,
+  ElementType::eXu32,
+  ElementType::eXi32,
+  ElementType::eXf32,
+  ElementType::eXYu8,
+  ElementType::eXYi8,
+  ElementType::eXYu16,
+  ElementType::eXYi16,
+  ElementType::eXYf16,
+  ElementType::eXYu32,
+  ElementType::eXYi32,
+  ElementType::eXYf32,
+  ElementType::eXYZu8,
+  ElementType::eXYZi8,
+  ElementType::eXYZu16,
+  ElementType::eXYZi16,
+  ElementType::eXYZf16,
+  ElementType::eXYZu32,
+  ElementType::eXYZi32,
+  ElementType::eXYZf32,
+  ElementType::eXYZWu8,
+  ElementType::eXYZWi8,
+  ElementType::eXYZWu16,
+  ElementType::eXYZWi16,
+  ElementType::eXYZWf16,
+  ElementType::eXYZWu32,
+  ElementType::eXYZWi32,
+  ElementType::eXYZWf32,
+];
+
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Default)]
+#[repr(transparent)]
+pub struct ElementType(pub u8);
+#[allow(non_upper_case_globals)]
+impl ElementType {
+  pub const eNone: Self = Self(0);
+  pub const eXu8: Self = Self(1);
+  pub const eXi8: Self = Self(2);
+  pub const eXu16: Self = Self(3);
+  pub const eXi16: Self = Self(4);
+  pub const eXf16: Self = Self(5);
+  pub const eXu32: Self = Self(6);
+  pub const eXi32: Self = Self(7);
+  pub const eXf32: Self = Self(8);
+  pub const eXYu8: Self = Self(9);
+  pub const eXYi8: Self = Self(10);
+  pub const eXYu16: Self = Self(11);
+  pub const eXYi16: Self = Self(12);
+  pub const eXYf16: Self = Self(13);
+  pub const eXYu32: Self = Self(14);
+  pub const eXYi32: Self = Self(15);
+  pub const eXYf32: Self = Self(16);
+  pub const eXYZu8: Self = Self(17);
+  pub const eXYZi8: Self = Self(18);
+  pub const eXYZu16: Self = Self(19);
+  pub const eXYZi16: Self = Self(20);
+  pub const eXYZf16: Self = Self(21);
+  pub const eXYZu32: Self = Self(22);
+  pub const eXYZi32: Self = Self(23);
+  pub const eXYZf32: Self = Self(24);
+  pub const eXYZWu8: Self = Self(25);
+  pub const eXYZWi8: Self = Self(26);
+  pub const eXYZWu16: Self = Self(27);
+  pub const eXYZWi16: Self = Self(28);
+  pub const eXYZWf16: Self = Self(29);
+  pub const eXYZWu32: Self = Self(30);
+  pub const eXYZWi32: Self = Self(31);
+  pub const eXYZWf32: Self = Self(32);
+
+  pub const ENUM_MIN: u8 = 0;
+  pub const ENUM_MAX: u8 = 32;
+  pub const ENUM_VALUES: &'static [Self] = &[
+    Self::eNone,
+    Self::eXu8,
+    Self::eXi8,
+    Self::eXu16,
+    Self::eXi16,
+    Self::eXf16,
+    Self::eXu32,
+    Self::eXi32,
+    Self::eXf32,
+    Self::eXYu8,
+    Self::eXYi8,
+    Self::eXYu16,
+    Self::eXYi16,
+    Self::eXYf16,
+    Self::eXYu32,
+    Self::eXYi32,
+    Self::eXYf32,
+    Self::eXYZu8,
+    Self::eXYZi8,
+    Self::eXYZu16,
+    Self::eXYZi16,
+    Self::eXYZf16,
+    Self::eXYZu32,
+    Self::eXYZi32,
+    Self::eXYZf32,
+    Self::eXYZWu8,
+    Self::eXYZWi8,
+    Self::eXYZWu16,
+    Self::eXYZWi16,
+    Self::eXYZWf16,
+    Self::eXYZWu32,
+    Self::eXYZWi32,
+    Self::eXYZWf32,
+  ];
+  /// Returns the variant's name or "" if unknown.
+  pub fn variant_name(self) -> Option<&'static str> {
+    match self {
+      Self::eNone => Some("eNone"),
+      Self::eXu8 => Some("eXu8"),
+      Self::eXi8 => Some("eXi8"),
+      Self::eXu16 => Some("eXu16"),
+      Self::eXi16 => Some("eXi16"),
+      Self::eXf16 => Some("eXf16"),
+      Self::eXu32 => Some("eXu32"),
+      Self::eXi32 => Some("eXi32"),
+      Self::eXf32 => Some("eXf32"),
+      Self::eXYu8 => Some("eXYu8"),
+      Self::eXYi8 => Some("eXYi8"),
+      Self::eXYu16 => Some("eXYu16"),
+      Self::eXYi16 => Some("eXYi16"),
+      Self::eXYf16 => Some("eXYf16"),
+      Self::eXYu32 => Some("eXYu32"),
+      Self::eXYi32 => Some("eXYi32"),
+      Self::eXYf32 => Some("eXYf32"),
+      Self::eXYZu8 => Some("eXYZu8"),
+      Self::eXYZi8 => Some("eXYZi8"),
+      Self::eXYZu16 => Some("eXYZu16"),
+      Self::eXYZi16 => Some("eXYZi16"),
+      Self::eXYZf16 => Some("eXYZf16"),
+      Self::eXYZu32 => Some("eXYZu32"),
+      Self::eXYZi32 => Some("eXYZi32"),
+      Self::eXYZf32 => Some("eXYZf32"),
+      Self::eXYZWu8 => Some("eXYZWu8"),
+      Self::eXYZWi8 => Some("eXYZWi8"),
+      Self::eXYZWu16 => Some("eXYZWu16"),
+      Self::eXYZWi16 => Some("eXYZWi16"),
+      Self::eXYZWf16 => Some("eXYZWf16"),
+      Self::eXYZWu32 => Some("eXYZWu32"),
+      Self::eXYZWi32 => Some("eXYZWi32"),
+      Self::eXYZWf32 => Some("eXYZWf32"),
+      _ => None,
+    }
+  }
+}
+impl std::fmt::Debug for ElementType {
+  fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+    if let Some(name) = self.variant_name() {
+      f.write_str(name)
+    } else {
+      f.write_fmt(format_args!("<UNKNOWN {:?}>", self.0))
+    }
+  }
+}
+impl<'a> flatbuffers::Follow<'a> for ElementType {
+  type Inner = Self;
+  #[inline]
+  fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
+    let b = unsafe {
+      flatbuffers::read_scalar_at::<u8>(buf, loc)
+    };
+    Self(b)
+  }
+}
+
+impl flatbuffers::Push for ElementType {
+    type Output = ElementType;
+    #[inline]
+    fn push(&self, dst: &mut [u8], _rest: &[u8]) {
+        unsafe { flatbuffers::emplace_scalar::<u8>(dst, self.0); }
+    }
+}
+
+impl flatbuffers::EndianScalar for ElementType {
+  #[inline]
+  fn to_little_endian(self) -> Self {
+    let b = u8::to_le(self.0);
+    Self(b)
+  }
+  #[inline]
+  #[allow(clippy::wrong_self_convention)]
+  fn from_little_endian(self) -> Self {
+    let b = u8::from_le(self.0);
+    Self(b)
+  }
+}
+
+impl<'a> flatbuffers::Verifiable for ElementType {
+  #[inline]
+  fn run_verifier(
+    v: &mut flatbuffers::Verifier, pos: usize
+  ) -> Result<(), flatbuffers::InvalidFlatbuffer> {
+    use self::flatbuffers::Verifiable;
+    u8::run_verifier(v, pos)
+  }
+}
+
+impl flatbuffers::SimpleToVerifyInSlice for ElementType {}
+#[deprecated(since = "2.0.0", note = "Use associated constants instead. This will no longer be generated in 2021.")]
+pub const ENUM_MIN_ATTRIBUTE_MAP_MODE: u8 = 0;
+#[deprecated(since = "2.0.0", note = "Use associated constants instead. This will no longer be generated in 2021.")]
+pub const ENUM_MAX_ATTRIBUTE_MAP_MODE: u8 = 2;
+#[deprecated(since = "2.0.0", note = "Use associated constants instead. This will no longer be generated in 2021.")]
+#[allow(non_camel_case_types)]
+pub const ENUM_VALUES_ATTRIBUTE_MAP_MODE: [AttributeMapMode; 3] = [
+  AttributeMapMode::eNone,
+  AttributeMapMode::eByVertex,
+  AttributeMapMode::eByIndex,
+];
+
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Default)]
+#[repr(transparent)]
+pub struct AttributeMapMode(pub u8);
+#[allow(non_upper_case_globals)]
+impl AttributeMapMode {
+  pub const eNone: Self = Self(0);
+  pub const eByVertex: Self = Self(1);
+  pub const eByIndex: Self = Self(2);
+
+  pub const ENUM_MIN: u8 = 0;
+  pub const ENUM_MAX: u8 = 2;
+  pub const ENUM_VALUES: &'static [Self] = &[
+    Self::eNone,
+    Self::eByVertex,
+    Self::eByIndex,
+  ];
+  /// Returns the variant's name or "" if unknown.
+  pub fn variant_name(self) -> Option<&'static str> {
+    match self {
+      Self::eNone => Some("eNone"),
+      Self::eByVertex => Some("eByVertex"),
+      Self::eByIndex => Some("eByIndex"),
+      _ => None,
+    }
+  }
+}
+impl std::fmt::Debug for AttributeMapMode {
+  fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+    if let Some(name) = self.variant_name() {
+      f.write_str(name)
+    } else {
+      f.write_fmt(format_args!("<UNKNOWN {:?}>", self.0))
+    }
+  }
+}
+impl<'a> flatbuffers::Follow<'a> for AttributeMapMode {
+  type Inner = Self;
+  #[inline]
+  fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
+    let b = unsafe {
+      flatbuffers::read_scalar_at::<u8>(buf, loc)
+    };
+    Self(b)
+  }
+}
+
+impl flatbuffers::Push for AttributeMapMode {
+    type Output = AttributeMapMode;
+    #[inline]
+    fn push(&self, dst: &mut [u8], _rest: &[u8]) {
+        unsafe { flatbuffers::emplace_scalar::<u8>(dst, self.0); }
+    }
+}
+
+impl flatbuffers::EndianScalar for AttributeMapMode {
+  #[inline]
+  fn to_little_endian(self) -> Self {
+    let b = u8::to_le(self.0);
+    Self(b)
+  }
+  #[inline]
+  #[allow(clippy::wrong_self_convention)]
+  fn from_little_endian(self) -> Self {
+    let b = u8::from_le(self.0);
+    Self(b)
+  }
+}
+
+impl<'a> flatbuffers::Verifiable for AttributeMapMode {
+  #[inline]
+  fn run_verifier(
+    v: &mut flatbuffers::Verifier, pos: usize
+  ) -> Result<(), flatbuffers::InvalidFlatbuffer> {
+    use self::flatbuffers::Verifiable;
+    u8::run_verifier(v, pos)
+  }
+}
+
+impl flatbuffers::SimpleToVerifyInSlice for AttributeMapMode {}
+#[deprecated(since = "2.0.0", note = "Use associated constants instead. This will no longer be generated in 2021.")]
+pub const ENUM_MIN_SURFACE: u8 = 0;
+#[deprecated(since = "2.0.0", note = "Use associated constants instead. This will no longer be generated in 2021.")]
+pub const ENUM_MAX_SURFACE: u8 = 2;
+#[deprecated(since = "2.0.0", note = "Use associated constants instead. This will no longer be generated in 2021.")]
+#[allow(non_camel_case_types)]
+pub const ENUM_VALUES_SURFACE: [Surface; 3] = [
+  Surface::NONE,
+  Surface::PhongSurface,
+  Surface::LambertSurface,
+];
+
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Default)]
+#[repr(transparent)]
+pub struct Surface(pub u8);
+#[allow(non_upper_case_globals)]
+impl Surface {
+  pub const NONE: Self = Self(0);
+  pub const PhongSurface: Self = Self(1);
+  pub const LambertSurface: Self = Self(2);
+
+  pub const ENUM_MIN: u8 = 0;
+  pub const ENUM_MAX: u8 = 2;
+  pub const ENUM_VALUES: &'static [Self] = &[
+    Self::NONE,
+    Self::PhongSurface,
+    Self::LambertSurface,
+  ];
+  /// Returns the variant's name or "" if unknown.
+  pub fn variant_name(self) -> Option<&'static str> {
+    match self {
+      Self::NONE => Some("NONE"),
+      Self::PhongSurface => Some("PhongSurface"),
+      Self::LambertSurface => Some("LambertSurface"),
+      _ => None,
+    }
+  }
+}
+impl std::fmt::Debug for Surface {
+  fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+    if let Some(name) = self.variant_name() {
+      f.write_str(name)
+    } else {
+      f.write_fmt(format_args!("<UNKNOWN {:?}>", self.0))
+    }
+  }
+}
+impl<'a> flatbuffers::Follow<'a> for Surface {
+  type Inner = Self;
+  #[inline]
+  fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
+    let b = unsafe {
+      flatbuffers::read_scalar_at::<u8>(buf, loc)
+    };
+    Self(b)
+  }
+}
+
+impl flatbuffers::Push for Surface {
+    type Output = Surface;
+    #[inline]
+    fn push(&self, dst: &mut [u8], _rest: &[u8]) {
+        unsafe { flatbuffers::emplace_scalar::<u8>(dst, self.0); }
+    }
+}
+
+impl flatbuffers::EndianScalar for Surface {
+  #[inline]
+  fn to_little_endian(self) -> Self {
+    let b = u8::to_le(self.0);
+    Self(b)
+  }
+  #[inline]
+  #[allow(clippy::wrong_self_convention)]
+  fn from_little_endian(self) -> Self {
+    let b = u8::from_le(self.0);
+    Self(b)
+  }
+}
+
+impl<'a> flatbuffers::Verifiable for Surface {
+  #[inline]
+  fn run_verifier(
+    v: &mut flatbuffers::Verifier, pos: usize
+  ) -> Result<(), flatbuffers::InvalidFlatbuffer> {
+    use self::flatbuffers::Verifiable;
+    u8::run_verifier(v, pos)
+  }
+}
+
+impl flatbuffers::SimpleToVerifyInSlice for Surface {}
+pub struct SurfaceUnionTableOffset {}
+
+#[non_exhaustive]
+#[derive(Debug, Clone, PartialEq)]
+pub enum SurfaceT {
+  NONE,
+  PhongSurface(Box<PhongSurfaceT>),
+  LambertSurface(Box<LambertSurfaceT>),
+}
+impl Default for SurfaceT {
+  fn default() -> Self {
+    Self::NONE
+  }
+}
+impl SurfaceT {
+  pub fn surface_type(&self) -> Surface {
+    match self {
+      Self::NONE => Surface::NONE,
+      Self::PhongSurface(_) => Surface::PhongSurface,
+      Self::LambertSurface(_) => Surface::LambertSurface,
+    }
+  }
+  pub fn pack(&self, fbb: &mut flatbuffers::FlatBufferBuilder) -> Option<flatbuffers::WIPOffset<flatbuffers::UnionWIPOffset>> {
+    match self {
+      Self::NONE => None,
+      Self::PhongSurface(v) => Some(v.pack(fbb).as_union_value()),
+      Self::LambertSurface(v) => Some(v.pack(fbb).as_union_value()),
+    }
+  }
+  /// If the union variant matches, return the owned PhongSurfaceT, setting the union to NONE.
+  pub fn take_phong_surface(&mut self) -> Option<Box<PhongSurfaceT>> {
+    if let Self::PhongSurface(_) = self {
+      let v = std::mem::replace(self, Self::NONE);
+      if let Self::PhongSurface(w) = v {
+        Some(w)
+      } else {
+        unreachable!()
+      }
+    } else {
+      None
+    }
+  }
+  /// If the union variant matches, return a reference to the PhongSurfaceT.
+  pub fn as_phong_surface(&self) -> Option<&PhongSurfaceT> {
+    if let Self::PhongSurface(v) = self { Some(v.as_ref()) } else { None }
+  }
+  /// If the union variant matches, return a mutable reference to the PhongSurfaceT.
+  pub fn as_phong_surface_mut(&mut self) -> Option<&mut PhongSurfaceT> {
+    if let Self::PhongSurface(v) = self { Some(v.as_mut()) } else { None }
+  }
+  /// If the union variant matches, return the owned LambertSurfaceT, setting the union to NONE.
+  pub fn take_lambert_surface(&mut self) -> Option<Box<LambertSurfaceT>> {
+    if let Self::LambertSurface(_) = self {
+      let v = std::mem::replace(self, Self::NONE);
+      if let Self::LambertSurface(w) = v {
+        Some(w)
+      } else {
+        unreachable!()
+      }
+    } else {
+      None
+    }
+  }
+  /// If the union variant matches, return a reference to the LambertSurfaceT.
+  pub fn as_lambert_surface(&self) -> Option<&LambertSurfaceT> {
+    if let Self::LambertSurface(v) = self { Some(v.as_ref()) } else { None }
+  }
+  /// If the union variant matches, return a mutable reference to the LambertSurfaceT.
+  pub fn as_lambert_surface_mut(&mut self) -> Option<&mut LambertSurfaceT> {
+    if let Self::LambertSurface(v) = self { Some(v.as_mut()) } else { None }
+  }
+}
+#[deprecated(since = "2.0.0", note = "Use associated constants instead. This will no longer be generated in 2021.")]
+pub const ENUM_MIN_LIGHT_TYPE: u8 = 0;
+#[deprecated(since = "2.0.0", note = "Use associated constants instead. This will no longer be generated in 2021.")]
+pub const ENUM_MAX_LIGHT_TYPE: u8 = 4;
+#[deprecated(since = "2.0.0", note = "Use associated constants instead. This will no longer be generated in 2021.")]
+#[allow(non_camel_case_types)]
+pub const ENUM_VALUES_LIGHT_TYPE: [LightType; 5] = [
+  LightType::eNone,
+  LightType::eDirection,
+  LightType::ePoint,
+  LightType::eSpot,
+  LightType::eArea,
+];
+
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Default)]
+#[repr(transparent)]
+pub struct LightType(pub u8);
+#[allow(non_upper_case_globals)]
+impl LightType {
+  pub const eNone: Self = Self(0);
+  pub const eDirection: Self = Self(1);
+  pub const ePoint: Self = Self(2);
+  pub const eSpot: Self = Self(3);
+  pub const eArea: Self = Self(4);
+
+  pub const ENUM_MIN: u8 = 0;
+  pub const ENUM_MAX: u8 = 4;
+  pub const ENUM_VALUES: &'static [Self] = &[
+    Self::eNone,
+    Self::eDirection,
+    Self::ePoint,
+    Self::eSpot,
+    Self::eArea,
+  ];
+  /// Returns the variant's name or "" if unknown.
+  pub fn variant_name(self) -> Option<&'static str> {
+    match self {
+      Self::eNone => Some("eNone"),
+      Self::eDirection => Some("eDirection"),
+      Self::ePoint => Some("ePoint"),
+      Self::eSpot => Some("eSpot"),
+      Self::eArea => Some("eArea"),
+      _ => None,
+    }
+  }
+}
+impl std::fmt::Debug for LightType {
+  fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+    if let Some(name) = self.variant_name() {
+      f.write_str(name)
+    } else {
+      f.write_fmt(format_args!("<UNKNOWN {:?}>", self.0))
+    }
+  }
+}
+impl<'a> flatbuffers::Follow<'a> for LightType {
+  type Inner = Self;
+  #[inline]
+  fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
+    let b = unsafe {
+      flatbuffers::read_scalar_at::<u8>(buf, loc)
+    };
+    Self(b)
+  }
+}
+
+impl flatbuffers::Push for LightType {
+    type Output = LightType;
+    #[inline]
+    fn push(&self, dst: &mut [u8], _rest: &[u8]) {
+        unsafe { flatbuffers::emplace_scalar::<u8>(dst, self.0); }
+    }
+}
+
+impl flatbuffers::EndianScalar for LightType {
+  #[inline]
+  fn to_little_endian(self) -> Self {
+    let b = u8::to_le(self.0);
+    Self(b)
+  }
+  #[inline]
+  #[allow(clippy::wrong_self_convention)]
+  fn from_little_endian(self) -> Self {
+    let b = u8::from_le(self.0);
+    Self(b)
+  }
+}
+
+impl<'a> flatbuffers::Verifiable for LightType {
+  #[inline]
+  fn run_verifier(
+    v: &mut flatbuffers::Verifier, pos: usize
+  ) -> Result<(), flatbuffers::InvalidFlatbuffer> {
+    use self::flatbuffers::Verifiable;
+    u8::run_verifier(v, pos)
+  }
+}
+
+impl flatbuffers::SimpleToVerifyInSlice for LightType {}
+/// this flatbuffer scheme described all basic data structure that needs serialization
+// struct Vec3d, aligned to 8
+#[repr(transparent)]
+#[derive(Clone, Copy, PartialEq)]
+pub struct Vec3d(pub [u8; 24]);
+impl Default for Vec3d { 
+  fn default() -> Self { 
+    Self([0; 24])
+  }
+}
+impl std::fmt::Debug for Vec3d {
+  fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+    f.debug_struct("Vec3d")
+      .field("x", &self.x())
+      .field("y", &self.y())
+      .field("z", &self.z())
+      .finish()
+  }
+}
+
+impl flatbuffers::SimpleToVerifyInSlice for Vec3d {}
+impl flatbuffers::SafeSliceAccess for Vec3d {}
+impl<'a> flatbuffers::Follow<'a> for Vec3d {
+  type Inner = &'a Vec3d;
+  #[inline]
+  fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
+    <&'a Vec3d>::follow(buf, loc)
+  }
+}
+impl<'a> flatbuffers::Follow<'a> for &'a Vec3d {
+  type Inner = &'a Vec3d;
+  #[inline]
+  fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
+    flatbuffers::follow_cast_ref::<Vec3d>(buf, loc)
+  }
+}
+impl<'b> flatbuffers::Push for Vec3d {
+    type Output = Vec3d;
+    #[inline]
+    fn push(&self, dst: &mut [u8], _rest: &[u8]) {
+        let src = unsafe {
+            ::std::slice::from_raw_parts(self as *const Vec3d as *const u8, Self::size())
+        };
+        dst.copy_from_slice(src);
+    }
+}
+impl<'b> flatbuffers::Push for &'b Vec3d {
+    type Output = Vec3d;
+
+    #[inline]
+    fn push(&self, dst: &mut [u8], _rest: &[u8]) {
+        let src = unsafe {
+            ::std::slice::from_raw_parts(*self as *const Vec3d as *const u8, Self::size())
+        };
+        dst.copy_from_slice(src);
+    }
+}
+
+impl<'a> flatbuffers::Verifiable for Vec3d {
+  #[inline]
+  fn run_verifier(
+    v: &mut flatbuffers::Verifier, pos: usize
+  ) -> Result<(), flatbuffers::InvalidFlatbuffer> {
+    use self::flatbuffers::Verifiable;
+    v.in_buffer::<Self>(pos)
+  }
+}
+impl<'a> Vec3d {
+  #[allow(clippy::too_many_arguments)]
+  pub fn new(
+    x: f64,
+    y: f64,
+    z: f64,
+  ) -> Self {
+    let mut s = Self([0; 24]);
+    s.set_x(x);
+    s.set_y(y);
+    s.set_z(z);
+    s
+  }
+
+  pub fn x(&self) -> f64 {
+    let mut mem = core::mem::MaybeUninit::<f64>::uninit();
+    unsafe {
+      core::ptr::copy_nonoverlapping(
+        self.0[0..].as_ptr(),
+        mem.as_mut_ptr() as *mut u8,
+        core::mem::size_of::<f64>(),
+      );
+      mem.assume_init()
+    }.from_little_endian()
+  }
+
+  pub fn set_x(&mut self, x: f64) {
+    let x_le = x.to_little_endian();
+    unsafe {
+      core::ptr::copy_nonoverlapping(
+        &x_le as *const f64 as *const u8,
+        self.0[0..].as_mut_ptr(),
+        core::mem::size_of::<f64>(),
+      );
+    }
+  }
+
+  pub fn y(&self) -> f64 {
+    let mut mem = core::mem::MaybeUninit::<f64>::uninit();
+    unsafe {
+      core::ptr::copy_nonoverlapping(
+        self.0[8..].as_ptr(),
+        mem.as_mut_ptr() as *mut u8,
+        core::mem::size_of::<f64>(),
+      );
+      mem.assume_init()
+    }.from_little_endian()
+  }
+
+  pub fn set_y(&mut self, x: f64) {
+    let x_le = x.to_little_endian();
+    unsafe {
+      core::ptr::copy_nonoverlapping(
+        &x_le as *const f64 as *const u8,
+        self.0[8..].as_mut_ptr(),
+        core::mem::size_of::<f64>(),
+      );
+    }
+  }
+
+  pub fn z(&self) -> f64 {
+    let mut mem = core::mem::MaybeUninit::<f64>::uninit();
+    unsafe {
+      core::ptr::copy_nonoverlapping(
+        self.0[16..].as_ptr(),
+        mem.as_mut_ptr() as *mut u8,
+        core::mem::size_of::<f64>(),
+      );
+      mem.assume_init()
+    }.from_little_endian()
+  }
+
+  pub fn set_z(&mut self, x: f64) {
+    let x_le = x.to_little_endian();
+    unsafe {
+      core::ptr::copy_nonoverlapping(
+        &x_le as *const f64 as *const u8,
+        self.0[16..].as_mut_ptr(),
+        core::mem::size_of::<f64>(),
+      );
+    }
+  }
+
+  pub fn unpack(&self) -> Vec3dT {
+    Vec3dT {
+      x: self.x(),
+      y: self.y(),
+      z: self.z(),
+    }
+  }
+}
+
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Vec3dT {
+  pub x: f64,
+  pub y: f64,
+  pub z: f64,
+}
+impl Vec3dT {
+  pub fn pack(&self) -> Vec3d {
+    Vec3d::new(
+      self.x,
+      self.y,
+      self.z,
+    )
+  }
+}
+
+// struct Vec2d, aligned to 8
+#[repr(transparent)]
+#[derive(Clone, Copy, PartialEq)]
+pub struct Vec2d(pub [u8; 16]);
+impl Default for Vec2d { 
+  fn default() -> Self { 
+    Self([0; 16])
+  }
+}
+impl std::fmt::Debug for Vec2d {
+  fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+    f.debug_struct("Vec2d")
+      .field("x", &self.x())
+      .field("y", &self.y())
+      .finish()
+  }
+}
+
+impl flatbuffers::SimpleToVerifyInSlice for Vec2d {}
+impl flatbuffers::SafeSliceAccess for Vec2d {}
+impl<'a> flatbuffers::Follow<'a> for Vec2d {
+  type Inner = &'a Vec2d;
+  #[inline]
+  fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
+    <&'a Vec2d>::follow(buf, loc)
+  }
+}
+impl<'a> flatbuffers::Follow<'a> for &'a Vec2d {
+  type Inner = &'a Vec2d;
+  #[inline]
+  fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
+    flatbuffers::follow_cast_ref::<Vec2d>(buf, loc)
+  }
+}
+impl<'b> flatbuffers::Push for Vec2d {
+    type Output = Vec2d;
+    #[inline]
+    fn push(&self, dst: &mut [u8], _rest: &[u8]) {
+        let src = unsafe {
+            ::std::slice::from_raw_parts(self as *const Vec2d as *const u8, Self::size())
+        };
+        dst.copy_from_slice(src);
+    }
+}
+impl<'b> flatbuffers::Push for &'b Vec2d {
+    type Output = Vec2d;
+
+    #[inline]
+    fn push(&self, dst: &mut [u8], _rest: &[u8]) {
+        let src = unsafe {
+            ::std::slice::from_raw_parts(*self as *const Vec2d as *const u8, Self::size())
+        };
+        dst.copy_from_slice(src);
+    }
+}
+
+impl<'a> flatbuffers::Verifiable for Vec2d {
+  #[inline]
+  fn run_verifier(
+    v: &mut flatbuffers::Verifier, pos: usize
+  ) -> Result<(), flatbuffers::InvalidFlatbuffer> {
+    use self::flatbuffers::Verifiable;
+    v.in_buffer::<Self>(pos)
+  }
+}
+impl<'a> Vec2d {
+  #[allow(clippy::too_many_arguments)]
+  pub fn new(
+    x: f64,
+    y: f64,
+  ) -> Self {
+    let mut s = Self([0; 16]);
+    s.set_x(x);
+    s.set_y(y);
+    s
+  }
+
+  pub fn x(&self) -> f64 {
+    let mut mem = core::mem::MaybeUninit::<f64>::uninit();
+    unsafe {
+      core::ptr::copy_nonoverlapping(
+        self.0[0..].as_ptr(),
+        mem.as_mut_ptr() as *mut u8,
+        core::mem::size_of::<f64>(),
+      );
+      mem.assume_init()
+    }.from_little_endian()
+  }
+
+  pub fn set_x(&mut self, x: f64) {
+    let x_le = x.to_little_endian();
+    unsafe {
+      core::ptr::copy_nonoverlapping(
+        &x_le as *const f64 as *const u8,
+        self.0[0..].as_mut_ptr(),
+        core::mem::size_of::<f64>(),
+      );
+    }
+  }
+
+  pub fn y(&self) -> f64 {
+    let mut mem = core::mem::MaybeUninit::<f64>::uninit();
+    unsafe {
+      core::ptr::copy_nonoverlapping(
+        self.0[8..].as_ptr(),
+        mem.as_mut_ptr() as *mut u8,
+        core::mem::size_of::<f64>(),
+      );
+      mem.assume_init()
+    }.from_little_endian()
+  }
+
+  pub fn set_y(&mut self, x: f64) {
+    let x_le = x.to_little_endian();
+    unsafe {
+      core::ptr::copy_nonoverlapping(
+        &x_le as *const f64 as *const u8,
+        self.0[8..].as_mut_ptr(),
+        core::mem::size_of::<f64>(),
+      );
+    }
+  }
+
+  pub fn unpack(&self) -> Vec2dT {
+    Vec2dT {
+      x: self.x(),
+      y: self.y(),
+    }
+  }
+}
+
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Vec2dT {
+  pub x: f64,
+  pub y: f64,
+}
+impl Vec2dT {
+  pub fn pack(&self) -> Vec2d {
+    Vec2d::new(
+      self.x,
+      self.y,
+    )
+  }
+}
+
+// struct BoundingBox, aligned to 8
+#[repr(transparent)]
+#[derive(Clone, Copy, PartialEq)]
+pub struct BoundingBox(pub [u8; 48]);
+impl Default for BoundingBox { 
+  fn default() -> Self { 
+    Self([0; 48])
+  }
+}
+impl std::fmt::Debug for BoundingBox {
+  fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+    f.debug_struct("BoundingBox")
+      .field("p_min", &self.p_min())
+      .field("p_max", &self.p_max())
+      .finish()
+  }
+}
+
+impl flatbuffers::SimpleToVerifyInSlice for BoundingBox {}
+impl flatbuffers::SafeSliceAccess for BoundingBox {}
+impl<'a> flatbuffers::Follow<'a> for BoundingBox {
+  type Inner = &'a BoundingBox;
+  #[inline]
+  fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
+    <&'a BoundingBox>::follow(buf, loc)
+  }
+}
+impl<'a> flatbuffers::Follow<'a> for &'a BoundingBox {
+  type Inner = &'a BoundingBox;
+  #[inline]
+  fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
+    flatbuffers::follow_cast_ref::<BoundingBox>(buf, loc)
+  }
+}
+impl<'b> flatbuffers::Push for BoundingBox {
+    type Output = BoundingBox;
+    #[inline]
+    fn push(&self, dst: &mut [u8], _rest: &[u8]) {
+        let src = unsafe {
+            ::std::slice::from_raw_parts(self as *const BoundingBox as *const u8, Self::size())
+        };
+        dst.copy_from_slice(src);
+    }
+}
+impl<'b> flatbuffers::Push for &'b BoundingBox {
+    type Output = BoundingBox;
+
+    #[inline]
+    fn push(&self, dst: &mut [u8], _rest: &[u8]) {
+        let src = unsafe {
+            ::std::slice::from_raw_parts(*self as *const BoundingBox as *const u8, Self::size())
+        };
+        dst.copy_from_slice(src);
+    }
+}
+
+impl<'a> flatbuffers::Verifiable for BoundingBox {
+  #[inline]
+  fn run_verifier(
+    v: &mut flatbuffers::Verifier, pos: usize
+  ) -> Result<(), flatbuffers::InvalidFlatbuffer> {
+    use self::flatbuffers::Verifiable;
+    v.in_buffer::<Self>(pos)
+  }
+}
+impl<'a> BoundingBox {
+  #[allow(clippy::too_many_arguments)]
+  pub fn new(
+    p_min: &Vec3d,
+    p_max: &Vec3d,
+  ) -> Self {
+    let mut s = Self([0; 48]);
+    s.set_p_min(&p_min);
+    s.set_p_max(&p_max);
+    s
+  }
+
+  pub fn p_min(&self) -> &Vec3d {
+    unsafe { &*(self.0[0..].as_ptr() as *const Vec3d) }
+  }
+
+  pub fn set_p_min(&mut self, x: &Vec3d) {
+    self.0[0..0+24].copy_from_slice(&x.0)
+  }
+
+  pub fn p_max(&self) -> &Vec3d {
+    unsafe { &*(self.0[24..].as_ptr() as *const Vec3d) }
+  }
+
+  pub fn set_p_max(&mut self, x: &Vec3d) {
+    self.0[24..24+24].copy_from_slice(&x.0)
+  }
+
+  pub fn unpack(&self) -> BoundingBoxT {
+    BoundingBoxT {
+      p_min: self.p_min().unpack(),
+      p_max: self.p_max().unpack(),
+    }
+  }
+}
+
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct BoundingBoxT {
+  pub p_min: Vec3dT,
+  pub p_max: Vec3dT,
+}
+impl BoundingBoxT {
+  pub fn pack(&self) -> BoundingBox {
+    BoundingBox::new(
+      &self.p_min.pack(),
+      &self.p_max.pack(),
+    )
+  }
+}
+
+// struct Vec4d, aligned to 8
+#[repr(transparent)]
+#[derive(Clone, Copy, PartialEq)]
+pub struct Vec4d(pub [u8; 32]);
+impl Default for Vec4d { 
+  fn default() -> Self { 
+    Self([0; 32])
+  }
+}
+impl std::fmt::Debug for Vec4d {
+  fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+    f.debug_struct("Vec4d")
+      .field("x", &self.x())
+      .field("y", &self.y())
+      .field("z", &self.z())
+      .field("w", &self.w())
+      .finish()
+  }
+}
+
+impl flatbuffers::SimpleToVerifyInSlice for Vec4d {}
+impl flatbuffers::SafeSliceAccess for Vec4d {}
+impl<'a> flatbuffers::Follow<'a> for Vec4d {
+  type Inner = &'a Vec4d;
+  #[inline]
+  fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
+    <&'a Vec4d>::follow(buf, loc)
+  }
+}
+impl<'a> flatbuffers::Follow<'a> for &'a Vec4d {
+  type Inner = &'a Vec4d;
+  #[inline]
+  fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
+    flatbuffers::follow_cast_ref::<Vec4d>(buf, loc)
+  }
+}
+impl<'b> flatbuffers::Push for Vec4d {
+    type Output = Vec4d;
+    #[inline]
+    fn push(&self, dst: &mut [u8], _rest: &[u8]) {
+        let src = unsafe {
+            ::std::slice::from_raw_parts(self as *const Vec4d as *const u8, Self::size())
+        };
+        dst.copy_from_slice(src);
+    }
+}
+impl<'b> flatbuffers::Push for &'b Vec4d {
+    type Output = Vec4d;
+
+    #[inline]
+    fn push(&self, dst: &mut [u8], _rest: &[u8]) {
+        let src = unsafe {
+            ::std::slice::from_raw_parts(*self as *const Vec4d as *const u8, Self::size())
+        };
+        dst.copy_from_slice(src);
+    }
+}
+
+impl<'a> flatbuffers::Verifiable for Vec4d {
+  #[inline]
+  fn run_verifier(
+    v: &mut flatbuffers::Verifier, pos: usize
+  ) -> Result<(), flatbuffers::InvalidFlatbuffer> {
+    use self::flatbuffers::Verifiable;
+    v.in_buffer::<Self>(pos)
+  }
+}
+impl<'a> Vec4d {
+  #[allow(clippy::too_many_arguments)]
+  pub fn new(
+    x: f64,
+    y: f64,
+    z: f64,
+    w: f64,
+  ) -> Self {
+    let mut s = Self([0; 32]);
+    s.set_x(x);
+    s.set_y(y);
+    s.set_z(z);
+    s.set_w(w);
+    s
+  }
+
+  pub fn x(&self) -> f64 {
+    let mut mem = core::mem::MaybeUninit::<f64>::uninit();
+    unsafe {
+      core::ptr::copy_nonoverlapping(
+        self.0[0..].as_ptr(),
+        mem.as_mut_ptr() as *mut u8,
+        core::mem::size_of::<f64>(),
+      );
+      mem.assume_init()
+    }.from_little_endian()
+  }
+
+  pub fn set_x(&mut self, x: f64) {
+    let x_le = x.to_little_endian();
+    unsafe {
+      core::ptr::copy_nonoverlapping(
+        &x_le as *const f64 as *const u8,
+        self.0[0..].as_mut_ptr(),
+        core::mem::size_of::<f64>(),
+      );
+    }
+  }
+
+  pub fn y(&self) -> f64 {
+    let mut mem = core::mem::MaybeUninit::<f64>::uninit();
+    unsafe {
+      core::ptr::copy_nonoverlapping(
+        self.0[8..].as_ptr(),
+        mem.as_mut_ptr() as *mut u8,
+        core::mem::size_of::<f64>(),
+      );
+      mem.assume_init()
+    }.from_little_endian()
+  }
+
+  pub fn set_y(&mut self, x: f64) {
+    let x_le = x.to_little_endian();
+    unsafe {
+      core::ptr::copy_nonoverlapping(
+        &x_le as *const f64 as *const u8,
+        self.0[8..].as_mut_ptr(),
+        core::mem::size_of::<f64>(),
+      );
+    }
+  }
+
+  pub fn z(&self) -> f64 {
+    let mut mem = core::mem::MaybeUninit::<f64>::uninit();
+    unsafe {
+      core::ptr::copy_nonoverlapping(
+        self.0[16..].as_ptr(),
+        mem.as_mut_ptr() as *mut u8,
+        core::mem::size_of::<f64>(),
+      );
+      mem.assume_init()
+    }.from_little_endian()
+  }
+
+  pub fn set_z(&mut self, x: f64) {
+    let x_le = x.to_little_endian();
+    unsafe {
+      core::ptr::copy_nonoverlapping(
+        &x_le as *const f64 as *const u8,
+        self.0[16..].as_mut_ptr(),
+        core::mem::size_of::<f64>(),
+      );
+    }
+  }
+
+  pub fn w(&self) -> f64 {
+    let mut mem = core::mem::MaybeUninit::<f64>::uninit();
+    unsafe {
+      core::ptr::copy_nonoverlapping(
+        self.0[24..].as_ptr(),
+        mem.as_mut_ptr() as *mut u8,
+        core::mem::size_of::<f64>(),
+      );
+      mem.assume_init()
+    }.from_little_endian()
+  }
+
+  pub fn set_w(&mut self, x: f64) {
+    let x_le = x.to_little_endian();
+    unsafe {
+      core::ptr::copy_nonoverlapping(
+        &x_le as *const f64 as *const u8,
+        self.0[24..].as_mut_ptr(),
+        core::mem::size_of::<f64>(),
+      );
+    }
+  }
+
+  pub fn unpack(&self) -> Vec4dT {
+    Vec4dT {
+      x: self.x(),
+      y: self.y(),
+      z: self.z(),
+      w: self.w(),
+    }
+  }
+}
+
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Vec4dT {
+  pub x: f64,
+  pub y: f64,
+  pub z: f64,
+  pub w: f64,
+}
+impl Vec4dT {
+  pub fn pack(&self) -> Vec4d {
+    Vec4d::new(
+      self.x,
+      self.y,
+      self.z,
+      self.w,
+    )
+  }
+}
+
+// struct Matrix44d, aligned to 8
+#[repr(transparent)]
+#[derive(Clone, Copy, PartialEq)]
+pub struct Matrix44d(pub [u8; 128]);
+impl Default for Matrix44d { 
+  fn default() -> Self { 
+    Self([0; 128])
+  }
+}
+impl std::fmt::Debug for Matrix44d {
+  fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+    f.debug_struct("Matrix44d")
+      .field("rows", &self.rows())
+      .finish()
+  }
+}
+
+impl flatbuffers::SimpleToVerifyInSlice for Matrix44d {}
+impl flatbuffers::SafeSliceAccess for Matrix44d {}
+impl<'a> flatbuffers::Follow<'a> for Matrix44d {
+  type Inner = &'a Matrix44d;
+  #[inline]
+  fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
+    <&'a Matrix44d>::follow(buf, loc)
+  }
+}
+impl<'a> flatbuffers::Follow<'a> for &'a Matrix44d {
+  type Inner = &'a Matrix44d;
+  #[inline]
+  fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
+    flatbuffers::follow_cast_ref::<Matrix44d>(buf, loc)
+  }
+}
+impl<'b> flatbuffers::Push for Matrix44d {
+    type Output = Matrix44d;
+    #[inline]
+    fn push(&self, dst: &mut [u8], _rest: &[u8]) {
+        let src = unsafe {
+            ::std::slice::from_raw_parts(self as *const Matrix44d as *const u8, Self::size())
+        };
+        dst.copy_from_slice(src);
+    }
+}
+impl<'b> flatbuffers::Push for &'b Matrix44d {
+    type Output = Matrix44d;
+
+    #[inline]
+    fn push(&self, dst: &mut [u8], _rest: &[u8]) {
+        let src = unsafe {
+            ::std::slice::from_raw_parts(*self as *const Matrix44d as *const u8, Self::size())
+        };
+        dst.copy_from_slice(src);
+    }
+}
+
+impl<'a> flatbuffers::Verifiable for Matrix44d {
+  #[inline]
+  fn run_verifier(
+    v: &mut flatbuffers::Verifier, pos: usize
+  ) -> Result<(), flatbuffers::InvalidFlatbuffer> {
+    use self::flatbuffers::Verifiable;
+    v.in_buffer::<Self>(pos)
+  }
+}
+impl<'a> Matrix44d {
+  #[allow(clippy::too_many_arguments)]
+  pub fn new(
+    rows: &[Vec4d; 4],
+  ) -> Self {
+    let mut s = Self([0; 128]);
+    s.set_rows(&rows);
+    s
+  }
+
+  pub fn rows(&'a self) -> flatbuffers::Array<'a, Vec4d, 4> {
+    flatbuffers::Array::follow(&self.0, 0)
+  }
+
+  pub fn set_rows(&mut self, x: &[Vec4d; 4]) {
+    unsafe {
+      std::ptr::copy(
+        x.as_ptr() as *const u8,
+        self.0.as_mut_ptr().add(0),
+        128,
+      );
+    }
+  }
+
+  pub fn unpack(&self) -> Matrix44dT {
+    Matrix44dT {
+      rows: { let rows = self.rows(); flatbuffers::array_init(|i| rows.get(i).unpack()) },
+    }
+  }
+}
+
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Matrix44dT {
+  pub rows: [Vec4dT; 4],
+}
+impl Matrix44dT {
+  pub fn pack(&self) -> Matrix44d {
+    Matrix44d::new(
+      &flatbuffers::array_init(|i| self.rows[i].pack()),
+    )
+  }
+}
+
+// struct TriangleIndexTuple, aligned to 4
+#[repr(transparent)]
+#[derive(Clone, Copy, PartialEq)]
+pub struct TriangleIndexTuple(pub [u8; 12]);
+impl Default for TriangleIndexTuple { 
+  fn default() -> Self { 
+    Self([0; 12])
+  }
+}
+impl std::fmt::Debug for TriangleIndexTuple {
+  fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+    f.debug_struct("TriangleIndexTuple")
+      .field("idx0", &self.idx0())
+      .field("idx1", &self.idx1())
+      .field("idx2", &self.idx2())
+      .finish()
+  }
+}
+
+impl flatbuffers::SimpleToVerifyInSlice for TriangleIndexTuple {}
+impl flatbuffers::SafeSliceAccess for TriangleIndexTuple {}
+impl<'a> flatbuffers::Follow<'a> for TriangleIndexTuple {
+  type Inner = &'a TriangleIndexTuple;
+  #[inline]
+  fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
+    <&'a TriangleIndexTuple>::follow(buf, loc)
+  }
+}
+impl<'a> flatbuffers::Follow<'a> for &'a TriangleIndexTuple {
+  type Inner = &'a TriangleIndexTuple;
+  #[inline]
+  fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
+    flatbuffers::follow_cast_ref::<TriangleIndexTuple>(buf, loc)
+  }
+}
+impl<'b> flatbuffers::Push for TriangleIndexTuple {
+    type Output = TriangleIndexTuple;
+    #[inline]
+    fn push(&self, dst: &mut [u8], _rest: &[u8]) {
+        let src = unsafe {
+            ::std::slice::from_raw_parts(self as *const TriangleIndexTuple as *const u8, Self::size())
+        };
+        dst.copy_from_slice(src);
+    }
+}
+impl<'b> flatbuffers::Push for &'b TriangleIndexTuple {
+    type Output = TriangleIndexTuple;
+
+    #[inline]
+    fn push(&self, dst: &mut [u8], _rest: &[u8]) {
+        let src = unsafe {
+            ::std::slice::from_raw_parts(*self as *const TriangleIndexTuple as *const u8, Self::size())
+        };
+        dst.copy_from_slice(src);
+    }
+}
+
+impl<'a> flatbuffers::Verifiable for TriangleIndexTuple {
+  #[inline]
+  fn run_verifier(
+    v: &mut flatbuffers::Verifier, pos: usize
+  ) -> Result<(), flatbuffers::InvalidFlatbuffer> {
+    use self::flatbuffers::Verifiable;
+    v.in_buffer::<Self>(pos)
+  }
+}
+impl<'a> TriangleIndexTuple {
+  #[allow(clippy::too_many_arguments)]
+  pub fn new(
+    idx0: i32,
+    idx1: i32,
+    idx2: i32,
+  ) -> Self {
+    let mut s = Self([0; 12]);
+    s.set_idx0(idx0);
+    s.set_idx1(idx1);
+    s.set_idx2(idx2);
+    s
+  }
+
+  pub fn idx0(&self) -> i32 {
+    let mut mem = core::mem::MaybeUninit::<i32>::uninit();
+    unsafe {
+      core::ptr::copy_nonoverlapping(
+        self.0[0..].as_ptr(),
+        mem.as_mut_ptr() as *mut u8,
+        core::mem::size_of::<i32>(),
+      );
+      mem.assume_init()
+    }.from_little_endian()
+  }
+
+  pub fn set_idx0(&mut self, x: i32) {
+    let x_le = x.to_little_endian();
+    unsafe {
+      core::ptr::copy_nonoverlapping(
+        &x_le as *const i32 as *const u8,
+        self.0[0..].as_mut_ptr(),
+        core::mem::size_of::<i32>(),
+      );
+    }
+  }
+
+  pub fn idx1(&self) -> i32 {
+    let mut mem = core::mem::MaybeUninit::<i32>::uninit();
+    unsafe {
+      core::ptr::copy_nonoverlapping(
+        self.0[4..].as_ptr(),
+        mem.as_mut_ptr() as *mut u8,
+        core::mem::size_of::<i32>(),
+      );
+      mem.assume_init()
+    }.from_little_endian()
+  }
+
+  pub fn set_idx1(&mut self, x: i32) {
+    let x_le = x.to_little_endian();
+    unsafe {
+      core::ptr::copy_nonoverlapping(
+        &x_le as *const i32 as *const u8,
+        self.0[4..].as_mut_ptr(),
+        core::mem::size_of::<i32>(),
+      );
+    }
+  }
+
+  pub fn idx2(&self) -> i32 {
+    let mut mem = core::mem::MaybeUninit::<i32>::uninit();
+    unsafe {
+      core::ptr::copy_nonoverlapping(
+        self.0[8..].as_ptr(),
+        mem.as_mut_ptr() as *mut u8,
+        core::mem::size_of::<i32>(),
+      );
+      mem.assume_init()
+    }.from_little_endian()
+  }
+
+  pub fn set_idx2(&mut self, x: i32) {
+    let x_le = x.to_little_endian();
+    unsafe {
+      core::ptr::copy_nonoverlapping(
+        &x_le as *const i32 as *const u8,
+        self.0[8..].as_mut_ptr(),
+        core::mem::size_of::<i32>(),
+      );
+    }
+  }
+
+  pub fn unpack(&self) -> TriangleIndexTupleT {
+    TriangleIndexTupleT {
+      idx0: self.idx0(),
+      idx1: self.idx1(),
+      idx2: self.idx2(),
+    }
+  }
+}
+
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct TriangleIndexTupleT {
+  pub idx0: i32,
+  pub idx1: i32,
+  pub idx2: i32,
+}
+impl TriangleIndexTupleT {
+  pub fn pack(&self) -> TriangleIndexTuple {
+    TriangleIndexTuple::new(
+      self.idx0,
+      self.idx1,
+      self.idx2,
+    )
+  }
+}
+
+pub enum MeshTexCoordsOffset {}
+#[derive(Copy, Clone, PartialEq)]
+
+pub struct MeshTexCoords<'a> {
+  pub _tab: flatbuffers::Table<'a>,
+}
+
+impl<'a> flatbuffers::Follow<'a> for MeshTexCoords<'a> {
+    type Inner = MeshTexCoords<'a>;
+    #[inline]
+    fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
+        Self { _tab: flatbuffers::Table { buf, loc } }
+    }
+}
+
+impl<'a> MeshTexCoords<'a> {
+    #[inline]
+    pub fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
+        MeshTexCoords { _tab: table }
+    }
+    #[allow(unused_mut)]
+    pub fn create<'bldr: 'args, 'args: 'mut_bldr, 'mut_bldr>(
+        _fbb: &'mut_bldr mut flatbuffers::FlatBufferBuilder<'bldr>,
+        args: &'args MeshTexCoordsArgs<'args>) -> flatbuffers::WIPOffset<MeshTexCoords<'bldr>> {
+      let mut builder = MeshTexCoordsBuilder::new(_fbb);
+      if let Some(x) = args.texCoords { builder.add_texCoords(x); }
+      builder.add_texCoordMapMode(args.texCoordMapMode);
+      builder.finish()
+    }
+
+    pub fn unpack(&self) -> MeshTexCoordsT {
+      let texCoords = self.texCoords().map(|x| {
+        x.iter().map(|t| t.unpack()).collect()
+      });
+      let texCoordMapMode = self.texCoordMapMode();
+      MeshTexCoordsT {
+        texCoords,
+        texCoordMapMode,
+      }
+    }
+    pub const VT_TEXCOORDS: flatbuffers::VOffsetT = 4;
+    pub const VT_TEXCOORDMAPMODE: flatbuffers::VOffsetT = 6;
+
+  #[inline]
+  pub fn texCoords(&self) -> Option<&'a [Vec2d]> {
+    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'a, Vec2d>>>(MeshTexCoords::VT_TEXCOORDS, None).map(|v| v.safe_slice())
+  }
+  #[inline]
+  pub fn texCoordMapMode(&self) -> AttributeMapMode {
+    self._tab.get::<AttributeMapMode>(MeshTexCoords::VT_TEXCOORDMAPMODE, Some(AttributeMapMode::eNone)).unwrap()
+  }
+}
+
+impl flatbuffers::Verifiable for MeshTexCoords<'_> {
+  #[inline]
+  fn run_verifier(
+    v: &mut flatbuffers::Verifier, pos: usize
+  ) -> Result<(), flatbuffers::InvalidFlatbuffer> {
+    use self::flatbuffers::Verifiable;
+    v.visit_table(pos)?
+     .visit_field::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, Vec2d>>>(&"texCoords", Self::VT_TEXCOORDS, false)?
+     .visit_field::<AttributeMapMode>(&"texCoordMapMode", Self::VT_TEXCOORDMAPMODE, false)?
+     .finish();
+    Ok(())
+  }
+}
+pub struct MeshTexCoordsArgs<'a> {
+    pub texCoords: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a, Vec2d>>>,
+    pub texCoordMapMode: AttributeMapMode,
+}
+impl<'a> Default for MeshTexCoordsArgs<'a> {
+    #[inline]
+    fn default() -> Self {
+        MeshTexCoordsArgs {
+            texCoords: None,
+            texCoordMapMode: AttributeMapMode::eNone,
+        }
+    }
+}
+pub struct MeshTexCoordsBuilder<'a: 'b, 'b> {
+  fbb_: &'b mut flatbuffers::FlatBufferBuilder<'a>,
+  start_: flatbuffers::WIPOffset<flatbuffers::TableUnfinishedWIPOffset>,
+}
+impl<'a: 'b, 'b> MeshTexCoordsBuilder<'a, 'b> {
+  #[inline]
+  pub fn add_texCoords(&mut self, texCoords: flatbuffers::WIPOffset<flatbuffers::Vector<'b , Vec2d>>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(MeshTexCoords::VT_TEXCOORDS, texCoords);
+  }
+  #[inline]
+  pub fn add_texCoordMapMode(&mut self, texCoordMapMode: AttributeMapMode) {
+    self.fbb_.push_slot::<AttributeMapMode>(MeshTexCoords::VT_TEXCOORDMAPMODE, texCoordMapMode, AttributeMapMode::eNone);
+  }
+  #[inline]
+  pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a>) -> MeshTexCoordsBuilder<'a, 'b> {
+    let start = _fbb.start_table();
+    MeshTexCoordsBuilder {
+      fbb_: _fbb,
+      start_: start,
+    }
+  }
+  #[inline]
+  pub fn finish(self) -> flatbuffers::WIPOffset<MeshTexCoords<'a>> {
+    let o = self.fbb_.end_table(self.start_);
+    flatbuffers::WIPOffset::new(o.value())
+  }
+}
+
+impl std::fmt::Debug for MeshTexCoords<'_> {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    let mut ds = f.debug_struct("MeshTexCoords");
+      ds.field("texCoords", &self.texCoords());
+      ds.field("texCoordMapMode", &self.texCoordMapMode());
+      ds.finish()
+  }
+}
+#[non_exhaustive]
+#[derive(Debug, Clone, PartialEq)]
+pub struct MeshTexCoordsT {
+  pub texCoords: Option<Vec<Vec2dT>>,
+  pub texCoordMapMode: AttributeMapMode,
+}
+impl Default for MeshTexCoordsT {
+  fn default() -> Self {
+    Self {
+      texCoords: None,
+      texCoordMapMode: AttributeMapMode::eNone,
+    }
+  }
+}
+impl MeshTexCoordsT {
+  pub fn pack<'b>(
+    &self,
+    _fbb: &mut flatbuffers::FlatBufferBuilder<'b>
+  ) -> flatbuffers::WIPOffset<MeshTexCoords<'b>> {
+    let texCoords = self.texCoords.as_ref().map(|x|{
+      let w: Vec<_> = x.iter().map(|t| t.pack()).collect();_fbb.create_vector(&w)
+    });
+    let texCoordMapMode = self.texCoordMapMode;
+    MeshTexCoords::create(_fbb, &MeshTexCoordsArgs{
+      texCoords,
+      texCoordMapMode,
+    })
+  }
+}
+pub enum MeshPrimitiveOffset {}
+#[derive(Copy, Clone, PartialEq)]
+
+pub struct MeshPrimitive<'a> {
+  pub _tab: flatbuffers::Table<'a>,
+}
+
+impl<'a> flatbuffers::Follow<'a> for MeshPrimitive<'a> {
+    type Inner = MeshPrimitive<'a>;
+    #[inline]
+    fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
+        Self { _tab: flatbuffers::Table { buf, loc } }
+    }
+}
+
+impl<'a> MeshPrimitive<'a> {
+    #[inline]
+    pub fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
+        MeshPrimitive { _tab: table }
+    }
+    #[allow(unused_mut)]
+    pub fn create<'bldr: 'args, 'args: 'mut_bldr, 'mut_bldr>(
+        _fbb: &'mut_bldr mut flatbuffers::FlatBufferBuilder<'bldr>,
+        args: &'args MeshPrimitiveArgs<'args>) -> flatbuffers::WIPOffset<MeshPrimitive<'bldr>> {
+      let mut builder = MeshPrimitiveBuilder::new(_fbb);
+      builder.add_materialIdx(args.materialIdx);
+      if let Some(x) = args.otherTexCoord { builder.add_otherTexCoord(x); }
+      if let Some(x) = args.roughMetalTexCoord { builder.add_roughMetalTexCoord(x); }
+      if let Some(x) = args.normalTexCoord { builder.add_normalTexCoord(x); }
+      if let Some(x) = args.specularTexCoord { builder.add_specularTexCoord(x); }
+      if let Some(x) = args.ambientTexCoord { builder.add_ambientTexCoord(x); }
+      if let Some(x) = args.diffuseTexCoord { builder.add_diffuseTexCoord(x); }
+      if let Some(x) = args.triangles { builder.add_triangles(x); }
+      if let Some(x) = args.normals { builder.add_normals(x); }
+      if let Some(x) = args.vertexs { builder.add_vertexs(x); }
+      builder.add_normalMapMode(args.normalMapMode);
+      builder.finish()
+    }
+
+    pub fn unpack(&self) -> MeshPrimitiveT {
+      let vertexs = self.vertexs().map(|x| {
+        x.iter().map(|t| t.unpack()).collect()
+      });
+      let normals = self.normals().map(|x| {
+        x.iter().map(|t| t.unpack()).collect()
+      });
+      let triangles = self.triangles().map(|x| {
+        x.iter().map(|t| t.unpack()).collect()
+      });
+      let normalMapMode = self.normalMapMode();
+      let diffuseTexCoord = self.diffuseTexCoord().map(|x| {
+        Box::new(x.unpack())
+      });
+      let ambientTexCoord = self.ambientTexCoord().map(|x| {
+        Box::new(x.unpack())
+      });
+      let specularTexCoord = self.specularTexCoord().map(|x| {
+        Box::new(x.unpack())
+      });
+      let normalTexCoord = self.normalTexCoord().map(|x| {
+        Box::new(x.unpack())
+      });
+      let roughMetalTexCoord = self.roughMetalTexCoord().map(|x| {
+        Box::new(x.unpack())
+      });
+      let otherTexCoord = self.otherTexCoord().map(|x| {
+        x.iter().map(|t| t.unpack()).collect()
+      });
+      let materialIdx = self.materialIdx();
+      MeshPrimitiveT {
+        vertexs,
+        normals,
+        triangles,
+        normalMapMode,
+        diffuseTexCoord,
+        ambientTexCoord,
+        specularTexCoord,
+        normalTexCoord,
+        roughMetalTexCoord,
+        otherTexCoord,
+        materialIdx,
+      }
+    }
+    pub const VT_VERTEXS: flatbuffers::VOffsetT = 4;
+    pub const VT_NORMALS: flatbuffers::VOffsetT = 6;
+    pub const VT_TRIANGLES: flatbuffers::VOffsetT = 8;
+    pub const VT_NORMALMAPMODE: flatbuffers::VOffsetT = 10;
+    pub const VT_DIFFUSETEXCOORD: flatbuffers::VOffsetT = 12;
+    pub const VT_AMBIENTTEXCOORD: flatbuffers::VOffsetT = 14;
+    pub const VT_SPECULARTEXCOORD: flatbuffers::VOffsetT = 16;
+    pub const VT_NORMALTEXCOORD: flatbuffers::VOffsetT = 18;
+    pub const VT_ROUGHMETALTEXCOORD: flatbuffers::VOffsetT = 20;
+    pub const VT_OTHERTEXCOORD: flatbuffers::VOffsetT = 22;
+    pub const VT_MATERIALIDX: flatbuffers::VOffsetT = 24;
+
+  #[inline]
+  pub fn vertexs(&self) -> Option<&'a [Vec3d]> {
+    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'a, Vec3d>>>(MeshPrimitive::VT_VERTEXS, None).map(|v| v.safe_slice())
+  }
+  #[inline]
+  pub fn normals(&self) -> Option<&'a [Vec3d]> {
+    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'a, Vec3d>>>(MeshPrimitive::VT_NORMALS, None).map(|v| v.safe_slice())
+  }
+  #[inline]
+  pub fn triangles(&self) -> Option<&'a [TriangleIndexTuple]> {
+    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'a, TriangleIndexTuple>>>(MeshPrimitive::VT_TRIANGLES, None).map(|v| v.safe_slice())
+  }
+  #[inline]
+  pub fn normalMapMode(&self) -> AttributeMapMode {
+    self._tab.get::<AttributeMapMode>(MeshPrimitive::VT_NORMALMAPMODE, Some(AttributeMapMode::eNone)).unwrap()
+  }
+  #[inline]
+  pub fn diffuseTexCoord(&self) -> Option<MeshTexCoords<'a>> {
+    self._tab.get::<flatbuffers::ForwardsUOffset<MeshTexCoords>>(MeshPrimitive::VT_DIFFUSETEXCOORD, None)
+  }
+  #[inline]
+  pub fn ambientTexCoord(&self) -> Option<MeshTexCoords<'a>> {
+    self._tab.get::<flatbuffers::ForwardsUOffset<MeshTexCoords>>(MeshPrimitive::VT_AMBIENTTEXCOORD, None)
+  }
+  #[inline]
+  pub fn specularTexCoord(&self) -> Option<MeshTexCoords<'a>> {
+    self._tab.get::<flatbuffers::ForwardsUOffset<MeshTexCoords>>(MeshPrimitive::VT_SPECULARTEXCOORD, None)
+  }
+  #[inline]
+  pub fn normalTexCoord(&self) -> Option<MeshTexCoords<'a>> {
+    self._tab.get::<flatbuffers::ForwardsUOffset<MeshTexCoords>>(MeshPrimitive::VT_NORMALTEXCOORD, None)
+  }
+  #[inline]
+  pub fn roughMetalTexCoord(&self) -> Option<MeshTexCoords<'a>> {
+    self._tab.get::<flatbuffers::ForwardsUOffset<MeshTexCoords>>(MeshPrimitive::VT_ROUGHMETALTEXCOORD, None)
+  }
+  #[inline]
+  pub fn otherTexCoord(&self) -> Option<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<MeshTexCoords<'a>>>> {
+    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<MeshTexCoords>>>>(MeshPrimitive::VT_OTHERTEXCOORD, None)
+  }
+  #[inline]
+  pub fn materialIdx(&self) -> u64 {
+    self._tab.get::<u64>(MeshPrimitive::VT_MATERIALIDX, Some(0)).unwrap()
+  }
+}
+
+impl flatbuffers::Verifiable for MeshPrimitive<'_> {
+  #[inline]
+  fn run_verifier(
+    v: &mut flatbuffers::Verifier, pos: usize
+  ) -> Result<(), flatbuffers::InvalidFlatbuffer> {
+    use self::flatbuffers::Verifiable;
+    v.visit_table(pos)?
+     .visit_field::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, Vec3d>>>(&"vertexs", Self::VT_VERTEXS, false)?
+     .visit_field::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, Vec3d>>>(&"normals", Self::VT_NORMALS, false)?
+     .visit_field::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, TriangleIndexTuple>>>(&"triangles", Self::VT_TRIANGLES, false)?
+     .visit_field::<AttributeMapMode>(&"normalMapMode", Self::VT_NORMALMAPMODE, false)?
+     .visit_field::<flatbuffers::ForwardsUOffset<MeshTexCoords>>(&"diffuseTexCoord", Self::VT_DIFFUSETEXCOORD, false)?
+     .visit_field::<flatbuffers::ForwardsUOffset<MeshTexCoords>>(&"ambientTexCoord", Self::VT_AMBIENTTEXCOORD, false)?
+     .visit_field::<flatbuffers::ForwardsUOffset<MeshTexCoords>>(&"specularTexCoord", Self::VT_SPECULARTEXCOORD, false)?
+     .visit_field::<flatbuffers::ForwardsUOffset<MeshTexCoords>>(&"normalTexCoord", Self::VT_NORMALTEXCOORD, false)?
+     .visit_field::<flatbuffers::ForwardsUOffset<MeshTexCoords>>(&"roughMetalTexCoord", Self::VT_ROUGHMETALTEXCOORD, false)?
+     .visit_field::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<MeshTexCoords>>>>(&"otherTexCoord", Self::VT_OTHERTEXCOORD, false)?
+     .visit_field::<u64>(&"materialIdx", Self::VT_MATERIALIDX, false)?
+     .finish();
+    Ok(())
+  }
+}
+pub struct MeshPrimitiveArgs<'a> {
+    pub vertexs: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a, Vec3d>>>,
+    pub normals: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a, Vec3d>>>,
+    pub triangles: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a, TriangleIndexTuple>>>,
+    pub normalMapMode: AttributeMapMode,
+    pub diffuseTexCoord: Option<flatbuffers::WIPOffset<MeshTexCoords<'a>>>,
+    pub ambientTexCoord: Option<flatbuffers::WIPOffset<MeshTexCoords<'a>>>,
+    pub specularTexCoord: Option<flatbuffers::WIPOffset<MeshTexCoords<'a>>>,
+    pub normalTexCoord: Option<flatbuffers::WIPOffset<MeshTexCoords<'a>>>,
+    pub roughMetalTexCoord: Option<flatbuffers::WIPOffset<MeshTexCoords<'a>>>,
+    pub otherTexCoord: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<MeshTexCoords<'a>>>>>,
+    pub materialIdx: u64,
+}
+impl<'a> Default for MeshPrimitiveArgs<'a> {
+    #[inline]
+    fn default() -> Self {
+        MeshPrimitiveArgs {
+            vertexs: None,
+            normals: None,
+            triangles: None,
+            normalMapMode: AttributeMapMode::eNone,
+            diffuseTexCoord: None,
+            ambientTexCoord: None,
+            specularTexCoord: None,
+            normalTexCoord: None,
+            roughMetalTexCoord: None,
+            otherTexCoord: None,
+            materialIdx: 0,
+        }
+    }
+}
+pub struct MeshPrimitiveBuilder<'a: 'b, 'b> {
+  fbb_: &'b mut flatbuffers::FlatBufferBuilder<'a>,
+  start_: flatbuffers::WIPOffset<flatbuffers::TableUnfinishedWIPOffset>,
+}
+impl<'a: 'b, 'b> MeshPrimitiveBuilder<'a, 'b> {
+  #[inline]
+  pub fn add_vertexs(&mut self, vertexs: flatbuffers::WIPOffset<flatbuffers::Vector<'b , Vec3d>>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(MeshPrimitive::VT_VERTEXS, vertexs);
+  }
+  #[inline]
+  pub fn add_normals(&mut self, normals: flatbuffers::WIPOffset<flatbuffers::Vector<'b , Vec3d>>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(MeshPrimitive::VT_NORMALS, normals);
+  }
+  #[inline]
+  pub fn add_triangles(&mut self, triangles: flatbuffers::WIPOffset<flatbuffers::Vector<'b , TriangleIndexTuple>>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(MeshPrimitive::VT_TRIANGLES, triangles);
+  }
+  #[inline]
+  pub fn add_normalMapMode(&mut self, normalMapMode: AttributeMapMode) {
+    self.fbb_.push_slot::<AttributeMapMode>(MeshPrimitive::VT_NORMALMAPMODE, normalMapMode, AttributeMapMode::eNone);
+  }
+  #[inline]
+  pub fn add_diffuseTexCoord(&mut self, diffuseTexCoord: flatbuffers::WIPOffset<MeshTexCoords<'b >>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<MeshTexCoords>>(MeshPrimitive::VT_DIFFUSETEXCOORD, diffuseTexCoord);
+  }
+  #[inline]
+  pub fn add_ambientTexCoord(&mut self, ambientTexCoord: flatbuffers::WIPOffset<MeshTexCoords<'b >>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<MeshTexCoords>>(MeshPrimitive::VT_AMBIENTTEXCOORD, ambientTexCoord);
+  }
+  #[inline]
+  pub fn add_specularTexCoord(&mut self, specularTexCoord: flatbuffers::WIPOffset<MeshTexCoords<'b >>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<MeshTexCoords>>(MeshPrimitive::VT_SPECULARTEXCOORD, specularTexCoord);
+  }
+  #[inline]
+  pub fn add_normalTexCoord(&mut self, normalTexCoord: flatbuffers::WIPOffset<MeshTexCoords<'b >>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<MeshTexCoords>>(MeshPrimitive::VT_NORMALTEXCOORD, normalTexCoord);
+  }
+  #[inline]
+  pub fn add_roughMetalTexCoord(&mut self, roughMetalTexCoord: flatbuffers::WIPOffset<MeshTexCoords<'b >>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<MeshTexCoords>>(MeshPrimitive::VT_ROUGHMETALTEXCOORD, roughMetalTexCoord);
+  }
+  #[inline]
+  pub fn add_otherTexCoord(&mut self, otherTexCoord: flatbuffers::WIPOffset<flatbuffers::Vector<'b , flatbuffers::ForwardsUOffset<MeshTexCoords<'b >>>>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(MeshPrimitive::VT_OTHERTEXCOORD, otherTexCoord);
+  }
+  #[inline]
+  pub fn add_materialIdx(&mut self, materialIdx: u64) {
+    self.fbb_.push_slot::<u64>(MeshPrimitive::VT_MATERIALIDX, materialIdx, 0);
+  }
+  #[inline]
+  pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a>) -> MeshPrimitiveBuilder<'a, 'b> {
+    let start = _fbb.start_table();
+    MeshPrimitiveBuilder {
+      fbb_: _fbb,
+      start_: start,
+    }
+  }
+  #[inline]
+  pub fn finish(self) -> flatbuffers::WIPOffset<MeshPrimitive<'a>> {
+    let o = self.fbb_.end_table(self.start_);
+    flatbuffers::WIPOffset::new(o.value())
+  }
+}
+
+impl std::fmt::Debug for MeshPrimitive<'_> {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    let mut ds = f.debug_struct("MeshPrimitive");
+      ds.field("vertexs", &self.vertexs());
+      ds.field("normals", &self.normals());
+      ds.field("triangles", &self.triangles());
+      ds.field("normalMapMode", &self.normalMapMode());
+      ds.field("diffuseTexCoord", &self.diffuseTexCoord());
+      ds.field("ambientTexCoord", &self.ambientTexCoord());
+      ds.field("specularTexCoord", &self.specularTexCoord());
+      ds.field("normalTexCoord", &self.normalTexCoord());
+      ds.field("roughMetalTexCoord", &self.roughMetalTexCoord());
+      ds.field("otherTexCoord", &self.otherTexCoord());
+      ds.field("materialIdx", &self.materialIdx());
+      ds.finish()
+  }
+}
+#[non_exhaustive]
+#[derive(Debug, Clone, PartialEq)]
+pub struct MeshPrimitiveT {
+  pub vertexs: Option<Vec<Vec3dT>>,
+  pub normals: Option<Vec<Vec3dT>>,
+  pub triangles: Option<Vec<TriangleIndexTupleT>>,
+  pub normalMapMode: AttributeMapMode,
+  pub diffuseTexCoord: Option<Box<MeshTexCoordsT>>,
+  pub ambientTexCoord: Option<Box<MeshTexCoordsT>>,
+  pub specularTexCoord: Option<Box<MeshTexCoordsT>>,
+  pub normalTexCoord: Option<Box<MeshTexCoordsT>>,
+  pub roughMetalTexCoord: Option<Box<MeshTexCoordsT>>,
+  pub otherTexCoord: Option<Vec<MeshTexCoordsT>>,
+  pub materialIdx: u64,
+}
+impl Default for MeshPrimitiveT {
+  fn default() -> Self {
+    Self {
+      vertexs: None,
+      normals: None,
+      triangles: None,
+      normalMapMode: AttributeMapMode::eNone,
+      diffuseTexCoord: None,
+      ambientTexCoord: None,
+      specularTexCoord: None,
+      normalTexCoord: None,
+      roughMetalTexCoord: None,
+      otherTexCoord: None,
+      materialIdx: 0,
+    }
+  }
+}
+impl MeshPrimitiveT {
+  pub fn pack<'b>(
+    &self,
+    _fbb: &mut flatbuffers::FlatBufferBuilder<'b>
+  ) -> flatbuffers::WIPOffset<MeshPrimitive<'b>> {
+    let vertexs = self.vertexs.as_ref().map(|x|{
+      let w: Vec<_> = x.iter().map(|t| t.pack()).collect();_fbb.create_vector(&w)
+    });
+    let normals = self.normals.as_ref().map(|x|{
+      let w: Vec<_> = x.iter().map(|t| t.pack()).collect();_fbb.create_vector(&w)
+    });
+    let triangles = self.triangles.as_ref().map(|x|{
+      let w: Vec<_> = x.iter().map(|t| t.pack()).collect();_fbb.create_vector(&w)
+    });
+    let normalMapMode = self.normalMapMode;
+    let diffuseTexCoord = self.diffuseTexCoord.as_ref().map(|x|{
+      x.pack(_fbb)
+    });
+    let ambientTexCoord = self.ambientTexCoord.as_ref().map(|x|{
+      x.pack(_fbb)
+    });
+    let specularTexCoord = self.specularTexCoord.as_ref().map(|x|{
+      x.pack(_fbb)
+    });
+    let normalTexCoord = self.normalTexCoord.as_ref().map(|x|{
+      x.pack(_fbb)
+    });
+    let roughMetalTexCoord = self.roughMetalTexCoord.as_ref().map(|x|{
+      x.pack(_fbb)
+    });
+    let otherTexCoord = self.otherTexCoord.as_ref().map(|x|{
+      let w: Vec<_> = x.iter().map(|t| t.pack(_fbb)).collect();_fbb.create_vector(&w)
+    });
+    let materialIdx = self.materialIdx;
+    MeshPrimitive::create(_fbb, &MeshPrimitiveArgs{
+      vertexs,
+      normals,
+      triangles,
+      normalMapMode,
+      diffuseTexCoord,
+      ambientTexCoord,
+      specularTexCoord,
+      normalTexCoord,
+      roughMetalTexCoord,
+      otherTexCoord,
+      materialIdx,
+    })
+  }
+}
+pub enum BVHNodeOffset {}
+#[derive(Copy, Clone, PartialEq)]
+
+pub struct BVHNode<'a> {
+  pub _tab: flatbuffers::Table<'a>,
+}
+
+impl<'a> flatbuffers::Follow<'a> for BVHNode<'a> {
+    type Inner = BVHNode<'a>;
+    #[inline]
+    fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
+        Self { _tab: flatbuffers::Table { buf, loc } }
+    }
+}
+
+impl<'a> BVHNode<'a> {
+    #[inline]
+    pub fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
+        BVHNode { _tab: table }
+    }
+    #[allow(unused_mut)]
+    pub fn create<'bldr: 'args, 'args: 'mut_bldr, 'mut_bldr>(
+        _fbb: &'mut_bldr mut flatbuffers::FlatBufferBuilder<'bldr>,
+        args: &'args BVHNodeArgs<'args>) -> flatbuffers::WIPOffset<BVHNode<'bldr>> {
+      let mut builder = BVHNodeBuilder::new(_fbb);
+      if let Some(x) = args.global_transform { builder.add_global_transform(x); }
+      if let Some(x) = args.local_transform { builder.add_local_transform(x); }
+      if let Some(x) = args.meshes { builder.add_meshes(x); }
+      if let Some(x) = args.children { builder.add_children(x); }
+      if let Some(x) = args.name { builder.add_name(x); }
+      builder.finish()
+    }
+
+    pub fn unpack(&self) -> BVHNodeT {
+      let name = {
+        let x = self.name();
+        x.to_string()
+      };
+      let children = self.children().map(|x| {
+        x.iter().map(|t| t.unpack()).collect()
+      });
+      let meshes = self.meshes().map(|x| {
+        x.iter().map(|t| t.unpack()).collect()
+      });
+      let local_transform = {
+        let x = self.local_transform();
+        x.unpack()
+      };
+      let global_transform = self.global_transform().map(|x| {
+        x.unpack()
+      });
+      BVHNodeT {
+        name,
+        children,
+        meshes,
+        local_transform,
+        global_transform,
+      }
+    }
+    pub const VT_NAME: flatbuffers::VOffsetT = 4;
+    pub const VT_CHILDREN: flatbuffers::VOffsetT = 6;
+    pub const VT_MESHES: flatbuffers::VOffsetT = 8;
+    pub const VT_LOCAL_TRANSFORM: flatbuffers::VOffsetT = 10;
+    pub const VT_GLOBAL_TRANSFORM: flatbuffers::VOffsetT = 12;
+
+  #[inline]
+  pub fn name(&self) -> &'a str {
+    self._tab.get::<flatbuffers::ForwardsUOffset<&str>>(BVHNode::VT_NAME, None).unwrap()
+  }
+  #[inline]
+  pub fn children(&self) -> Option<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<BVHNode<'a>>>> {
+    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<BVHNode>>>>(BVHNode::VT_CHILDREN, None)
+  }
+  #[inline]
+  pub fn meshes(&self) -> Option<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<MeshPrimitive<'a>>>> {
+    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<MeshPrimitive>>>>(BVHNode::VT_MESHES, None)
+  }
+  #[inline]
+  pub fn local_transform(&self) -> &'a Matrix44d {
+    self._tab.get::<Matrix44d>(BVHNode::VT_LOCAL_TRANSFORM, None).unwrap()
+  }
+  /// for convenient
+  #[inline]
+  pub fn global_transform(&self) -> Option<&'a Matrix44d> {
+    self._tab.get::<Matrix44d>(BVHNode::VT_GLOBAL_TRANSFORM, None)
+  }
+}
+
+impl flatbuffers::Verifiable for BVHNode<'_> {
+  #[inline]
+  fn run_verifier(
+    v: &mut flatbuffers::Verifier, pos: usize
+  ) -> Result<(), flatbuffers::InvalidFlatbuffer> {
+    use self::flatbuffers::Verifiable;
+    v.visit_table(pos)?
+     .visit_field::<flatbuffers::ForwardsUOffset<&str>>(&"name", Self::VT_NAME, true)?
+     .visit_field::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<BVHNode>>>>(&"children", Self::VT_CHILDREN, false)?
+     .visit_field::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<MeshPrimitive>>>>(&"meshes", Self::VT_MESHES, false)?
+     .visit_field::<Matrix44d>(&"local_transform", Self::VT_LOCAL_TRANSFORM, true)?
+     .visit_field::<Matrix44d>(&"global_transform", Self::VT_GLOBAL_TRANSFORM, false)?
+     .finish();
+    Ok(())
+  }
+}
+pub struct BVHNodeArgs<'a> {
+    pub name: Option<flatbuffers::WIPOffset<&'a str>>,
+    pub children: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<BVHNode<'a>>>>>,
+    pub meshes: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<MeshPrimitive<'a>>>>>,
+    pub local_transform: Option<&'a Matrix44d>,
+    pub global_transform: Option<&'a Matrix44d>,
+}
+impl<'a> Default for BVHNodeArgs<'a> {
+    #[inline]
+    fn default() -> Self {
+        BVHNodeArgs {
+            name: None, // required field
+            children: None,
+            meshes: None,
+            local_transform: None, // required field
+            global_transform: None,
+        }
+    }
+}
+pub struct BVHNodeBuilder<'a: 'b, 'b> {
+  fbb_: &'b mut flatbuffers::FlatBufferBuilder<'a>,
+  start_: flatbuffers::WIPOffset<flatbuffers::TableUnfinishedWIPOffset>,
+}
+impl<'a: 'b, 'b> BVHNodeBuilder<'a, 'b> {
+  #[inline]
+  pub fn add_name(&mut self, name: flatbuffers::WIPOffset<&'b  str>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(BVHNode::VT_NAME, name);
+  }
+  #[inline]
+  pub fn add_children(&mut self, children: flatbuffers::WIPOffset<flatbuffers::Vector<'b , flatbuffers::ForwardsUOffset<BVHNode<'b >>>>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(BVHNode::VT_CHILDREN, children);
+  }
+  #[inline]
+  pub fn add_meshes(&mut self, meshes: flatbuffers::WIPOffset<flatbuffers::Vector<'b , flatbuffers::ForwardsUOffset<MeshPrimitive<'b >>>>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(BVHNode::VT_MESHES, meshes);
+  }
+  #[inline]
+  pub fn add_local_transform(&mut self, local_transform: &Matrix44d) {
+    self.fbb_.push_slot_always::<&Matrix44d>(BVHNode::VT_LOCAL_TRANSFORM, local_transform);
+  }
+  #[inline]
+  pub fn add_global_transform(&mut self, global_transform: &Matrix44d) {
+    self.fbb_.push_slot_always::<&Matrix44d>(BVHNode::VT_GLOBAL_TRANSFORM, global_transform);
+  }
+  #[inline]
+  pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a>) -> BVHNodeBuilder<'a, 'b> {
+    let start = _fbb.start_table();
+    BVHNodeBuilder {
+      fbb_: _fbb,
+      start_: start,
+    }
+  }
+  #[inline]
+  pub fn finish(self) -> flatbuffers::WIPOffset<BVHNode<'a>> {
+    let o = self.fbb_.end_table(self.start_);
+    self.fbb_.required(o, BVHNode::VT_NAME,"name");
+    self.fbb_.required(o, BVHNode::VT_LOCAL_TRANSFORM,"local_transform");
+    flatbuffers::WIPOffset::new(o.value())
+  }
+}
+
+impl std::fmt::Debug for BVHNode<'_> {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    let mut ds = f.debug_struct("BVHNode");
+      ds.field("name", &self.name());
+      ds.field("children", &self.children());
+      ds.field("meshes", &self.meshes());
+      ds.field("local_transform", &self.local_transform());
+      ds.field("global_transform", &self.global_transform());
+      ds.finish()
+  }
+}
+#[non_exhaustive]
+#[derive(Debug, Clone, PartialEq)]
+pub struct BVHNodeT {
+  pub name: String,
+  pub children: Option<Vec<BVHNodeT>>,
+  pub meshes: Option<Vec<MeshPrimitiveT>>,
+  pub local_transform: Matrix44dT,
+  pub global_transform: Option<Matrix44dT>,
+}
+impl Default for BVHNodeT {
+  fn default() -> Self {
+    Self {
+      name: "".to_string(),
+      children: None,
+      meshes: None,
+      local_transform: Default::default(),
+      global_transform: None,
+    }
+  }
+}
+impl BVHNodeT {
+  pub fn pack<'b>(
+    &self,
+    _fbb: &mut flatbuffers::FlatBufferBuilder<'b>
+  ) -> flatbuffers::WIPOffset<BVHNode<'b>> {
+    let name = Some({
+      let x = &self.name;
+      _fbb.create_string(x)
+    });
+    let children = self.children.as_ref().map(|x|{
+      let w: Vec<_> = x.iter().map(|t| t.pack(_fbb)).collect();_fbb.create_vector(&w)
+    });
+    let meshes = self.meshes.as_ref().map(|x|{
+      let w: Vec<_> = x.iter().map(|t| t.pack(_fbb)).collect();_fbb.create_vector(&w)
+    });
+    let local_transform_tmp = Some(self.local_transform.pack());
+    let local_transform = local_transform_tmp.as_ref();
+    let global_transform_tmp = self.global_transform.as_ref().map(|x| x.pack());
+    let global_transform = global_transform_tmp.as_ref();
+    BVHNode::create(_fbb, &BVHNodeArgs{
+      name,
+      children,
+      meshes,
+      local_transform,
+      global_transform,
+    })
+  }
+}
+pub enum TextureOffset {}
+#[derive(Copy, Clone, PartialEq)]
+
+pub struct Texture<'a> {
+  pub _tab: flatbuffers::Table<'a>,
+}
+
+impl<'a> flatbuffers::Follow<'a> for Texture<'a> {
+    type Inner = Texture<'a>;
+    #[inline]
+    fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
+        Self { _tab: flatbuffers::Table { buf, loc } }
+    }
+}
+
+impl<'a> Texture<'a> {
+    #[inline]
+    pub fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
+        Texture { _tab: table }
+    }
+    #[allow(unused_mut)]
+    pub fn create<'bldr: 'args, 'args: 'mut_bldr, 'mut_bldr>(
+        _fbb: &'mut_bldr mut flatbuffers::FlatBufferBuilder<'bldr>,
+        args: &'args TextureArgs<'args>) -> flatbuffers::WIPOffset<Texture<'bldr>> {
+      let mut builder = TextureBuilder::new(_fbb);
+      builder.add_id(args.id);
+      builder.add_components(args.components);
+      builder.add_height(args.height);
+      builder.add_width(args.width);
+      if let Some(x) = args.data { builder.add_data(x); }
+      if let Some(x) = args.media_name { builder.add_media_name(x); }
+      if let Some(x) = args.file_name { builder.add_file_name(x); }
+      builder.add_image_type(args.image_type);
+      builder.add_pixel_type(args.pixel_type);
+      builder.finish()
+    }
+
+    pub fn unpack(&self) -> TextureT {
+      let id = self.id();
+      let file_name = self.file_name().map(|x| {
+        x.to_string()
+      });
+      let media_name = self.media_name().map(|x| {
+        x.to_string()
+      });
+      let pixel_type = self.pixel_type();
+      let image_type = self.image_type();
+      let data = self.data().map(|x| {
+        x.to_vec()
+      });
+      let width = self.width();
+      let height = self.height();
+      let components = self.components();
+      TextureT {
+        id,
+        file_name,
+        media_name,
+        pixel_type,
+        image_type,
+        data,
+        width,
+        height,
+        components,
+      }
+    }
+    pub const VT_ID: flatbuffers::VOffsetT = 4;
+    pub const VT_FILE_NAME: flatbuffers::VOffsetT = 6;
+    pub const VT_MEDIA_NAME: flatbuffers::VOffsetT = 8;
+    pub const VT_PIXEL_TYPE: flatbuffers::VOffsetT = 10;
+    pub const VT_IMAGE_TYPE: flatbuffers::VOffsetT = 12;
+    pub const VT_DATA: flatbuffers::VOffsetT = 14;
+    pub const VT_WIDTH: flatbuffers::VOffsetT = 16;
+    pub const VT_HEIGHT: flatbuffers::VOffsetT = 18;
+    pub const VT_COMPONENTS: flatbuffers::VOffsetT = 20;
+
+  #[inline]
+  pub fn id(&self) -> u64 {
+    self._tab.get::<u64>(Texture::VT_ID, Some(0)).unwrap()
+  }
+  #[inline]
+  pub fn file_name(&self) -> Option<&'a str> {
+    self._tab.get::<flatbuffers::ForwardsUOffset<&str>>(Texture::VT_FILE_NAME, None)
+  }
+  #[inline]
+  pub fn media_name(&self) -> Option<&'a str> {
+    self._tab.get::<flatbuffers::ForwardsUOffset<&str>>(Texture::VT_MEDIA_NAME, None)
+  }
+  #[inline]
+  pub fn pixel_type(&self) -> PixelType {
+    self._tab.get::<PixelType>(Texture::VT_PIXEL_TYPE, Some(PixelType::eNone)).unwrap()
+  }
+  #[inline]
+  pub fn image_type(&self) -> ImageType {
+    self._tab.get::<ImageType>(Texture::VT_IMAGE_TYPE, Some(ImageType::eNone)).unwrap()
+  }
+  #[inline]
+  pub fn data(&self) -> Option<&'a [u8]> {
+    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'a, u8>>>(Texture::VT_DATA, None).map(|v| v.safe_slice())
+  }
+  /// for raw image
+  #[inline]
+  pub fn width(&self) -> u32 {
+    self._tab.get::<u32>(Texture::VT_WIDTH, Some(0)).unwrap()
+  }
+  #[inline]
+  pub fn height(&self) -> u32 {
+    self._tab.get::<u32>(Texture::VT_HEIGHT, Some(0)).unwrap()
+  }
+  #[inline]
+  pub fn components(&self) -> u32 {
+    self._tab.get::<u32>(Texture::VT_COMPONENTS, Some(0)).unwrap()
+  }
+}
+
+impl flatbuffers::Verifiable for Texture<'_> {
+  #[inline]
+  fn run_verifier(
+    v: &mut flatbuffers::Verifier, pos: usize
+  ) -> Result<(), flatbuffers::InvalidFlatbuffer> {
+    use self::flatbuffers::Verifiable;
+    v.visit_table(pos)?
+     .visit_field::<u64>(&"id", Self::VT_ID, false)?
+     .visit_field::<flatbuffers::ForwardsUOffset<&str>>(&"file_name", Self::VT_FILE_NAME, false)?
+     .visit_field::<flatbuffers::ForwardsUOffset<&str>>(&"media_name", Self::VT_MEDIA_NAME, false)?
+     .visit_field::<PixelType>(&"pixel_type", Self::VT_PIXEL_TYPE, false)?
+     .visit_field::<ImageType>(&"image_type", Self::VT_IMAGE_TYPE, false)?
+     .visit_field::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, u8>>>(&"data", Self::VT_DATA, false)?
+     .visit_field::<u32>(&"width", Self::VT_WIDTH, false)?
+     .visit_field::<u32>(&"height", Self::VT_HEIGHT, false)?
+     .visit_field::<u32>(&"components", Self::VT_COMPONENTS, false)?
+     .finish();
+    Ok(())
+  }
+}
+pub struct TextureArgs<'a> {
+    pub id: u64,
+    pub file_name: Option<flatbuffers::WIPOffset<&'a str>>,
+    pub media_name: Option<flatbuffers::WIPOffset<&'a str>>,
+    pub pixel_type: PixelType,
+    pub image_type: ImageType,
+    pub data: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a, u8>>>,
+    pub width: u32,
+    pub height: u32,
+    pub components: u32,
+}
+impl<'a> Default for TextureArgs<'a> {
+    #[inline]
+    fn default() -> Self {
+        TextureArgs {
+            id: 0,
+            file_name: None,
+            media_name: None,
+            pixel_type: PixelType::eNone,
+            image_type: ImageType::eNone,
+            data: None,
+            width: 0,
+            height: 0,
+            components: 0,
+        }
+    }
+}
+pub struct TextureBuilder<'a: 'b, 'b> {
+  fbb_: &'b mut flatbuffers::FlatBufferBuilder<'a>,
+  start_: flatbuffers::WIPOffset<flatbuffers::TableUnfinishedWIPOffset>,
+}
+impl<'a: 'b, 'b> TextureBuilder<'a, 'b> {
+  #[inline]
+  pub fn add_id(&mut self, id: u64) {
+    self.fbb_.push_slot::<u64>(Texture::VT_ID, id, 0);
+  }
+  #[inline]
+  pub fn add_file_name(&mut self, file_name: flatbuffers::WIPOffset<&'b  str>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(Texture::VT_FILE_NAME, file_name);
+  }
+  #[inline]
+  pub fn add_media_name(&mut self, media_name: flatbuffers::WIPOffset<&'b  str>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(Texture::VT_MEDIA_NAME, media_name);
+  }
+  #[inline]
+  pub fn add_pixel_type(&mut self, pixel_type: PixelType) {
+    self.fbb_.push_slot::<PixelType>(Texture::VT_PIXEL_TYPE, pixel_type, PixelType::eNone);
+  }
+  #[inline]
+  pub fn add_image_type(&mut self, image_type: ImageType) {
+    self.fbb_.push_slot::<ImageType>(Texture::VT_IMAGE_TYPE, image_type, ImageType::eNone);
+  }
+  #[inline]
+  pub fn add_data(&mut self, data: flatbuffers::WIPOffset<flatbuffers::Vector<'b , u8>>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(Texture::VT_DATA, data);
+  }
+  #[inline]
+  pub fn add_width(&mut self, width: u32) {
+    self.fbb_.push_slot::<u32>(Texture::VT_WIDTH, width, 0);
+  }
+  #[inline]
+  pub fn add_height(&mut self, height: u32) {
+    self.fbb_.push_slot::<u32>(Texture::VT_HEIGHT, height, 0);
+  }
+  #[inline]
+  pub fn add_components(&mut self, components: u32) {
+    self.fbb_.push_slot::<u32>(Texture::VT_COMPONENTS, components, 0);
+  }
+  #[inline]
+  pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a>) -> TextureBuilder<'a, 'b> {
+    let start = _fbb.start_table();
+    TextureBuilder {
+      fbb_: _fbb,
+      start_: start,
+    }
+  }
+  #[inline]
+  pub fn finish(self) -> flatbuffers::WIPOffset<Texture<'a>> {
+    let o = self.fbb_.end_table(self.start_);
+    flatbuffers::WIPOffset::new(o.value())
+  }
+}
+
+impl std::fmt::Debug for Texture<'_> {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    let mut ds = f.debug_struct("Texture");
+      ds.field("id", &self.id());
+      ds.field("file_name", &self.file_name());
+      ds.field("media_name", &self.media_name());
+      ds.field("pixel_type", &self.pixel_type());
+      ds.field("image_type", &self.image_type());
+      ds.field("data", &self.data());
+      ds.field("width", &self.width());
+      ds.field("height", &self.height());
+      ds.field("components", &self.components());
+      ds.finish()
+  }
+}
+#[non_exhaustive]
+#[derive(Debug, Clone, PartialEq)]
+pub struct TextureT {
+  pub id: u64,
+  pub file_name: Option<String>,
+  pub media_name: Option<String>,
+  pub pixel_type: PixelType,
+  pub image_type: ImageType,
+  pub data: Option<Vec<u8>>,
+  pub width: u32,
+  pub height: u32,
+  pub components: u32,
+}
+impl Default for TextureT {
+  fn default() -> Self {
+    Self {
+      id: 0,
+      file_name: None,
+      media_name: None,
+      pixel_type: PixelType::eNone,
+      image_type: ImageType::eNone,
+      data: None,
+      width: 0,
+      height: 0,
+      components: 0,
+    }
+  }
+}
+impl TextureT {
+  pub fn pack<'b>(
+    &self,
+    _fbb: &mut flatbuffers::FlatBufferBuilder<'b>
+  ) -> flatbuffers::WIPOffset<Texture<'b>> {
+    let id = self.id;
+    let file_name = self.file_name.as_ref().map(|x|{
+      _fbb.create_string(x)
+    });
+    let media_name = self.media_name.as_ref().map(|x|{
+      _fbb.create_string(x)
+    });
+    let pixel_type = self.pixel_type;
+    let image_type = self.image_type;
+    let data = self.data.as_ref().map(|x|{
+      _fbb.create_vector(x)
+    });
+    let width = self.width;
+    let height = self.height;
+    let components = self.components;
+    Texture::create(_fbb, &TextureArgs{
+      id,
+      file_name,
+      media_name,
+      pixel_type,
+      image_type,
+      data,
+      width,
+      height,
+      components,
+    })
+  }
+}
+pub enum LambertSurfaceOffset {}
+#[derive(Copy, Clone, PartialEq)]
+
+pub struct LambertSurface<'a> {
+  pub _tab: flatbuffers::Table<'a>,
+}
+
+impl<'a> flatbuffers::Follow<'a> for LambertSurface<'a> {
+    type Inner = LambertSurface<'a>;
+    #[inline]
+    fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
+        Self { _tab: flatbuffers::Table { buf, loc } }
+    }
+}
+
+impl<'a> LambertSurface<'a> {
+    #[inline]
+    pub fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
+        LambertSurface { _tab: table }
+    }
+    #[allow(unused_mut)]
+    pub fn create<'bldr: 'args, 'args: 'mut_bldr, 'mut_bldr>(
+        _fbb: &'mut_bldr mut flatbuffers::FlatBufferBuilder<'bldr>,
+        args: &'args LambertSurfaceArgs<'args>) -> flatbuffers::WIPOffset<LambertSurface<'bldr>> {
+      let mut builder = LambertSurfaceBuilder::new(_fbb);
+      if let Some(x) = args.roughness { builder.add_roughness(x); }
+      if let Some(x) = args.metallic { builder.add_metallic(x); }
+      if let Some(x) = args.normal_texture { builder.add_normal_texture(x); }
+      if let Some(x) = args.normal { builder.add_normal(x); }
+      if let Some(x) = args.ambient_texture { builder.add_ambient_texture(x); }
+      if let Some(x) = args.ambient { builder.add_ambient(x); }
+      if let Some(x) = args.emissive_texture { builder.add_emissive_texture(x); }
+      if let Some(x) = args.emissive { builder.add_emissive(x); }
+      if let Some(x) = args.albedo_texture { builder.add_albedo_texture(x); }
+      if let Some(x) = args.albedo { builder.add_albedo(x); }
+      if let Some(x) = args.diffuse_texture { builder.add_diffuse_texture(x); }
+      if let Some(x) = args.diffuse { builder.add_diffuse(x); }
+      builder.finish()
+    }
+
+    pub fn unpack(&self) -> LambertSurfaceT {
+      let diffuse = self.diffuse().map(|x| {
+        x.unpack()
+      });
+      let diffuse_texture = self.diffuse_texture().map(|x| {
+        Box::new(x.unpack())
+      });
+      let albedo = self.albedo().map(|x| {
+        x.unpack()
+      });
+      let albedo_texture = self.albedo_texture().map(|x| {
+        Box::new(x.unpack())
+      });
+      let emissive = self.emissive().map(|x| {
+        x.unpack()
+      });
+      let emissive_texture = self.emissive_texture().map(|x| {
+        Box::new(x.unpack())
+      });
+      let ambient = self.ambient().map(|x| {
+        x.unpack()
+      });
+      let ambient_texture = self.ambient_texture().map(|x| {
+        Box::new(x.unpack())
+      });
+      let normal = self.normal().map(|x| {
+        x.unpack()
+      });
+      let normal_texture = self.normal_texture().map(|x| {
+        Box::new(x.unpack())
+      });
+      let metallic = self.metallic().map(|x| {
+        x.unpack()
+      });
+      let roughness = self.roughness().map(|x| {
+        x.unpack()
+      });
+      LambertSurfaceT {
+        diffuse,
+        diffuse_texture,
+        albedo,
+        albedo_texture,
+        emissive,
+        emissive_texture,
+        ambient,
+        ambient_texture,
+        normal,
+        normal_texture,
+        metallic,
+        roughness,
+      }
+    }
+    pub const VT_DIFFUSE: flatbuffers::VOffsetT = 4;
+    pub const VT_DIFFUSE_TEXTURE: flatbuffers::VOffsetT = 6;
+    pub const VT_ALBEDO: flatbuffers::VOffsetT = 8;
+    pub const VT_ALBEDO_TEXTURE: flatbuffers::VOffsetT = 10;
+    pub const VT_EMISSIVE: flatbuffers::VOffsetT = 12;
+    pub const VT_EMISSIVE_TEXTURE: flatbuffers::VOffsetT = 14;
+    pub const VT_AMBIENT: flatbuffers::VOffsetT = 16;
+    pub const VT_AMBIENT_TEXTURE: flatbuffers::VOffsetT = 18;
+    pub const VT_NORMAL: flatbuffers::VOffsetT = 20;
+    pub const VT_NORMAL_TEXTURE: flatbuffers::VOffsetT = 22;
+    pub const VT_METALLIC: flatbuffers::VOffsetT = 24;
+    pub const VT_ROUGHNESS: flatbuffers::VOffsetT = 26;
+
+  #[inline]
+  pub fn diffuse(&self) -> Option<&'a Vec3d> {
+    self._tab.get::<Vec3d>(LambertSurface::VT_DIFFUSE, None)
+  }
+  #[inline]
+  pub fn diffuse_texture(&self) -> Option<Texture<'a>> {
+    self._tab.get::<flatbuffers::ForwardsUOffset<Texture>>(LambertSurface::VT_DIFFUSE_TEXTURE, None)
+  }
+  #[inline]
+  pub fn albedo(&self) -> Option<&'a Vec3d> {
+    self._tab.get::<Vec3d>(LambertSurface::VT_ALBEDO, None)
+  }
+  #[inline]
+  pub fn albedo_texture(&self) -> Option<Texture<'a>> {
+    self._tab.get::<flatbuffers::ForwardsUOffset<Texture>>(LambertSurface::VT_ALBEDO_TEXTURE, None)
+  }
+  #[inline]
+  pub fn emissive(&self) -> Option<&'a Vec3d> {
+    self._tab.get::<Vec3d>(LambertSurface::VT_EMISSIVE, None)
+  }
+  #[inline]
+  pub fn emissive_texture(&self) -> Option<Texture<'a>> {
+    self._tab.get::<flatbuffers::ForwardsUOffset<Texture>>(LambertSurface::VT_EMISSIVE_TEXTURE, None)
+  }
+  #[inline]
+  pub fn ambient(&self) -> Option<&'a Vec3d> {
+    self._tab.get::<Vec3d>(LambertSurface::VT_AMBIENT, None)
+  }
+  #[inline]
+  pub fn ambient_texture(&self) -> Option<Texture<'a>> {
+    self._tab.get::<flatbuffers::ForwardsUOffset<Texture>>(LambertSurface::VT_AMBIENT_TEXTURE, None)
+  }
+  #[inline]
+  pub fn normal(&self) -> Option<&'a Vec3d> {
+    self._tab.get::<Vec3d>(LambertSurface::VT_NORMAL, None)
+  }
+  #[inline]
+  pub fn normal_texture(&self) -> Option<Texture<'a>> {
+    self._tab.get::<flatbuffers::ForwardsUOffset<Texture>>(LambertSurface::VT_NORMAL_TEXTURE, None)
+  }
+  #[inline]
+  pub fn metallic(&self) -> Option<&'a Vec3d> {
+    self._tab.get::<Vec3d>(LambertSurface::VT_METALLIC, None)
+  }
+  #[inline]
+  pub fn roughness(&self) -> Option<&'a Vec3d> {
+    self._tab.get::<Vec3d>(LambertSurface::VT_ROUGHNESS, None)
+  }
+}
+
+impl flatbuffers::Verifiable for LambertSurface<'_> {
+  #[inline]
+  fn run_verifier(
+    v: &mut flatbuffers::Verifier, pos: usize
+  ) -> Result<(), flatbuffers::InvalidFlatbuffer> {
+    use self::flatbuffers::Verifiable;
+    v.visit_table(pos)?
+     .visit_field::<Vec3d>(&"diffuse", Self::VT_DIFFUSE, false)?
+     .visit_field::<flatbuffers::ForwardsUOffset<Texture>>(&"diffuse_texture", Self::VT_DIFFUSE_TEXTURE, false)?
+     .visit_field::<Vec3d>(&"albedo", Self::VT_ALBEDO, false)?
+     .visit_field::<flatbuffers::ForwardsUOffset<Texture>>(&"albedo_texture", Self::VT_ALBEDO_TEXTURE, false)?
+     .visit_field::<Vec3d>(&"emissive", Self::VT_EMISSIVE, false)?
+     .visit_field::<flatbuffers::ForwardsUOffset<Texture>>(&"emissive_texture", Self::VT_EMISSIVE_TEXTURE, false)?
+     .visit_field::<Vec3d>(&"ambient", Self::VT_AMBIENT, false)?
+     .visit_field::<flatbuffers::ForwardsUOffset<Texture>>(&"ambient_texture", Self::VT_AMBIENT_TEXTURE, false)?
+     .visit_field::<Vec3d>(&"normal", Self::VT_NORMAL, false)?
+     .visit_field::<flatbuffers::ForwardsUOffset<Texture>>(&"normal_texture", Self::VT_NORMAL_TEXTURE, false)?
+     .visit_field::<Vec3d>(&"metallic", Self::VT_METALLIC, false)?
+     .visit_field::<Vec3d>(&"roughness", Self::VT_ROUGHNESS, false)?
+     .finish();
+    Ok(())
+  }
+}
+pub struct LambertSurfaceArgs<'a> {
+    pub diffuse: Option<&'a Vec3d>,
+    pub diffuse_texture: Option<flatbuffers::WIPOffset<Texture<'a>>>,
+    pub albedo: Option<&'a Vec3d>,
+    pub albedo_texture: Option<flatbuffers::WIPOffset<Texture<'a>>>,
+    pub emissive: Option<&'a Vec3d>,
+    pub emissive_texture: Option<flatbuffers::WIPOffset<Texture<'a>>>,
+    pub ambient: Option<&'a Vec3d>,
+    pub ambient_texture: Option<flatbuffers::WIPOffset<Texture<'a>>>,
+    pub normal: Option<&'a Vec3d>,
+    pub normal_texture: Option<flatbuffers::WIPOffset<Texture<'a>>>,
+    pub metallic: Option<&'a Vec3d>,
+    pub roughness: Option<&'a Vec3d>,
+}
+impl<'a> Default for LambertSurfaceArgs<'a> {
+    #[inline]
+    fn default() -> Self {
+        LambertSurfaceArgs {
+            diffuse: None,
+            diffuse_texture: None,
+            albedo: None,
+            albedo_texture: None,
+            emissive: None,
+            emissive_texture: None,
+            ambient: None,
+            ambient_texture: None,
+            normal: None,
+            normal_texture: None,
+            metallic: None,
+            roughness: None,
+        }
+    }
+}
+pub struct LambertSurfaceBuilder<'a: 'b, 'b> {
+  fbb_: &'b mut flatbuffers::FlatBufferBuilder<'a>,
+  start_: flatbuffers::WIPOffset<flatbuffers::TableUnfinishedWIPOffset>,
+}
+impl<'a: 'b, 'b> LambertSurfaceBuilder<'a, 'b> {
+  #[inline]
+  pub fn add_diffuse(&mut self, diffuse: &Vec3d) {
+    self.fbb_.push_slot_always::<&Vec3d>(LambertSurface::VT_DIFFUSE, diffuse);
+  }
+  #[inline]
+  pub fn add_diffuse_texture(&mut self, diffuse_texture: flatbuffers::WIPOffset<Texture<'b >>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<Texture>>(LambertSurface::VT_DIFFUSE_TEXTURE, diffuse_texture);
+  }
+  #[inline]
+  pub fn add_albedo(&mut self, albedo: &Vec3d) {
+    self.fbb_.push_slot_always::<&Vec3d>(LambertSurface::VT_ALBEDO, albedo);
+  }
+  #[inline]
+  pub fn add_albedo_texture(&mut self, albedo_texture: flatbuffers::WIPOffset<Texture<'b >>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<Texture>>(LambertSurface::VT_ALBEDO_TEXTURE, albedo_texture);
+  }
+  #[inline]
+  pub fn add_emissive(&mut self, emissive: &Vec3d) {
+    self.fbb_.push_slot_always::<&Vec3d>(LambertSurface::VT_EMISSIVE, emissive);
+  }
+  #[inline]
+  pub fn add_emissive_texture(&mut self, emissive_texture: flatbuffers::WIPOffset<Texture<'b >>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<Texture>>(LambertSurface::VT_EMISSIVE_TEXTURE, emissive_texture);
+  }
+  #[inline]
+  pub fn add_ambient(&mut self, ambient: &Vec3d) {
+    self.fbb_.push_slot_always::<&Vec3d>(LambertSurface::VT_AMBIENT, ambient);
+  }
+  #[inline]
+  pub fn add_ambient_texture(&mut self, ambient_texture: flatbuffers::WIPOffset<Texture<'b >>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<Texture>>(LambertSurface::VT_AMBIENT_TEXTURE, ambient_texture);
+  }
+  #[inline]
+  pub fn add_normal(&mut self, normal: &Vec3d) {
+    self.fbb_.push_slot_always::<&Vec3d>(LambertSurface::VT_NORMAL, normal);
+  }
+  #[inline]
+  pub fn add_normal_texture(&mut self, normal_texture: flatbuffers::WIPOffset<Texture<'b >>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<Texture>>(LambertSurface::VT_NORMAL_TEXTURE, normal_texture);
+  }
+  #[inline]
+  pub fn add_metallic(&mut self, metallic: &Vec3d) {
+    self.fbb_.push_slot_always::<&Vec3d>(LambertSurface::VT_METALLIC, metallic);
+  }
+  #[inline]
+  pub fn add_roughness(&mut self, roughness: &Vec3d) {
+    self.fbb_.push_slot_always::<&Vec3d>(LambertSurface::VT_ROUGHNESS, roughness);
+  }
+  #[inline]
+  pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a>) -> LambertSurfaceBuilder<'a, 'b> {
+    let start = _fbb.start_table();
+    LambertSurfaceBuilder {
+      fbb_: _fbb,
+      start_: start,
+    }
+  }
+  #[inline]
+  pub fn finish(self) -> flatbuffers::WIPOffset<LambertSurface<'a>> {
+    let o = self.fbb_.end_table(self.start_);
+    flatbuffers::WIPOffset::new(o.value())
+  }
+}
+
+impl std::fmt::Debug for LambertSurface<'_> {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    let mut ds = f.debug_struct("LambertSurface");
+      ds.field("diffuse", &self.diffuse());
+      ds.field("diffuse_texture", &self.diffuse_texture());
+      ds.field("albedo", &self.albedo());
+      ds.field("albedo_texture", &self.albedo_texture());
+      ds.field("emissive", &self.emissive());
+      ds.field("emissive_texture", &self.emissive_texture());
+      ds.field("ambient", &self.ambient());
+      ds.field("ambient_texture", &self.ambient_texture());
+      ds.field("normal", &self.normal());
+      ds.field("normal_texture", &self.normal_texture());
+      ds.field("metallic", &self.metallic());
+      ds.field("roughness", &self.roughness());
+      ds.finish()
+  }
+}
+#[non_exhaustive]
+#[derive(Debug, Clone, PartialEq)]
+pub struct LambertSurfaceT {
+  pub diffuse: Option<Vec3dT>,
+  pub diffuse_texture: Option<Box<TextureT>>,
+  pub albedo: Option<Vec3dT>,
+  pub albedo_texture: Option<Box<TextureT>>,
+  pub emissive: Option<Vec3dT>,
+  pub emissive_texture: Option<Box<TextureT>>,
+  pub ambient: Option<Vec3dT>,
+  pub ambient_texture: Option<Box<TextureT>>,
+  pub normal: Option<Vec3dT>,
+  pub normal_texture: Option<Box<TextureT>>,
+  pub metallic: Option<Vec3dT>,
+  pub roughness: Option<Vec3dT>,
+}
+impl Default for LambertSurfaceT {
+  fn default() -> Self {
+    Self {
+      diffuse: None,
+      diffuse_texture: None,
+      albedo: None,
+      albedo_texture: None,
+      emissive: None,
+      emissive_texture: None,
+      ambient: None,
+      ambient_texture: None,
+      normal: None,
+      normal_texture: None,
+      metallic: None,
+      roughness: None,
+    }
+  }
+}
+impl LambertSurfaceT {
+  pub fn pack<'b>(
+    &self,
+    _fbb: &mut flatbuffers::FlatBufferBuilder<'b>
+  ) -> flatbuffers::WIPOffset<LambertSurface<'b>> {
+    let diffuse_tmp = self.diffuse.as_ref().map(|x| x.pack());
+    let diffuse = diffuse_tmp.as_ref();
+    let diffuse_texture = self.diffuse_texture.as_ref().map(|x|{
+      x.pack(_fbb)
+    });
+    let albedo_tmp = self.albedo.as_ref().map(|x| x.pack());
+    let albedo = albedo_tmp.as_ref();
+    let albedo_texture = self.albedo_texture.as_ref().map(|x|{
+      x.pack(_fbb)
+    });
+    let emissive_tmp = self.emissive.as_ref().map(|x| x.pack());
+    let emissive = emissive_tmp.as_ref();
+    let emissive_texture = self.emissive_texture.as_ref().map(|x|{
+      x.pack(_fbb)
+    });
+    let ambient_tmp = self.ambient.as_ref().map(|x| x.pack());
+    let ambient = ambient_tmp.as_ref();
+    let ambient_texture = self.ambient_texture.as_ref().map(|x|{
+      x.pack(_fbb)
+    });
+    let normal_tmp = self.normal.as_ref().map(|x| x.pack());
+    let normal = normal_tmp.as_ref();
+    let normal_texture = self.normal_texture.as_ref().map(|x|{
+      x.pack(_fbb)
+    });
+    let metallic_tmp = self.metallic.as_ref().map(|x| x.pack());
+    let metallic = metallic_tmp.as_ref();
+    let roughness_tmp = self.roughness.as_ref().map(|x| x.pack());
+    let roughness = roughness_tmp.as_ref();
+    LambertSurface::create(_fbb, &LambertSurfaceArgs{
+      diffuse,
+      diffuse_texture,
+      albedo,
+      albedo_texture,
+      emissive,
+      emissive_texture,
+      ambient,
+      ambient_texture,
+      normal,
+      normal_texture,
+      metallic,
+      roughness,
+    })
+  }
+}
+pub enum PhongSurfaceOffset {}
+#[derive(Copy, Clone, PartialEq)]
+
+pub struct PhongSurface<'a> {
+  pub _tab: flatbuffers::Table<'a>,
+}
+
+impl<'a> flatbuffers::Follow<'a> for PhongSurface<'a> {
+    type Inner = PhongSurface<'a>;
+    #[inline]
+    fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
+        Self { _tab: flatbuffers::Table { buf, loc } }
+    }
+}
+
+impl<'a> PhongSurface<'a> {
+    #[inline]
+    pub fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
+        PhongSurface { _tab: table }
+    }
+    #[allow(unused_mut)]
+    pub fn create<'bldr: 'args, 'args: 'mut_bldr, 'mut_bldr>(
+        _fbb: &'mut_bldr mut flatbuffers::FlatBufferBuilder<'bldr>,
+        args: &'args PhongSurfaceArgs<'args>) -> flatbuffers::WIPOffset<PhongSurface<'bldr>> {
+      let mut builder = PhongSurfaceBuilder::new(_fbb);
+      if let Some(x) = args.base { builder.add_base(x); }
+      if let Some(x) = args.specular_texture { builder.add_specular_texture(x); }
+      if let Some(x) = args.specular { builder.add_specular(x); }
+      builder.finish()
+    }
+
+    pub fn unpack(&self) -> PhongSurfaceT {
+      let specular = self.specular().map(|x| {
+        x.unpack()
+      });
+      let specular_texture = self.specular_texture().map(|x| {
+        Box::new(x.unpack())
+      });
+      let base = self.base().map(|x| {
+        Box::new(x.unpack())
+      });
+      PhongSurfaceT {
+        specular,
+        specular_texture,
+        base,
+      }
+    }
+    pub const VT_SPECULAR: flatbuffers::VOffsetT = 4;
+    pub const VT_SPECULAR_TEXTURE: flatbuffers::VOffsetT = 6;
+    pub const VT_BASE: flatbuffers::VOffsetT = 8;
+
+  #[inline]
+  pub fn specular(&self) -> Option<&'a Vec3d> {
+    self._tab.get::<Vec3d>(PhongSurface::VT_SPECULAR, None)
+  }
+  #[inline]
+  pub fn specular_texture(&self) -> Option<Texture<'a>> {
+    self._tab.get::<flatbuffers::ForwardsUOffset<Texture>>(PhongSurface::VT_SPECULAR_TEXTURE, None)
+  }
+  #[inline]
+  pub fn base(&self) -> Option<LambertSurface<'a>> {
+    self._tab.get::<flatbuffers::ForwardsUOffset<LambertSurface>>(PhongSurface::VT_BASE, None)
+  }
+}
+
+impl flatbuffers::Verifiable for PhongSurface<'_> {
+  #[inline]
+  fn run_verifier(
+    v: &mut flatbuffers::Verifier, pos: usize
+  ) -> Result<(), flatbuffers::InvalidFlatbuffer> {
+    use self::flatbuffers::Verifiable;
+    v.visit_table(pos)?
+     .visit_field::<Vec3d>(&"specular", Self::VT_SPECULAR, false)?
+     .visit_field::<flatbuffers::ForwardsUOffset<Texture>>(&"specular_texture", Self::VT_SPECULAR_TEXTURE, false)?
+     .visit_field::<flatbuffers::ForwardsUOffset<LambertSurface>>(&"base", Self::VT_BASE, false)?
+     .finish();
+    Ok(())
+  }
+}
+pub struct PhongSurfaceArgs<'a> {
+    pub specular: Option<&'a Vec3d>,
+    pub specular_texture: Option<flatbuffers::WIPOffset<Texture<'a>>>,
+    pub base: Option<flatbuffers::WIPOffset<LambertSurface<'a>>>,
+}
+impl<'a> Default for PhongSurfaceArgs<'a> {
+    #[inline]
+    fn default() -> Self {
+        PhongSurfaceArgs {
+            specular: None,
+            specular_texture: None,
+            base: None,
+        }
+    }
+}
+pub struct PhongSurfaceBuilder<'a: 'b, 'b> {
+  fbb_: &'b mut flatbuffers::FlatBufferBuilder<'a>,
+  start_: flatbuffers::WIPOffset<flatbuffers::TableUnfinishedWIPOffset>,
+}
+impl<'a: 'b, 'b> PhongSurfaceBuilder<'a, 'b> {
+  #[inline]
+  pub fn add_specular(&mut self, specular: &Vec3d) {
+    self.fbb_.push_slot_always::<&Vec3d>(PhongSurface::VT_SPECULAR, specular);
+  }
+  #[inline]
+  pub fn add_specular_texture(&mut self, specular_texture: flatbuffers::WIPOffset<Texture<'b >>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<Texture>>(PhongSurface::VT_SPECULAR_TEXTURE, specular_texture);
+  }
+  #[inline]
+  pub fn add_base(&mut self, base: flatbuffers::WIPOffset<LambertSurface<'b >>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<LambertSurface>>(PhongSurface::VT_BASE, base);
+  }
+  #[inline]
+  pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a>) -> PhongSurfaceBuilder<'a, 'b> {
+    let start = _fbb.start_table();
+    PhongSurfaceBuilder {
+      fbb_: _fbb,
+      start_: start,
+    }
+  }
+  #[inline]
+  pub fn finish(self) -> flatbuffers::WIPOffset<PhongSurface<'a>> {
+    let o = self.fbb_.end_table(self.start_);
+    flatbuffers::WIPOffset::new(o.value())
+  }
+}
+
+impl std::fmt::Debug for PhongSurface<'_> {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    let mut ds = f.debug_struct("PhongSurface");
+      ds.field("specular", &self.specular());
+      ds.field("specular_texture", &self.specular_texture());
+      ds.field("base", &self.base());
+      ds.finish()
+  }
+}
+#[non_exhaustive]
+#[derive(Debug, Clone, PartialEq)]
+pub struct PhongSurfaceT {
+  pub specular: Option<Vec3dT>,
+  pub specular_texture: Option<Box<TextureT>>,
+  pub base: Option<Box<LambertSurfaceT>>,
+}
+impl Default for PhongSurfaceT {
+  fn default() -> Self {
+    Self {
+      specular: None,
+      specular_texture: None,
+      base: None,
+    }
+  }
+}
+impl PhongSurfaceT {
+  pub fn pack<'b>(
+    &self,
+    _fbb: &mut flatbuffers::FlatBufferBuilder<'b>
+  ) -> flatbuffers::WIPOffset<PhongSurface<'b>> {
+    let specular_tmp = self.specular.as_ref().map(|x| x.pack());
+    let specular = specular_tmp.as_ref();
+    let specular_texture = self.specular_texture.as_ref().map(|x|{
+      x.pack(_fbb)
+    });
+    let base = self.base.as_ref().map(|x|{
+      x.pack(_fbb)
+    });
+    PhongSurface::create(_fbb, &PhongSurfaceArgs{
+      specular,
+      specular_texture,
+      base,
+    })
+  }
+}
+pub enum MaterialOffset {}
+#[derive(Copy, Clone, PartialEq)]
+
+pub struct Material<'a> {
+  pub _tab: flatbuffers::Table<'a>,
+}
+
+impl<'a> flatbuffers::Follow<'a> for Material<'a> {
+    type Inner = Material<'a>;
+    #[inline]
+    fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
+        Self { _tab: flatbuffers::Table { buf, loc } }
+    }
+}
+
+impl<'a> Material<'a> {
+    #[inline]
+    pub fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
+        Material { _tab: table }
+    }
+    #[allow(unused_mut)]
+    pub fn create<'bldr: 'args, 'args: 'mut_bldr, 'mut_bldr>(
+        _fbb: &'mut_bldr mut flatbuffers::FlatBufferBuilder<'bldr>,
+        args: &'args MaterialArgs<'args>) -> flatbuffers::WIPOffset<Material<'bldr>> {
+      let mut builder = MaterialBuilder::new(_fbb);
+      builder.add_id(args.id);
+      if let Some(x) = args.surface { builder.add_surface(x); }
+      if let Some(x) = args.name { builder.add_name(x); }
+      builder.add_surface_type(args.surface_type);
+      builder.finish()
+    }
+
+    pub fn unpack(&self) -> MaterialT {
+      let id = self.id();
+      let name = self.name().map(|x| {
+        x.to_string()
+      });
+      let surface = match self.surface_type() {
+        Surface::NONE => SurfaceT::NONE,
+        Surface::PhongSurface => SurfaceT::PhongSurface(Box::new(
+          self.surface_as_phong_surface()
+              .expect("Invalid union table, expected `Surface::PhongSurface`.")
+              .unpack()
+        )),
+        Surface::LambertSurface => SurfaceT::LambertSurface(Box::new(
+          self.surface_as_lambert_surface()
+              .expect("Invalid union table, expected `Surface::LambertSurface`.")
+              .unpack()
+        )),
+        _ => SurfaceT::NONE,
+      };
+      MaterialT {
+        id,
+        name,
+        surface,
+      }
+    }
+    pub const VT_ID: flatbuffers::VOffsetT = 4;
+    pub const VT_NAME: flatbuffers::VOffsetT = 6;
+    pub const VT_SURFACE_TYPE: flatbuffers::VOffsetT = 8;
+    pub const VT_SURFACE: flatbuffers::VOffsetT = 10;
+
+  #[inline]
+  pub fn id(&self) -> u64 {
+    self._tab.get::<u64>(Material::VT_ID, Some(0)).unwrap()
+  }
+  #[inline]
+  pub fn name(&self) -> Option<&'a str> {
+    self._tab.get::<flatbuffers::ForwardsUOffset<&str>>(Material::VT_NAME, None)
+  }
+  #[inline]
+  pub fn surface_type(&self) -> Surface {
+    self._tab.get::<Surface>(Material::VT_SURFACE_TYPE, Some(Surface::NONE)).unwrap()
+  }
+  #[inline]
+  pub fn surface(&self) -> Option<flatbuffers::Table<'a>> {
+    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Table<'a>>>(Material::VT_SURFACE, None)
+  }
+  #[inline]
+  #[allow(non_snake_case)]
+  pub fn surface_as_phong_surface(&self) -> Option<PhongSurface<'a>> {
+    if self.surface_type() == Surface::PhongSurface {
+      self.surface().map(PhongSurface::init_from_table)
+    } else {
+      None
+    }
+  }
+
+  #[inline]
+  #[allow(non_snake_case)]
+  pub fn surface_as_lambert_surface(&self) -> Option<LambertSurface<'a>> {
+    if self.surface_type() == Surface::LambertSurface {
+      self.surface().map(LambertSurface::init_from_table)
+    } else {
+      None
+    }
+  }
+
+}
+
+impl flatbuffers::Verifiable for Material<'_> {
+  #[inline]
+  fn run_verifier(
+    v: &mut flatbuffers::Verifier, pos: usize
+  ) -> Result<(), flatbuffers::InvalidFlatbuffer> {
+    use self::flatbuffers::Verifiable;
+    v.visit_table(pos)?
+     .visit_field::<u64>(&"id", Self::VT_ID, false)?
+     .visit_field::<flatbuffers::ForwardsUOffset<&str>>(&"name", Self::VT_NAME, false)?
+     .visit_union::<Surface, _>(&"surface_type", Self::VT_SURFACE_TYPE, &"surface", Self::VT_SURFACE, false, |key, v, pos| {
+        match key {
+          Surface::PhongSurface => v.verify_union_variant::<flatbuffers::ForwardsUOffset<PhongSurface>>("Surface::PhongSurface", pos),
+          Surface::LambertSurface => v.verify_union_variant::<flatbuffers::ForwardsUOffset<LambertSurface>>("Surface::LambertSurface", pos),
+          _ => Ok(()),
+        }
+     })?
+     .finish();
+    Ok(())
+  }
+}
+pub struct MaterialArgs<'a> {
+    pub id: u64,
+    pub name: Option<flatbuffers::WIPOffset<&'a str>>,
+    pub surface_type: Surface,
+    pub surface: Option<flatbuffers::WIPOffset<flatbuffers::UnionWIPOffset>>,
+}
+impl<'a> Default for MaterialArgs<'a> {
+    #[inline]
+    fn default() -> Self {
+        MaterialArgs {
+            id: 0,
+            name: None,
+            surface_type: Surface::NONE,
+            surface: None,
+        }
+    }
+}
+pub struct MaterialBuilder<'a: 'b, 'b> {
+  fbb_: &'b mut flatbuffers::FlatBufferBuilder<'a>,
+  start_: flatbuffers::WIPOffset<flatbuffers::TableUnfinishedWIPOffset>,
+}
+impl<'a: 'b, 'b> MaterialBuilder<'a, 'b> {
+  #[inline]
+  pub fn add_id(&mut self, id: u64) {
+    self.fbb_.push_slot::<u64>(Material::VT_ID, id, 0);
+  }
+  #[inline]
+  pub fn add_name(&mut self, name: flatbuffers::WIPOffset<&'b  str>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(Material::VT_NAME, name);
+  }
+  #[inline]
+  pub fn add_surface_type(&mut self, surface_type: Surface) {
+    self.fbb_.push_slot::<Surface>(Material::VT_SURFACE_TYPE, surface_type, Surface::NONE);
+  }
+  #[inline]
+  pub fn add_surface(&mut self, surface: flatbuffers::WIPOffset<flatbuffers::UnionWIPOffset>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(Material::VT_SURFACE, surface);
+  }
+  #[inline]
+  pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a>) -> MaterialBuilder<'a, 'b> {
+    let start = _fbb.start_table();
+    MaterialBuilder {
+      fbb_: _fbb,
+      start_: start,
+    }
+  }
+  #[inline]
+  pub fn finish(self) -> flatbuffers::WIPOffset<Material<'a>> {
+    let o = self.fbb_.end_table(self.start_);
+    flatbuffers::WIPOffset::new(o.value())
+  }
+}
+
+impl std::fmt::Debug for Material<'_> {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    let mut ds = f.debug_struct("Material");
+      ds.field("id", &self.id());
+      ds.field("name", &self.name());
+      ds.field("surface_type", &self.surface_type());
+      match self.surface_type() {
+        Surface::PhongSurface => {
+          if let Some(x) = self.surface_as_phong_surface() {
+            ds.field("surface", &x)
+          } else {
+            ds.field("surface", &"InvalidFlatbuffer: Union discriminant does not match value.")
+          }
+        },
+        Surface::LambertSurface => {
+          if let Some(x) = self.surface_as_lambert_surface() {
+            ds.field("surface", &x)
+          } else {
+            ds.field("surface", &"InvalidFlatbuffer: Union discriminant does not match value.")
+          }
+        },
+        _ => {
+          let x: Option<()> = None;
+          ds.field("surface", &x)
+        },
+      };
+      ds.finish()
+  }
+}
+#[non_exhaustive]
+#[derive(Debug, Clone, PartialEq)]
+pub struct MaterialT {
+  pub id: u64,
+  pub name: Option<String>,
+  pub surface: SurfaceT,
+}
+impl Default for MaterialT {
+  fn default() -> Self {
+    Self {
+      id: 0,
+      name: None,
+      surface: SurfaceT::NONE,
+    }
+  }
+}
+impl MaterialT {
+  pub fn pack<'b>(
+    &self,
+    _fbb: &mut flatbuffers::FlatBufferBuilder<'b>
+  ) -> flatbuffers::WIPOffset<Material<'b>> {
+    let id = self.id;
+    let name = self.name.as_ref().map(|x|{
+      _fbb.create_string(x)
+    });
+    let surface_type = self.surface.surface_type();
+    let surface = self.surface.pack(_fbb);
+    Material::create(_fbb, &MaterialArgs{
+      id,
+      name,
+      surface_type,
+      surface,
+    })
+  }
+}
+pub enum CameraOffset {}
+#[derive(Copy, Clone, PartialEq)]
+
+pub struct Camera<'a> {
+  pub _tab: flatbuffers::Table<'a>,
+}
+
+impl<'a> flatbuffers::Follow<'a> for Camera<'a> {
+    type Inner = Camera<'a>;
+    #[inline]
+    fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
+        Self { _tab: flatbuffers::Table { buf, loc } }
+    }
+}
+
+impl<'a> Camera<'a> {
+    #[inline]
+    pub fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
+        Camera { _tab: table }
+    }
+    #[allow(unused_mut)]
+    pub fn create<'bldr: 'args, 'args: 'mut_bldr, 'mut_bldr>(
+        _fbb: &'mut_bldr mut flatbuffers::FlatBufferBuilder<'bldr>,
+        args: &'args CameraArgs<'args>) -> flatbuffers::WIPOffset<Camera<'bldr>> {
+      let mut builder = CameraBuilder::new(_fbb);
+      if let Some(x) = args.upAxis { builder.add_upAxis(x); }
+      if let Some(x) = args.center { builder.add_center(x); }
+      if let Some(x) = args.eye { builder.add_eye(x); }
+      if let Some(x) = args.name { builder.add_name(x); }
+      builder.finish()
+    }
+
+    pub fn unpack(&self) -> CameraT {
+      let name = {
+        let x = self.name();
+        x.to_string()
+      };
+      let eye = {
+        let x = self.eye();
+        x.unpack()
+      };
+      let center = {
+        let x = self.center();
+        x.unpack()
+      };
+      let upAxis = {
+        let x = self.upAxis();
+        x.unpack()
+      };
+      CameraT {
+        name,
+        eye,
+        center,
+        upAxis,
+      }
+    }
+    pub const VT_NAME: flatbuffers::VOffsetT = 4;
+    pub const VT_EYE: flatbuffers::VOffsetT = 6;
+    pub const VT_CENTER: flatbuffers::VOffsetT = 8;
+    pub const VT_UPAXIS: flatbuffers::VOffsetT = 10;
+
+  #[inline]
+  pub fn name(&self) -> &'a str {
+    self._tab.get::<flatbuffers::ForwardsUOffset<&str>>(Camera::VT_NAME, None).unwrap()
+  }
+  #[inline]
+  pub fn eye(&self) -> &'a Vec3d {
+    self._tab.get::<Vec3d>(Camera::VT_EYE, None).unwrap()
+  }
+  #[inline]
+  pub fn center(&self) -> &'a Vec3d {
+    self._tab.get::<Vec3d>(Camera::VT_CENTER, None).unwrap()
+  }
+  #[inline]
+  pub fn upAxis(&self) -> &'a Vec3d {
+    self._tab.get::<Vec3d>(Camera::VT_UPAXIS, None).unwrap()
+  }
+}
+
+impl flatbuffers::Verifiable for Camera<'_> {
+  #[inline]
+  fn run_verifier(
+    v: &mut flatbuffers::Verifier, pos: usize
+  ) -> Result<(), flatbuffers::InvalidFlatbuffer> {
+    use self::flatbuffers::Verifiable;
+    v.visit_table(pos)?
+     .visit_field::<flatbuffers::ForwardsUOffset<&str>>(&"name", Self::VT_NAME, true)?
+     .visit_field::<Vec3d>(&"eye", Self::VT_EYE, true)?
+     .visit_field::<Vec3d>(&"center", Self::VT_CENTER, true)?
+     .visit_field::<Vec3d>(&"upAxis", Self::VT_UPAXIS, true)?
+     .finish();
+    Ok(())
+  }
+}
+pub struct CameraArgs<'a> {
+    pub name: Option<flatbuffers::WIPOffset<&'a str>>,
+    pub eye: Option<&'a Vec3d>,
+    pub center: Option<&'a Vec3d>,
+    pub upAxis: Option<&'a Vec3d>,
+}
+impl<'a> Default for CameraArgs<'a> {
+    #[inline]
+    fn default() -> Self {
+        CameraArgs {
+            name: None, // required field
+            eye: None, // required field
+            center: None, // required field
+            upAxis: None, // required field
+        }
+    }
+}
+pub struct CameraBuilder<'a: 'b, 'b> {
+  fbb_: &'b mut flatbuffers::FlatBufferBuilder<'a>,
+  start_: flatbuffers::WIPOffset<flatbuffers::TableUnfinishedWIPOffset>,
+}
+impl<'a: 'b, 'b> CameraBuilder<'a, 'b> {
+  #[inline]
+  pub fn add_name(&mut self, name: flatbuffers::WIPOffset<&'b  str>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(Camera::VT_NAME, name);
+  }
+  #[inline]
+  pub fn add_eye(&mut self, eye: &Vec3d) {
+    self.fbb_.push_slot_always::<&Vec3d>(Camera::VT_EYE, eye);
+  }
+  #[inline]
+  pub fn add_center(&mut self, center: &Vec3d) {
+    self.fbb_.push_slot_always::<&Vec3d>(Camera::VT_CENTER, center);
+  }
+  #[inline]
+  pub fn add_upAxis(&mut self, upAxis: &Vec3d) {
+    self.fbb_.push_slot_always::<&Vec3d>(Camera::VT_UPAXIS, upAxis);
+  }
+  #[inline]
+  pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a>) -> CameraBuilder<'a, 'b> {
+    let start = _fbb.start_table();
+    CameraBuilder {
+      fbb_: _fbb,
+      start_: start,
+    }
+  }
+  #[inline]
+  pub fn finish(self) -> flatbuffers::WIPOffset<Camera<'a>> {
+    let o = self.fbb_.end_table(self.start_);
+    self.fbb_.required(o, Camera::VT_NAME,"name");
+    self.fbb_.required(o, Camera::VT_EYE,"eye");
+    self.fbb_.required(o, Camera::VT_CENTER,"center");
+    self.fbb_.required(o, Camera::VT_UPAXIS,"upAxis");
+    flatbuffers::WIPOffset::new(o.value())
+  }
+}
+
+impl std::fmt::Debug for Camera<'_> {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    let mut ds = f.debug_struct("Camera");
+      ds.field("name", &self.name());
+      ds.field("eye", &self.eye());
+      ds.field("center", &self.center());
+      ds.field("upAxis", &self.upAxis());
+      ds.finish()
+  }
+}
+#[non_exhaustive]
+#[derive(Debug, Clone, PartialEq)]
+pub struct CameraT {
+  pub name: String,
+  pub eye: Vec3dT,
+  pub center: Vec3dT,
+  pub upAxis: Vec3dT,
+}
+impl Default for CameraT {
+  fn default() -> Self {
+    Self {
+      name: "".to_string(),
+      eye: Default::default(),
+      center: Default::default(),
+      upAxis: Default::default(),
+    }
+  }
+}
+impl CameraT {
+  pub fn pack<'b>(
+    &self,
+    _fbb: &mut flatbuffers::FlatBufferBuilder<'b>
+  ) -> flatbuffers::WIPOffset<Camera<'b>> {
+    let name = Some({
+      let x = &self.name;
+      _fbb.create_string(x)
+    });
+    let eye_tmp = Some(self.eye.pack());
+    let eye = eye_tmp.as_ref();
+    let center_tmp = Some(self.center.pack());
+    let center = center_tmp.as_ref();
+    let upAxis_tmp = Some(self.upAxis.pack());
+    let upAxis = upAxis_tmp.as_ref();
+    Camera::create(_fbb, &CameraArgs{
+      name,
+      eye,
+      center,
+      upAxis,
+    })
+  }
+}
+pub enum LightOffset {}
+#[derive(Copy, Clone, PartialEq)]
+
+pub struct Light<'a> {
+  pub _tab: flatbuffers::Table<'a>,
+}
+
+impl<'a> flatbuffers::Follow<'a> for Light<'a> {
+    type Inner = Light<'a>;
+    #[inline]
+    fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
+        Self { _tab: flatbuffers::Table { buf, loc } }
+    }
+}
+
+impl<'a> Light<'a> {
+    #[inline]
+    pub fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
+        Light { _tab: table }
+    }
+    #[allow(unused_mut)]
+    pub fn create<'bldr: 'args, 'args: 'mut_bldr, 'mut_bldr>(
+        _fbb: &'mut_bldr mut flatbuffers::FlatBufferBuilder<'bldr>,
+        args: &'args LightArgs<'args>) -> flatbuffers::WIPOffset<Light<'bldr>> {
+      let mut builder = LightBuilder::new(_fbb);
+      builder.add_outerAngle(args.outerAngle);
+      builder.add_innerAngle(args.innerAngle);
+      builder.add_intensity(args.intensity);
+      if let Some(x) = args.color { builder.add_color(x); }
+      if let Some(x) = args.global_transform { builder.add_global_transform(x); }
+      if let Some(x) = args.name { builder.add_name(x); }
+      builder.add_type_(args.type_);
+      builder.finish()
+    }
+
+    pub fn unpack(&self) -> LightT {
+      let name = {
+        let x = self.name();
+        x.to_string()
+      };
+      let type_ = self.type_();
+      let global_transform = {
+        let x = self.global_transform();
+        x.unpack()
+      };
+      let color = self.color().map(|x| {
+        x.unpack()
+      });
+      let intensity = self.intensity();
+      let innerAngle = self.innerAngle();
+      let outerAngle = self.outerAngle();
+      LightT {
+        name,
+        type_,
+        global_transform,
+        color,
+        intensity,
+        innerAngle,
+        outerAngle,
+      }
+    }
+    pub const VT_NAME: flatbuffers::VOffsetT = 4;
+    pub const VT_TYPE_: flatbuffers::VOffsetT = 6;
+    pub const VT_GLOBAL_TRANSFORM: flatbuffers::VOffsetT = 8;
+    pub const VT_COLOR: flatbuffers::VOffsetT = 10;
+    pub const VT_INTENSITY: flatbuffers::VOffsetT = 12;
+    pub const VT_INNERANGLE: flatbuffers::VOffsetT = 14;
+    pub const VT_OUTERANGLE: flatbuffers::VOffsetT = 16;
+
+  #[inline]
+  pub fn name(&self) -> &'a str {
+    self._tab.get::<flatbuffers::ForwardsUOffset<&str>>(Light::VT_NAME, None).unwrap()
+  }
+  #[inline]
+  pub fn type_(&self) -> LightType {
+    self._tab.get::<LightType>(Light::VT_TYPE_, Some(LightType::eNone)).unwrap()
+  }
+  #[inline]
+  pub fn global_transform(&self) -> &'a Matrix44d {
+    self._tab.get::<Matrix44d>(Light::VT_GLOBAL_TRANSFORM, None).unwrap()
+  }
+  #[inline]
+  pub fn color(&self) -> Option<&'a Vec3d> {
+    self._tab.get::<Vec3d>(Light::VT_COLOR, None)
+  }
+  #[inline]
+  pub fn intensity(&self) -> f64 {
+    self._tab.get::<f64>(Light::VT_INTENSITY, Some(0.0)).unwrap()
+  }
+  #[inline]
+  pub fn innerAngle(&self) -> f64 {
+    self._tab.get::<f64>(Light::VT_INNERANGLE, Some(0.0)).unwrap()
+  }
+  #[inline]
+  pub fn outerAngle(&self) -> f64 {
+    self._tab.get::<f64>(Light::VT_OUTERANGLE, Some(0.0)).unwrap()
+  }
+}
+
+impl flatbuffers::Verifiable for Light<'_> {
+  #[inline]
+  fn run_verifier(
+    v: &mut flatbuffers::Verifier, pos: usize
+  ) -> Result<(), flatbuffers::InvalidFlatbuffer> {
+    use self::flatbuffers::Verifiable;
+    v.visit_table(pos)?
+     .visit_field::<flatbuffers::ForwardsUOffset<&str>>(&"name", Self::VT_NAME, true)?
+     .visit_field::<LightType>(&"type_", Self::VT_TYPE_, false)?
+     .visit_field::<Matrix44d>(&"global_transform", Self::VT_GLOBAL_TRANSFORM, true)?
+     .visit_field::<Vec3d>(&"color", Self::VT_COLOR, false)?
+     .visit_field::<f64>(&"intensity", Self::VT_INTENSITY, false)?
+     .visit_field::<f64>(&"innerAngle", Self::VT_INNERANGLE, false)?
+     .visit_field::<f64>(&"outerAngle", Self::VT_OUTERANGLE, false)?
+     .finish();
+    Ok(())
+  }
+}
+pub struct LightArgs<'a> {
+    pub name: Option<flatbuffers::WIPOffset<&'a str>>,
+    pub type_: LightType,
+    pub global_transform: Option<&'a Matrix44d>,
+    pub color: Option<&'a Vec3d>,
+    pub intensity: f64,
+    pub innerAngle: f64,
+    pub outerAngle: f64,
+}
+impl<'a> Default for LightArgs<'a> {
+    #[inline]
+    fn default() -> Self {
+        LightArgs {
+            name: None, // required field
+            type_: LightType::eNone,
+            global_transform: None, // required field
+            color: None,
+            intensity: 0.0,
+            innerAngle: 0.0,
+            outerAngle: 0.0,
+        }
+    }
+}
+pub struct LightBuilder<'a: 'b, 'b> {
+  fbb_: &'b mut flatbuffers::FlatBufferBuilder<'a>,
+  start_: flatbuffers::WIPOffset<flatbuffers::TableUnfinishedWIPOffset>,
+}
+impl<'a: 'b, 'b> LightBuilder<'a, 'b> {
+  #[inline]
+  pub fn add_name(&mut self, name: flatbuffers::WIPOffset<&'b  str>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(Light::VT_NAME, name);
+  }
+  #[inline]
+  pub fn add_type_(&mut self, type_: LightType) {
+    self.fbb_.push_slot::<LightType>(Light::VT_TYPE_, type_, LightType::eNone);
+  }
+  #[inline]
+  pub fn add_global_transform(&mut self, global_transform: &Matrix44d) {
+    self.fbb_.push_slot_always::<&Matrix44d>(Light::VT_GLOBAL_TRANSFORM, global_transform);
+  }
+  #[inline]
+  pub fn add_color(&mut self, color: &Vec3d) {
+    self.fbb_.push_slot_always::<&Vec3d>(Light::VT_COLOR, color);
+  }
+  #[inline]
+  pub fn add_intensity(&mut self, intensity: f64) {
+    self.fbb_.push_slot::<f64>(Light::VT_INTENSITY, intensity, 0.0);
+  }
+  #[inline]
+  pub fn add_innerAngle(&mut self, innerAngle: f64) {
+    self.fbb_.push_slot::<f64>(Light::VT_INNERANGLE, innerAngle, 0.0);
+  }
+  #[inline]
+  pub fn add_outerAngle(&mut self, outerAngle: f64) {
+    self.fbb_.push_slot::<f64>(Light::VT_OUTERANGLE, outerAngle, 0.0);
+  }
+  #[inline]
+  pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a>) -> LightBuilder<'a, 'b> {
+    let start = _fbb.start_table();
+    LightBuilder {
+      fbb_: _fbb,
+      start_: start,
+    }
+  }
+  #[inline]
+  pub fn finish(self) -> flatbuffers::WIPOffset<Light<'a>> {
+    let o = self.fbb_.end_table(self.start_);
+    self.fbb_.required(o, Light::VT_NAME,"name");
+    self.fbb_.required(o, Light::VT_GLOBAL_TRANSFORM,"global_transform");
+    flatbuffers::WIPOffset::new(o.value())
+  }
+}
+
+impl std::fmt::Debug for Light<'_> {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    let mut ds = f.debug_struct("Light");
+      ds.field("name", &self.name());
+      ds.field("type_", &self.type_());
+      ds.field("global_transform", &self.global_transform());
+      ds.field("color", &self.color());
+      ds.field("intensity", &self.intensity());
+      ds.field("innerAngle", &self.innerAngle());
+      ds.field("outerAngle", &self.outerAngle());
+      ds.finish()
+  }
+}
+#[non_exhaustive]
+#[derive(Debug, Clone, PartialEq)]
+pub struct LightT {
+  pub name: String,
+  pub type_: LightType,
+  pub global_transform: Matrix44dT,
+  pub color: Option<Vec3dT>,
+  pub intensity: f64,
+  pub innerAngle: f64,
+  pub outerAngle: f64,
+}
+impl Default for LightT {
+  fn default() -> Self {
+    Self {
+      name: "".to_string(),
+      type_: LightType::eNone,
+      global_transform: Default::default(),
+      color: None,
+      intensity: 0.0,
+      innerAngle: 0.0,
+      outerAngle: 0.0,
+    }
+  }
+}
+impl LightT {
+  pub fn pack<'b>(
+    &self,
+    _fbb: &mut flatbuffers::FlatBufferBuilder<'b>
+  ) -> flatbuffers::WIPOffset<Light<'b>> {
+    let name = Some({
+      let x = &self.name;
+      _fbb.create_string(x)
+    });
+    let type_ = self.type_;
+    let global_transform_tmp = Some(self.global_transform.pack());
+    let global_transform = global_transform_tmp.as_ref();
+    let color_tmp = self.color.as_ref().map(|x| x.pack());
+    let color = color_tmp.as_ref();
+    let intensity = self.intensity;
+    let innerAngle = self.innerAngle;
+    let outerAngle = self.outerAngle;
+    Light::create(_fbb, &LightArgs{
+      name,
+      type_,
+      global_transform,
+      color,
+      intensity,
+      innerAngle,
+      outerAngle,
+    })
+  }
+}
 pub enum SceneOffset {}
 #[derive(Copy, Clone, PartialEq)]
 

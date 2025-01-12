@@ -1,33 +1,30 @@
-pub mod common;
-pub mod bvh_accel;
-pub mod mesh_primitive;
 pub mod scene;
-pub mod camera;
-pub mod texture;
 
-impl common::Matrix44dT {
-    pub fn unit_mat()->common::Matrix44dT{
-        common::Matrix44dT{
-            idx: [
-                common::Vec4dT{
+use crate::scene::sf::*;
+
+impl Matrix44dT {
+    pub fn unit_mat()->Matrix44dT{
+        Matrix44dT{
+            rows: [
+                Vec4dT{
                     x: 1.0,
                     y: 0.0,
                     z: 0.0,
                     w: 0.0
                 },
-                common::Vec4dT{
+                Vec4dT{
                     x: 0.0,
                     y: 1.0,
                     z: 0.0,
                     w: 0.0
                 },
-                common::Vec4dT{
+                Vec4dT{
                     x: 0.0,
                     y: 0.0,
                     z: 1.0,
                     w: 0.0
                 },
-                common::Vec4dT{
+                Vec4dT{
                     x: 0.0,
                     y: 0.0,
                     z: 0.0,

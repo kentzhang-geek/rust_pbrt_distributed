@@ -1,9 +1,14 @@
-use rpd;
-use rpd::core::math::*;
 use nalgebra;
 
+pub mod core;
+pub mod accelerators;
+pub mod shapes;
+pub mod interface;
+
+use core::math::Vector3d;
+
 fn main() {
-    let mut v = rpd::scene_file::common_generated::Vec3d::default();
-    v.set_x(1.0f64);
+    let mut v = Vector3d::new(1.0f64, 2.0f64, 3.0f64);
+    v.x = 1.0f64;
     println!("Hello, world!");
 }
